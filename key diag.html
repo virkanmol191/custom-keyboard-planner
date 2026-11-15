@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>75% mechanical keyboard switch planner and tester</title>
+    <title>mechanical keyboard switch planner and tester</title>
     <!-- load tailwind css -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- load inter and jetbrains mono fonts -->
@@ -24,6 +24,9 @@
         }
     </script>
     <style>
+        body, input, textarea, select, button {
+            text-transform: lowercase;
+        }
         /* smooth tactile keycap depression and glow transitions */
         .keycap {
             transition: transform 60ms cubic-bezier(0.2, 0, 0, 1),
@@ -37,9 +40,20 @@
         .keycap.is-pressed {
             transform: translateY(3px) scale(0.97);
         }
+        .keycap.selected-for-edit {
+            outline: 2px solid #38bdf8;
+            outline-offset: 2px;
+            z-index: 20;
+        }
+        .keycap.swap-source {
+            outline: 2px dashed #f43f5e;
+            outline-offset: 2px;
+            z-index: 20;
+        }
         /* custom subtle scrollbar for compact screens */
         .kbd-scroll::-webkit-scrollbar {
             height: 6px;
+            width: 6px;
         }
         .kbd-scroll::-webkit-scrollbar-track {
             background: transparent;
@@ -48,38 +62,83 @@
             background: rgba(113, 113, 122, 0.35);
             border-radius: 9999px;
         }
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body tabindex="0" class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between antialiased selection:bg-purple-500 selection:text-white lowercase outline-none">
 
     <!-- top header -->
     <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-5 pb-2 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
             <div class="flex items-center gap-2.5">
                 <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                <h1 class="text-sm font-semibold tracking-wider text-zinc-400">75% switch planner and tester</h1>
+                <div>
+                    <h1 id="workspaceTitleEl" class="text-sm font-semibold tracking-wider text-zinc-200">75% switch planner and tester</h1>
+                    <p id="workspaceSubtitleEl" class="text-[11px] text-zinc-500 font-mono">custom mechanical switch replacement studio</p>
+                </div>
             </div>
             <button id="focusBadge" type="button"
                 class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-colors cursor-pointer">
                 ready: listening for keys
             </button>
         </div>
+
         <div class="flex flex-wrap items-center gap-2">
+            <!-- quick layout preset selector -->
+            <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-xl px-2.5 py-1.5">
+                <span class="text-[11px] font-mono text-zinc-500">layout:</span>
+                <select id="quickLayoutSelect" aria-label="select keyboard layout"
+                    class="bg-transparent text-xs font-mono font-semibold text-zinc-200 focus:outline-none cursor-pointer">
+                    <option value="60" class="bg-zinc-900 text-zinc-200">60% (61 keys)</option>
+                    <option value="65" class="bg-zinc-900 text-zinc-200">65% (68 keys)</option>
+                    <option value="75_custom" selected class="bg-zinc-900 text-zinc-200">75% custom (82 keys)</option>
+                    <option value="75_std" class="bg-zinc-900 text-zinc-200">75% standard (84 keys)</option>
+                    <option value="tkl" class="bg-zinc-900 text-zinc-200">tkl 80% (87 keys)</option>
+                    <option value="100" class="bg-zinc-900 text-zinc-200">100% full (104 keys)</option>
+                </select>
+            </div>
+
+            <!-- on-board per-key layout editor toggle -->
+            <button id="editLayoutBtn" type="button"
+                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none">
+                edit layout: off
+            </button>
+
+            <!-- settings modal button -->
+            <button id="openSettingsBtn" type="button"
+                class="px-3.5 py-2 rounded-xl bg-purple-600/20 border border-purple-500/40 text-xs font-mono font-semibold text-purple-300 hover:bg-purple-600/30 hover:border-purple-400 active:scale-95 transition-all focus:outline-none">
+                settings & presets
+            </button>
+
             <!-- paste switch list button -->
             <button id="pasteListBtn" type="button"
                 class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 active:scale-95 transition-all focus:outline-none">
-                paste switch list
+                paste list
             </button>
+
             <!-- copy switch list button -->
             <button id="copyListBtn" type="button"
                 class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 active:scale-95 transition-all focus:outline-none">
-                copy switch list
+                copy list
             </button>
+
             <!-- fullscreen keyboard lock toggle -->
             <button id="lockBtn" type="button"
                 class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 active:scale-95 transition-all focus:outline-none">
                 lock keyboard
             </button>
+
             <!-- theme toggle button -->
             <button id="themeToggle" type="button" aria-label="toggle color theme"
                 class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors focus:outline-none">
@@ -90,10 +149,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                 </svg>
             </button>
-            <!-- reset button -->
+
+            <!-- clear assignments button -->
             <button id="resetBtn" type="button"
                 class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 active:scale-95 transition-all focus:outline-none">
-                reset
+                clear marks
             </button>
         </div>
     </header>
@@ -104,23 +164,117 @@
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div>
                     <h2 class="text-xs font-mono font-semibold text-purple-400">paste exported switch list</h2>
-                    <p class="text-[11px] text-zinc-400">paste your copied switch plan below and click apply to restore all 82 key assignments</p>
+                    <p class="text-[11px] text-zinc-400">paste your copied switch plan below and click apply to restore key assignments (supports custom group names and legacy prtsc/home)</p>
                 </div>
                 <span id="pasteFeedback" class="text-[11px] font-mono text-zinc-400">waiting for text</span>
             </div>
             <textarea id="pasteTextarea" rows="5"
-                placeholder="paste copied switch plan here (tactile: ..., linear: ..., buy: ..., unchecked: ...)"
+                placeholder="paste copied switch plan here (e.g. tactile: ..., linear: ..., buy: ..., unchecked: ...)"
                 class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
-            <div class="flex items-center justify-end gap-2 mt-2.5">
-                <button id="cancelPasteBtn" type="button"
-                    class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 transition-colors">
-                    close
+            <div class="flex flex-wrap items-center justify-between gap-2 mt-2.5">
+                <button id="loadDefaultPlanBtn" type="button"
+                    class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-purple-300 hover:bg-zinc-700 transition-colors">
+                    load sample 75% tactile plan (33 tactile / 31 linear / 18 buy)
                 </button>
-                <button id="applyPasteBtn" type="button"
-                    class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
-                    apply switch list
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="cancelPasteBtn" type="button"
+                        class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 transition-colors">
+                        close
+                    </button>
+                    <button id="applyPasteBtn" type="button"
+                        class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                        apply switch list
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- inline per-key layout editor inspector bar (visible when edit layout mode is active) -->
+    <div id="layoutEditorBar" class="hidden w-full max-w-6xl mx-auto px-4 sm:px-6 pt-2">
+        <div class="theme-card rounded-2xl bg-sky-950/30 border border-sky-500/40 p-4 shadow-2xl">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
+                    <h2 class="text-xs font-mono font-bold text-sky-300">per-key layout editor active: click any keycap below to customize or swap it</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="resetLayoutDefaultBtn" type="button"
+                        class="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[11px] font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
+                        reset layout to preset default
+                    </button>
+                    <button id="closeEditLayoutBtn" type="button"
+                        class="px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-[11px] font-mono text-zinc-200 hover:bg-zinc-700 transition-colors">
+                        done editing
+                    </button>
+                </div>
+            </div>
+
+            <!-- selected key controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-end">
+                <div>
+                    <label class="block text-[10px] font-mono text-zinc-400 mb-1">keycap label (shown on key)</label>
+                    <input id="editKeyLabelInput" type="text" placeholder="e.g. del, home, fn"
+                        class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-zinc-400 mb-1">physical key code</label>
+                    <div class="flex gap-1">
+                        <input id="editKeyCodeInput" type="text" placeholder="e.g. delete, home"
+                            class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                        <button id="bindPhysicalKeyBtn" type="button" title="press a physical key to auto-fill its code"
+                            class="px-2.5 py-1.5 rounded-lg bg-sky-500/20 border border-sky-500/40 text-[10px] font-mono text-sky-300 hover:bg-sky-500/30 shrink-0">
+                            bind
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-zinc-400 mb-1">key width (u)</label>
+                    <select id="editKeyWidthSelect"
+                        class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                        <option value="1">1u (standard)</option>
+                        <option value="1.25">1.25u (modifier)</option>
+                        <option value="1.5">1.5u (tab / backslash)</option>
+                        <option value="1.75">1.75u (caps / r-shift)</option>
+                        <option value="2">2u (backspace / num 0)</option>
+                        <option value="2.25">2.25u (enter / l-shift)</option>
+                        <option value="2.75">2.75u (full r-shift)</option>
+                        <option value="6.25">6.25u (spacebar)</option>
+                        <option value="7">7u (tsangan spacebar)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-mono text-zinc-400 mb-1">left blocker gap (u)</label>
+                    <select id="editKeyGapSelect"
+                        class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                        <option value="0">0u (no gap)</option>
+                        <option value="0.25">0.25u (f-row micro gap)</option>
+                        <option value="0.5">0.5u (blocker gap)</option>
+                        <option value="1">1u (full key blocker gap)</option>
+                    </select>
+                </div>
+                <div class="lg:col-span-2 flex flex-wrap items-center gap-1.5">
+                    <button id="applyKeyEditBtn" type="button"
+                        class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-mono font-semibold text-white transition-colors">
+                        save key
+                    </button>
+                    <button id="swapKeyModeBtn" type="button"
+                        class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-amber-300 hover:bg-zinc-700 transition-colors">
+                        swap with next clicked key
+                    </button>
+                    <button id="insertKeyAfterBtn" type="button"
+                        class="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700 transition-colors">
+                        + add key after
+                    </button>
+                    <button id="deleteSelectedKeyBtn" type="button"
+                        class="px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-xs font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
+                        remove key
+                    </button>
+                </div>
+            </div>
+            <p id="editInspectorStatus" class="text-[11px] font-mono text-sky-300/80 mt-2">
+                selected key: none (click any keycap on the keyboard below to inspect, rename, resize, swap, or delete it)
+            </p>
         </div>
     </div>
 
@@ -130,48 +284,52 @@
         <!-- top switch planner stat cards -->
         <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             
-            <!-- 1. total tactile plan (tactile + buy combined) -->
-            <div id="tactileCard" data-select-brush="tactile" role="button" tabindex="-1" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-purple-500/50">
+            <!-- 1. primary switch group (or combined primary + group 3) -->
+            <div id="group1Card" data-select-brush="group1" role="button" tabindex="-1"
+                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-purple-500/50">
                 <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class="text-xs font-semibold tracking-wider text-purple-400">total tactile (+buy)</span>
+                    <span id="group1CardTitle" class="text-xs font-semibold tracking-wider text-purple-400">total tactile (+buy)</span>
                     <span class="inline-flex items-center gap-1">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-purple-500 inline-block"></span>
-                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
+                        <span id="group1Dot" class="w-2.5 h-2.5 rounded-sm bg-purple-500 inline-block"></span>
+                        <span id="group1ComboDot" class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
                     </span>
                 </div>
                 <div class="my-1 flex items-baseline gap-2">
-                    <span id="totalTactileCountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-purple-400 tabular-nums">0</span>
-                    <span id="totalTactilePctEl" class="font-mono text-sm font-bold text-emerald-400">0%</span>
+                    <span id="group1CountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-purple-400 tabular-nums">0</span>
+                    <span id="group1PctEl" class="font-mono text-sm font-bold text-emerald-400">0%</span>
                 </div>
-                <p id="tactileSubtext" class="text-[11px] text-zinc-400 mt-2 font-mono">0 tactile + 0 buy</p>
+                <p id="group1Subtext" class="text-[11px] text-zinc-400 mt-2 font-mono">0 tactile + 0 buy</p>
             </div>
 
-            <!-- 2. buy switches to add to tactile -->
-            <div id="buyCard" data-select-brush="buy" role="button" tabindex="-1" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-emerald-500/50">
+            <!-- 2. group 3 (buy / extra switches) -->
+            <div id="group3Card" data-select-brush="group3" role="button" tabindex="-1"
+                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-emerald-500/50">
                 <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class="text-xs font-semibold tracking-wider text-emerald-400">buy (+tactile)</span>
-                    <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
+                    <span id="group3CardTitle" class="text-xs font-semibold tracking-wider text-emerald-400">buy (+tactile)</span>
+                    <span id="group3Dot" class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
                 </div>
                 <div class="my-1">
-                    <span id="buyCountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-emerald-400 tabular-nums block">+0</span>
+                    <span id="group3CountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-emerald-400 tabular-nums block">+0</span>
                 </div>
-                <p id="buySubtext" class="text-[11px] text-zinc-500 mt-2 font-mono">adds +0% to tactile</p>
+                <p id="group3Subtext" class="text-[11px] text-zinc-500 mt-2 font-mono">adds +0% to tactile</p>
             </div>
 
-            <!-- 3. linear switches -->
-            <div id="linearCard" data-select-brush="linear" role="button" tabindex="-1" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-amber-500/50">
+            <!-- 3. group 2 (linear / secondary switches) -->
+            <div id="group2Card" data-select-brush="group2" role="button" tabindex="-1"
+                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-amber-500/50">
                 <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class="text-xs font-semibold tracking-wider text-amber-400">linear</span>
-                    <span class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span>
+                    <span id="group2CardTitle" class="text-xs font-semibold tracking-wider text-amber-400">linear</span>
+                    <span id="group2Dot" class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span>
                 </div>
                 <div class="my-1">
-                    <span id="linearCountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-amber-400 tabular-nums block">0</span>
+                    <span id="group2CountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-amber-400 tabular-nums block">0</span>
                 </div>
-                <p id="linearSubtext" class="text-[11px] text-zinc-500 mt-2 font-mono">0% of 82 keys</p>
+                <p id="group2Subtext" class="text-[11px] text-zinc-500 mt-2 font-mono">0% of 82 keys</p>
             </div>
 
             <!-- 4. unchecked remaining count -->
-            <div id="uncheckedCard" data-select-brush="unchecked" role="button" tabindex="-1" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-zinc-500/50">
+            <div id="uncheckedCard" data-select-brush="unchecked" role="button" tabindex="-1"
+                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-zinc-500/50">
                 <div class="flex items-center justify-between gap-2 mb-2">
                     <span class="text-xs font-semibold tracking-wider text-zinc-400">unchecked</span>
                     <span id="totalBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400">82 total</span>
@@ -194,50 +352,49 @@
                         none
                     </kbd>
                 </div>
-                <p id="lastKeySubtext" class="text-[11px] text-zinc-500 mt-2 truncate">select brush and press keys</p>
+                <p id="lastKeySubtext" class="text-[11px] text-zinc-500 mt-2 truncate">select brush and press or click keys</p>
             </div>
 
         </section>
 
-        <!-- interactive visual 75% keyboard card -->
+        <!-- interactive visual mechanical keyboard card -->
         <section id="keyboardCard" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-6 shadow-xl transition-colors">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
                 <div>
-                    <h2 id="kbdTitle" class="text-sm font-semibold text-zinc-100">live 75% mechanical keyboard layout</h2>
-                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-0.5">toggle active switch colour below, then press any key or click any keycap to assign it</p>
+                    <h2 id="kbdTitle" class="text-sm font-semibold text-zinc-100">live mechanical keyboard layout</h2>
+                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-0.5">select a switch brush below, then press any physical key or click any keycap (right-click to uncheck, middle-click for group 3)</p>
                 </div>
 
                 <!-- keyboard brush colour toggle bar -->
                 <div id="brushToggleGroup" role="group" aria-label="active keypress colour toggle"
                     class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-zinc-950/90 border border-zinc-800">
-                    <span class="text-[11px] font-mono text-zinc-500 px-2">keypress colour:</span>
-                    <button type="button" data-brush="tactile"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-purple-600/30 border border-purple-400 text-purple-200 shadow-sm">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-purple-400 inline-block"></span>
-                        tactile (purple)
+                    <span class="text-[11px] font-mono text-zinc-500 px-2">active brush:</span>
+                    <button type="button" data-brush="group1" id="brushBtn1"
+                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
+                        <span id="brushDot1" class="w-2.5 h-2.5 rounded-sm inline-block"></span>
+                        <span id="brushLabel1">tactile</span>
                     </button>
-                    <button type="button" data-brush="linear"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-amber-300">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span>
-                        linear (yellow)
+                    <button type="button" data-brush="group2" id="brushBtn2"
+                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
+                        <span id="brushDot2" class="w-2.5 h-2.5 rounded-sm inline-block"></span>
+                        <span id="brushLabel2">linear</span>
                     </button>
-                    <button type="button" data-brush="buy"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-emerald-300">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 inline-block"></span>
-                        buy (green)
+                    <button type="button" data-brush="group3" id="brushBtn3"
+                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
+                        <span id="brushDot3" class="w-2.5 h-2.5 rounded-sm inline-block"></span>
+                        <span id="brushLabel3">buy</span>
                     </button>
-                    <button type="button" data-brush="unchecked"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200">
+                    <button type="button" data-brush="unchecked" id="brushBtnUnchecked"
+                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
                         <span class="w-2.5 h-2.5 rounded-sm bg-zinc-700 border border-zinc-500 inline-block"></span>
-                        unchecked (clear)
+                        <span>unchecked</span>
                     </button>
                 </div>
             </div>
 
-            <!-- responsive 75% keyboard chassis -->
+            <!-- responsive keyboard chassis -->
             <div class="w-full overflow-x-auto kbd-scroll pb-1">
                 <div id="keyboardChassis" class="min-w-[760px] w-full rounded-xl bg-zinc-950/90 border border-zinc-800 p-3 sm:p-3.5 shadow-inner">
-                    <!-- compact 75% unified grid (16u per row) -->
                     <div id="kbdMainBlock" class="flex flex-col gap-1.5"></div>
                 </div>
             </div>
@@ -248,7 +405,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <div>
                     <h2 id="chartTitle" class="text-sm font-semibold text-zinc-100">switch allocation diagram</h2>
-                    <p class="text-xs text-zinc-400 mt-0.5">buy switches are added directly to tactile to compute total tactile coverage</p>
+                    <p id="chartSubtitle" class="text-xs text-zinc-400 mt-0.5">live breakdown of your switch replacement plan across the active layout</p>
                 </div>
                 <span id="chartSummary" class="text-xs font-mono text-purple-300 bg-purple-950/50 border border-purple-500/30 px-3 py-1 rounded-lg self-start sm:self-auto">
                     total tactile: 0% (0 + 0 = 0 / 82)
@@ -263,176 +420,787 @@
 
     </main>
 
+    <!-- settings & customization modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="w-full max-w-3xl rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto kbd-scroll">
+            <div class="flex items-center justify-between gap-2 pb-4 border-b border-zinc-800">
+                <div>
+                    <h2 class="text-base font-bold text-zinc-100 font-mono">studio settings & switch customization</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">customize switch names, colors, goal formulas, layouts, and portable json configs</p>
+                </div>
+                <button id="closeSettingsModalBtn" type="button"
+                    class="px-3 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
+                    close
+                </button>
+            </div>
+
+            <div class="space-y-6 py-4">
+                <!-- 1. one-click use-case presets -->
+                <div>
+                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">1. quick use-case presets (one-click configure)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button type="button" data-usecase="tactile_upgrade"
+                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-purple-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-purple-300">tactile upgrade planner (default)</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">group 1: tactile (purple) + group 3: buy (green) vs group 2: linear (yellow)</div>
+                        </button>
+                        <button type="button" data-usecase="linear_upgrade"
+                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-amber-300">linear upgrade planner</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">group 1: linear (yellow) + group 3: buy (green) vs group 2: tactile (purple)</div>
+                        </button>
+                        <button type="button" data-usecase="three_way_mix"
+                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-sky-300">3-way switch mix (independent counts)</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">tactile (purple) / linear (yellow) / clicky or silent (cyan) without combining</div>
+                        </button>
+                        <button type="button" data-usecase="pcb_tester"
+                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-emerald-300">pcb switch tester mode</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">working (green) / chatter (yellow) / dead switch (rose)</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. custom workspace branding -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-800/80">
+                    <div>
+                        <label class="block text-xs font-mono text-zinc-400 mb-1">workspace title</label>
+                        <input id="settingsTitleInput" type="text"
+                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-zinc-400 mb-1">workspace subtitle</label>
+                        <input id="settingsSubtitleInput" type="text"
+                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <!-- 3. custom switch groups (names + hex colors) -->
+                <div class="pt-2 border-t border-zinc-800/80">
+                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2.5">2. customize switch categories & colors</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- group 1 -->
+                        <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">group 1 (primary switch)</div>
+                            <div class="flex items-center gap-2">
+                                <input id="group1ColorInput" type="color" value="#a855f7" class="w-8 h-8 rounded cursor-pointer bg-transparent shrink-0">
+                                <input id="group1NameInput" type="text" value="tactile"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
+                            </div>
+                        </div>
+                        <!-- group 2 -->
+                        <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">group 2 (secondary switch)</div>
+                            <div class="flex items-center gap-2">
+                                <input id="group2ColorInput" type="color" value="#eab308" class="w-8 h-8 rounded cursor-pointer bg-transparent shrink-0">
+                                <input id="group2NameInput" type="text" value="linear"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+                        <!-- group 3 -->
+                        <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">group 3 (buy / extra / middle-click)</div>
+                            <div class="flex items-center gap-2">
+                                <input id="group3ColorInput" type="color" value="#10b981" class="w-8 h-8 rounded cursor-pointer bg-transparent shrink-0">
+                                <input id="group3NameInput" type="text" value="buy"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- combine group 3 into group 1 toggle -->
+                    <label class="mt-3 flex items-center gap-2.5 cursor-pointer select-none">
+                        <input id="combineGroup3Checkbox" type="checkbox" checked
+                            class="w-4 h-4 rounded accent-purple-500 cursor-pointer">
+                        <span class="text-xs font-mono text-zinc-300">
+                            add group 3 switches (+buy) into group 1 to calculate combined goal percentage
+                        </span>
+                    </label>
+                </div>
+
+                <!-- 4. layout preset & per-key customization launcher -->
+                <div class="pt-2 border-t border-zinc-800/80">
+                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">3. keyboard layout preset & per-key customization</h3>
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono text-zinc-400">base layout:</span>
+                            <select id="settingsLayoutSelect"
+                                class="rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none">
+                                <option value="60">60% (61 keys poker)</option>
+                                <option value="65">65% (68 keys compact)</option>
+                                <option value="75_custom">75% custom (82 keys: del + home on top right, no menu)</option>
+                                <option value="75_std">75% standard (84 keys)</option>
+                                <option value="tkl">tkl 80% (87 keys tenkeyless)</option>
+                                <option value="100">100% full size (104 keys with numpad)</option>
+                            </select>
+                        </div>
+                        <button id="launchPerKeyEditorFromSettingsBtn" type="button"
+                            class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-xs font-mono font-semibold text-sky-300 hover:bg-sky-500/30 transition-colors">
+                            open on-board per-key editor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5. portable json config export / import -->
+                <div class="pt-2 border-t border-zinc-800/80">
+                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">4. shareable setup json (export or import full custom layout + colors + plan)</h3>
+                    <textarea id="jsonConfigTextarea" rows="3"
+                        placeholder="click export json to generate a shareable config string, or paste one here and click import json"
+                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
+                        <span id="jsonConfigStatus" class="text-[11px] font-mono text-zinc-500">all changes auto-save to browser storage</span>
+                        <div class="flex items-center gap-2">
+                            <button id="exportJsonBtn" type="button"
+                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:bg-zinc-700">
+                                export json to box
+                            </button>
+                            <button id="importJsonBtn" type="button"
+                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700">
+                                import json from box
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-4 border-t border-zinc-800">
+                <button id="saveSettingsBtn" type="button"
+                    class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                    save & apply settings
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- subtle footer -->
     <footer class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 text-center">
-        <p class="text-xs text-zinc-500">select a colour toggle above and press any physical key to paint it (use lock keyboard for fullscreen os key capture).</p>
+        <p class="text-xs text-zinc-500">select a brush above and press any physical key or click any keycap. use edit layout to rename, rebind, resize, or swap any key.</p>
     </footer>
 
     <script>
         /**
-         * 75% mechanical keyboard switch planner and keypress-only brush tester
+         * customizable mechanical keyboard switch planner, layout studio, and tester
+         * strictly lowercase text, zero em-dashes
          */
         (() => {
-            // application state
-            const keyStates = new Map();      // physical code -> 'linear' | 'tactile' | 'buy' | 'unchecked'
+            const STORAGE_KEY = 'mech_switch_planner_studio_v2';
+
+            // default user switch plan for 82-key 75% custom layout (33 tactile, 31 linear, 18 buy)
+            const DEFAULT_75_PLAN_TEXT = [
+                '75% mechanical keyboard switch plan (82 keys total)',
+                'tactile: 33 switches -> f4 (f4), backspace (backspace), tab (tab), q (keyq), w (keyw), e (keye), r (keyr), t (keyt), y (keyy), u (keyu), i (keyi), o (keyo), p (keyp), a (keya), s (keys), d (keyd), f (keyf), g (keyg), h (keyh), j (keyj), k (keyk), l (keyl), z (keyz), x (keyx), c (keyc), v (keyv), b (keyb), n (keyn), m (keym), ctrl (controlleft), win (metaleft), alt (altleft), space (space)',
+                'linear: 31 switches -> f1 (f1), f3 (f3), f5 (f5), f6 (f6), f7 (f7), f8 (f8), f9 (f9), f10 (f10), f12 (f12), home (home), ` (backquote), 1 (digit1), 2 (digit2), 3 (digit3), 4 (digit4), 5 (digit5), 6 (digit6), 7 (digit7), 8 (digit8), 9 (digit9), 0 (digit0), - (minus), = (equal), pgup (pageup), pgdn (pagedown), caps (capslock), end (end), shift (shiftleft), shift (shiftright), alt (altright), ctrl (controlright)',
+                'buy: 18 switches -> esc (escape), f2 (f2), f11 (f11), del (delete), [ (bracketleft), ] (bracketright), \\ (backslash), ; (semicolon), \' (quote), enter (enter), , (comma), . (period), / (slash), ↑ (arrowup), fn (fn), ← (arrowleft), ↓ (arrowdown), → (arrowright)',
+                'unchecked: 0 keys'
+            ].join('\n');
+
+            // built-in base layout preset factories
+            const LAYOUT_PRESETS = {
+                '60': [
+                    [
+                        { code: 'Escape', label: 'esc', w: 1 },
+                        { code: 'Digit1', label: '1', w: 1 }, { code: 'Digit2', label: '2', w: 1 }, { code: 'Digit3', label: '3', w: 1 },
+                        { code: 'Digit4', label: '4', w: 1 }, { code: 'Digit5', label: '5', w: 1 }, { code: 'Digit6', label: '6', w: 1 },
+                        { code: 'Digit7', label: '7', w: 1 }, { code: 'Digit8', label: '8', w: 1 }, { code: 'Digit9', label: '9', w: 1 },
+                        { code: 'Digit0', label: '0', w: 1 }, { code: 'Minus', label: '-', w: 1 }, { code: 'Equal', label: '=', w: 1 },
+                        { code: 'Backspace', label: 'backspace', w: 2 }
+                    ],
+                    [
+                        { code: 'Tab', label: 'tab', w: 1.5 },
+                        { code: 'KeyQ', label: 'q', w: 1 }, { code: 'KeyW', label: 'w', w: 1 }, { code: 'KeyE', label: 'e', w: 1 },
+                        { code: 'KeyR', label: 'r', w: 1 }, { code: 'KeyT', label: 't', w: 1 }, { code: 'KeyY', label: 'y', w: 1 },
+                        { code: 'KeyU', label: 'u', w: 1 }, { code: 'KeyI', label: 'i', w: 1 }, { code: 'KeyO', label: 'o', w: 1 },
+                        { code: 'KeyP', label: 'p', w: 1 }, { code: 'BracketLeft', label: '[', w: 1 }, { code: 'BracketRight', label: ']', w: 1 },
+                        { code: 'Backslash', label: '\\', w: 1.5 }
+                    ],
+                    [
+                        { code: 'CapsLock', label: 'caps', w: 1.75 },
+                        { code: 'KeyA', label: 'a', w: 1 }, { code: 'KeyS', label: 's', w: 1 }, { code: 'KeyD', label: 'd', w: 1 },
+                        { code: 'KeyF', label: 'f', w: 1 }, { code: 'KeyG', label: 'g', w: 1 }, { code: 'KeyH', label: 'h', w: 1 },
+                        { code: 'KeyJ', label: 'j', w: 1 }, { code: 'KeyK', label: 'k', w: 1 }, { code: 'KeyL', label: 'l', w: 1 },
+                        { code: 'Semicolon', label: ';', w: 1 }, { code: 'Quote', label: "'", w: 1 },
+                        { code: 'Enter', label: 'enter', w: 2.25 }
+                    ],
+                    [
+                        { code: 'ShiftLeft', label: 'shift', w: 2.25 },
+                        { code: 'KeyZ', label: 'z', w: 1 }, { code: 'KeyX', label: 'x', w: 1 }, { code: 'KeyC', label: 'c', w: 1 },
+                        { code: 'KeyV', label: 'v', w: 1 }, { code: 'KeyB', label: 'b', w: 1 }, { code: 'KeyN', label: 'n', w: 1 },
+                        { code: 'KeyM', label: 'm', w: 1 }, { code: 'Comma', label: ',', w: 1 }, { code: 'Period', label: '.', w: 1 },
+                        { code: 'Slash', label: '/', w: 1 },
+                        { code: 'ShiftRight', label: 'shift', w: 2.75 }
+                    ],
+                    [
+                        { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
+                        { code: 'MetaLeft', label: 'win', w: 1.25 },
+                        { code: 'AltLeft', label: 'alt', w: 1.25 },
+                        { code: 'Space', label: 'space', w: 6.25 },
+                        { code: 'AltRight', label: 'alt', w: 1.25 },
+                        { code: 'Fn', label: 'fn', w: 1.25 },
+                        { code: 'ContextMenu', label: 'menu', w: 1.25 },
+                        { code: 'ControlRight', label: 'ctrl', w: 1.25 }
+                    ]
+                ],
+                '65': [
+                    [
+                        { code: 'Escape', label: 'esc', w: 1 },
+                        { code: 'Digit1', label: '1', w: 1 }, { code: 'Digit2', label: '2', w: 1 }, { code: 'Digit3', label: '3', w: 1 },
+                        { code: 'Digit4', label: '4', w: 1 }, { code: 'Digit5', label: '5', w: 1 }, { code: 'Digit6', label: '6', w: 1 },
+                        { code: 'Digit7', label: '7', w: 1 }, { code: 'Digit8', label: '8', w: 1 }, { code: 'Digit9', label: '9', w: 1 },
+                        { code: 'Digit0', label: '0', w: 1 }, { code: 'Minus', label: '-', w: 1 }, { code: 'Equal', label: '=', w: 1 },
+                        { code: 'Backspace', label: 'backspace', w: 2 },
+                        { code: 'Delete', label: 'del', w: 1 }
+                    ],
+                    [
+                        { code: 'Tab', label: 'tab', w: 1.5 },
+                        { code: 'KeyQ', label: 'q', w: 1 }, { code: 'KeyW', label: 'w', w: 1 }, { code: 'KeyE', label: 'e', w: 1 },
+                        { code: 'KeyR', label: 'r', w: 1 }, { code: 'KeyT', label: 't', w: 1 }, { code: 'KeyY', label: 'y', w: 1 },
+                        { code: 'KeyU', label: 'u', w: 1 }, { code: 'KeyI', label: 'i', w: 1 }, { code: 'KeyO', label: 'o', w: 1 },
+                        { code: 'KeyP', label: 'p', w: 1 }, { code: 'BracketLeft', label: '[', w: 1 }, { code: 'BracketRight', label: ']', w: 1 },
+                        { code: 'Backslash', label: '\\', w: 1.5 },
+                        { code: 'PageUp', label: 'pgup', w: 1 }
+                    ],
+                    [
+                        { code: 'CapsLock', label: 'caps', w: 1.75 },
+                        { code: 'KeyA', label: 'a', w: 1 }, { code: 'KeyS', label: 's', w: 1 }, { code: 'KeyD', label: 'd', w: 1 },
+                        { code: 'KeyF', label: 'f', w: 1 }, { code: 'KeyG', label: 'g', w: 1 }, { code: 'KeyH', label: 'h', w: 1 },
+                        { code: 'KeyJ', label: 'j', w: 1 }, { code: 'KeyK', label: 'k', w: 1 }, { code: 'KeyL', label: 'l', w: 1 },
+                        { code: 'Semicolon', label: ';', w: 1 }, { code: 'Quote', label: "'", w: 1 },
+                        { code: 'Enter', label: 'enter', w: 2.25 },
+                        { code: 'PageDown', label: 'pgdn', w: 1 }
+                    ],
+                    [
+                        { code: 'ShiftLeft', label: 'shift', w: 2.25 },
+                        { code: 'KeyZ', label: 'z', w: 1 }, { code: 'KeyX', label: 'x', w: 1 }, { code: 'KeyC', label: 'c', w: 1 },
+                        { code: 'KeyV', label: 'v', w: 1 }, { code: 'KeyB', label: 'b', w: 1 }, { code: 'KeyN', label: 'n', w: 1 },
+                        { code: 'KeyM', label: 'm', w: 1 }, { code: 'Comma', label: ',', w: 1 }, { code: 'Period', label: '.', w: 1 },
+                        { code: 'Slash', label: '/', w: 1 },
+                        { code: 'ShiftRight', label: 'shift', w: 1.75 },
+                        { code: 'ArrowUp', label: '↑', w: 1 },
+                        { code: 'End', label: 'end', w: 1 }
+                    ],
+                    [
+                        { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
+                        { code: 'MetaLeft', label: 'win', w: 1.25 },
+                        { code: 'AltLeft', label: 'alt', w: 1.25 },
+                        { code: 'Space', label: 'space', w: 6.25 },
+                        { code: 'AltRight', label: 'alt', w: 1 },
+                        { code: 'Fn', label: 'fn', w: 1 },
+                        { code: 'ControlRight', label: 'ctrl', w: 1 },
+                        { code: 'ArrowLeft', label: '←', w: 1 },
+                        { code: 'ArrowDown', label: '↓', w: 1 },
+                        { code: 'ArrowRight', label: '→', w: 1 }
+                    ]
+                ],
+                '75_custom': [
+                    [
+                        { code: 'Escape', label: 'esc', w: 1 },
+                        { code: 'F1', label: 'f1', w: 1, gap: 0.5 }, { code: 'F2', label: 'f2', w: 1 }, { code: 'F3', label: 'f3', w: 1 }, { code: 'F4', label: 'f4', w: 1 },
+                        { code: 'F5', label: 'f5', w: 1, gap: 0.25 }, { code: 'F6', label: 'f6', w: 1 }, { code: 'F7', label: 'f7', w: 1 }, { code: 'F8', label: 'f8', w: 1 },
+                        { code: 'F9', label: 'f9', w: 1, gap: 0.25 }, { code: 'F10', label: 'f10', w: 1 }, { code: 'F11', label: 'f11', w: 1 }, { code: 'F12', label: 'f12', w: 1 },
+                        { code: 'Delete', label: 'del', w: 1 },
+                        { code: 'Home', label: 'home', w: 1 }
+                    ],
+                    [
+                        { code: 'Backquote', label: '`', w: 1 },
+                        { code: 'Digit1', label: '1', w: 1 }, { code: 'Digit2', label: '2', w: 1 }, { code: 'Digit3', label: '3', w: 1 },
+                        { code: 'Digit4', label: '4', w: 1 }, { code: 'Digit5', label: '5', w: 1 }, { code: 'Digit6', label: '6', w: 1 },
+                        { code: 'Digit7', label: '7', w: 1 }, { code: 'Digit8', label: '8', w: 1 }, { code: 'Digit9', label: '9', w: 1 },
+                        { code: 'Digit0', label: '0', w: 1 }, { code: 'Minus', label: '-', w: 1 }, { code: 'Equal', label: '=', w: 1 },
+                        { code: 'Backspace', label: 'backspace', w: 2 },
+                        { code: 'PageUp', label: 'pgup', w: 1 }
+                    ],
+                    [
+                        { code: 'Tab', label: 'tab', w: 1.5 },
+                        { code: 'KeyQ', label: 'q', w: 1 }, { code: 'KeyW', label: 'w', w: 1 }, { code: 'KeyE', label: 'e', w: 1 },
+                        { code: 'KeyR', label: 'r', w: 1 }, { code: 'KeyT', label: 't', w: 1 }, { code: 'KeyY', label: 'y', w: 1 },
+                        { code: 'KeyU', label: 'u', w: 1 }, { code: 'KeyI', label: 'i', w: 1 }, { code: 'KeyO', label: 'o', w: 1 },
+                        { code: 'KeyP', label: 'p', w: 1 }, { code: 'BracketLeft', label: '[', w: 1 }, { code: 'BracketRight', label: ']', w: 1 },
+                        { code: 'Backslash', label: '\\', w: 1.5 },
+                        { code: 'PageDown', label: 'pgdn', w: 1 }
+                    ],
+                    [
+                        { code: 'CapsLock', label: 'caps', w: 1.75 },
+                        { code: 'KeyA', label: 'a', w: 1 }, { code: 'KeyS', label: 's', w: 1 }, { code: 'KeyD', label: 'd', w: 1 },
+                        { code: 'KeyF', label: 'f', w: 1 }, { code: 'KeyG', label: 'g', w: 1 }, { code: 'KeyH', label: 'h', w: 1 },
+                        { code: 'KeyJ', label: 'j', w: 1 }, { code: 'KeyK', label: 'k', w: 1 }, { code: 'KeyL', label: 'l', w: 1 },
+                        { code: 'Semicolon', label: ';', w: 1 }, { code: 'Quote', label: "'", w: 1 },
+                        { code: 'Enter', label: 'enter', w: 2.25 },
+                        { code: 'End', label: 'end', w: 1 }
+                    ],
+                    [
+                        { code: 'ShiftLeft', label: 'shift', w: 2.25 },
+                        { code: 'KeyZ', label: 'z', w: 1 }, { code: 'KeyX', label: 'x', w: 1 }, { code: 'KeyC', label: 'c', w: 1 },
+                        { code: 'KeyV', label: 'v', w: 1 }, { code: 'KeyB', label: 'b', w: 1 }, { code: 'KeyN', label: 'n', w: 1 },
+                        { code: 'KeyM', label: 'm', w: 1 }, { code: 'Comma', label: ',', w: 1 }, { code: 'Period', label: '.', w: 1 },
+                        { code: 'Slash', label: '/', w: 1 },
+                        { code: 'ShiftRight', label: 'shift', w: 1.75 },
+                        { code: 'ArrowUp', label: '↑', w: 1 }
+                    ],
+                    [
+                        { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
+                        { code: 'MetaLeft', label: 'win', w: 1.25 },
+                        { code: 'AltLeft', label: 'alt', w: 1.25 },
+                        { code: 'Space', label: 'space', w: 6.25 },
+                        { code: 'AltRight', label: 'alt', w: 1 },
+                        { code: 'Fn', label: 'fn', w: 1 },
+                        { code: 'ControlRight', label: 'ctrl', w: 1 },
+                        { code: 'ArrowLeft', label: '←', w: 1 },
+                        { code: 'ArrowDown', label: '↓', w: 1 },
+                        { code: 'ArrowRight', label: '→', w: 1 }
+                    ]
+                ],
+                '75_std': [
+                    [
+                        { code: 'Escape', label: 'esc', w: 1 },
+                        { code: 'F1', label: 'f1', w: 1 }, { code: 'F2', label: 'f2', w: 1 }, { code: 'F3', label: 'f3', w: 1 }, { code: 'F4', label: 'f4', w: 1 },
+                        { code: 'F5', label: 'f5', w: 1 }, { code: 'F6', label: 'f6', w: 1 }, { code: 'F7', label: 'f7', w: 1 }, { code: 'F8', label: 'f8', w: 1 },
+                        { code: 'F9', label: 'f9', w: 1 }, { code: 'F10', label: 'f10', w: 1 }, { code: 'F11', label: 'f11', w: 1 }, { code: 'F12', label: 'f12', w: 1 },
+                        { code: 'PrintScreen', label: 'prtsc', w: 1 },
+                        { code: 'Pause', label: 'pause', w: 1 },
+                        { code: 'Delete', label: 'del', w: 1 }
+                    ],
+                    [
+                        { code: 'Backquote', label: '`', w: 1 },
+                        { code: 'Digit1', label: '1', w: 1 }, { code: 'Digit2', label: '2', w: 1 }, { code: 'Digit3', label: '3', w: 1 },
+                        { code: 'Digit4', label: '4', w: 1 }, { code: 'Digit5', label: '5', w: 1 }, { code: 'Digit6', label: '6', w: 1 },
+                        { code: 'Digit7', label: '7', w: 1 }, { code: 'Digit8', label: '8', w: 1 }, { code: 'Digit9', label: '9', w: 1 },
+                        { code: 'Digit0', label: '0', w: 1 }, { code: 'Minus', label: '-', w: 1 }, { code: 'Equal', label: '=', w: 1 },
+                        { code: 'Backspace', label: 'backspace', w: 2 },
+                        { code: 'Home', label: 'home', w: 1 }
+                    ],
+                    [
+                        { code: 'Tab', label: 'tab', w: 1.5 },
+                        { code: 'KeyQ', label: 'q', w: 1 }, { code: 'KeyW', label: 'w', w: 1 }, { code: 'KeyE', label: 'e', w: 1 },
+                        { code: 'KeyR', label: 'r', w: 1 }, { code: 'KeyT', label: 't', w: 1 }, { code: 'KeyY', label: 'y', w: 1 },
+                        { code: 'KeyU', label: 'u', w: 1 }, { code: 'KeyI', label: 'i', w: 1 }, { code: 'KeyO', label: 'o', w: 1 },
+                        { code: 'KeyP', label: 'p', w: 1 }, { code: 'BracketLeft', label: '[', w: 1 }, { code: 'BracketRight', label: ']', w: 1 },
+                        { code: 'Backslash', label: '\\', w: 1.5 },
+                        { code: 'PageUp', label: 'pgup', w: 1 }
+                    ],
+                    [
+                        { code: 'CapsLock', label: 'caps', w: 1.75 },
+                        { code: 'KeyA', label: 'a', w: 1 }, { code: 'KeyS', label: 's', w: 1 }, { code: 'KeyD', label: 'd', w: 1 },
+                        { code: 'KeyF', label: 'f', w: 1 }, { code: 'KeyG', label: 'g', w: 1 }, { code: 'KeyH', label: 'h', w: 1 },
+                        { code: 'KeyJ', label: 'j', w: 1 }, { code: 'KeyK', label: 'k', w: 1 }, { code: 'KeyL', label: 'l', w: 1 },
+                        { code: 'Semicolon', label: ';', w: 1 }, { code: 'Quote', label: "'", w: 1 },
+                        { code: 'Enter', label: 'enter', w: 2.25 },
+                        { code: 'PageDown', label: 'pgdn', w: 1 }
+                    ],
+                    [
+                        { code: 'ShiftLeft', label: 'shift', w: 2.25 },
+                        { code: 'KeyZ', label: 'z', w: 1 }, { code: 'KeyX', label: 'x', w: 1 }, { code: 'KeyC', label: 'c', w: 1 },
+                        { code: 'KeyV', label: 'v', w: 1 }, { code: 'KeyB', label: 'b', w: 1 }, { code: 'KeyN', label: 'n', w: 1 },
+                        { code: 'KeyM', label: 'm', w: 1 }, { code: 'Comma', label: ',', w: 1 }, { code: 'Period', label: '.', w: 1 },
+                        { code: 'Slash', label: '/', w: 1 },
+                        { code: 'ShiftRight', label: 'shift', w: 1.75 },
+                        { code: 'ArrowUp', label: '↑', w: 1 },
+                        { code: 'End', label: 'end', w: 1 }
+                    ],
+                    [
+                        { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
+                        { code: 'MetaLeft', label: 'win', w: 1.25 },
+                        { code: 'AltLeft', label: 'alt', w: 1.25 },
+                        { code: 'Space', label: 'space', w: 6.25 },
+                        { code: 'AltRight', label: 'alt', w: 1 },
+                        { code: 'Fn', label: 'fn', w: 1 },
+                        { code: 'ControlRight', label: 'ctrl', w: 1 },
+                        { code: 'ArrowLeft', label: '←', w: 1 },
+                        { code: 'ArrowDown', label: '↓', w: 1 },
+                        { code: 'ArrowRight', label: '→', w: 1 }
+                    ]
+                ],
+                'tkl': [
+                    [
+                        { code: 'Escape', label: 'esc', w: 1 },
+                        { code: 'F1', label: 'f1', w: 1, gap: 1 }, { code: 'F2', label: 'f2', w: 1 }, { code: 'F3', label: 'f3', w: 1 }, { code: 'F4', label: 'f4', w: 1 },
+                        { code: 'F5', label: 'f5', w: 1, gap: 0.5 }, { code: 'F6', label: 'f6', w: 1 }, { code: 'F7', label: 'f7', w: 1 }, { code: 'F8', label: 'f8', w: 1 },
+                        { code: 'F9', label: 'f9', w: 1, gap: 0.5 }, { code: 'F10', label: 'f10', w: 1 }, { code: 'F11', label: 'f11', w: 1 }, { code: 'F12', label: 'f12', w: 1 },
+                        { code: 'PrintScreen', label: 'prtsc', w: 1, gap: 0.5 }, { code: 'ScrollLock', label: 'scrlk', w: 1 }, { code: 'Pause', label: 'pause', w: 1 }
+                    ],
+                    [
+                        { code: 'Backquote', label: '`', w: 1 },
+                        { code: 'Digit1', label: '1', w: 1 }, { code: 'Digit2', label: '2', w: 1 }, { code: 'Digit3', label: '3', w: 1 },
+                        { code: 'Digit4', label: '4', w: 1 }, { code: 'Digit5', label: '5', w: 1 }, { code: 'Digit6', label: '6', w: 1 },
+                        { code: 'Digit7', label: '7', w: 1 }, { code: 'Digit8', label: '8', w: 1 }, { code: 'Digit9', label: '9', w: 1 },
+                        { code: 'Digit0', label: '0', w: 1 }, { code: 'Minus', label: '-', w: 1 }, { code: 'Equal', label: '=', w: 1 },
+                        { code: 'Backspace', label: 'backspace', w: 2 },
+                        { code: 'Insert', label: 'ins', w: 1, gap: 0.5 }, { code: 'Home', label: 'home', w: 1 }, { code: 'PageUp', label: 'pgup', w: 1 }
+                    ],
+                    [
+                        { code: 'Tab', label: 'tab', w: 1.5 },
+                        { code: 'KeyQ', label: 'q', w: 1 }, { code: 'KeyW', label: 'w', w: 1 }, { code: 'KeyE', label: 'e', w: 1 },
+                        { code: 'KeyR', label: 'r', w: 1 }, { code: 'KeyT', label: 't', w: 1 }, { code: 'KeyY', label: 'y', w: 1 },
+                        { code: 'KeyU', label: 'u', w: 1 }, { code: 'KeyI', label: 'i', w: 1 }, { code: 'KeyO', label: 'o', w: 1 },
+                        { code: 'KeyP', label: 'p', w: 1 }, { code: 'BracketLeft', label: '[', w: 1 }, { code: 'BracketRight', label: ']', w: 1 },
+                        { code: 'Backslash', label: '\\', w: 1.5 },
+                        { code: 'Delete', label: 'del', w: 1, gap: 0.5 }, { code: 'End', label: 'end', w: 1 }, { code: 'PageDown', label: 'pgdn', w: 1 }
+                    ],
+                    [
+                        { code: 'CapsLock', label: 'caps', w: 1.75 },
+                        { code: 'KeyA', label: 'a', w: 1 }, { code: 'KeyS', label: 's', w: 1 }, { code: 'KeyD', label: 'd', w: 1 },
+                        { code: 'KeyF', label: 'f', w: 1 }, { code: 'KeyG', label: 'g', w: 1 }, { code: 'KeyH', label: 'h', w: 1 },
+                        { code: 'KeyJ', label: 'j', w: 1 }, { code: 'KeyK', label: 'k', w: 1 }, { code: 'KeyL', label: 'l', w: 1 },
+                        { code: 'Semicolon', label: ';', w: 1 }, { code: 'Quote', label: "'", w: 1 },
+                        { code: 'Enter', label: 'enter', w: 2.25 }
+                    ],
+                    [
+                        { code: 'ShiftLeft', label: 'shift', w: 2.25 },
+                        { code: 'KeyZ', label: 'z', w: 1 }, { code: 'KeyX', label: 'x', w: 1 }, { code: 'KeyC', label: 'c', w: 1 },
+                        { code: 'KeyV', label: 'v', w: 1 }, { code: 'KeyB', label: 'b', w: 1 }, { code: 'KeyN', label: 'n', w: 1 },
+                        { code: 'KeyM', label: 'm', w: 1 }, { code: 'Comma', label: ',', w: 1 }, { code: 'Period', label: '.', w: 1 },
+                        { code: 'Slash', label: '/', w: 1 },
+                        { code: 'ShiftRight', label: 'shift', w: 2.75 },
+                        { code: 'ArrowUp', label: '↑', w: 1, gap: 1.5 }
+                    ],
+                    [
+                        { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
+                        { code: 'MetaLeft', label: 'win', w: 1.25 },
+                        { code: 'AltLeft', label: 'alt', w: 1.25 },
+                        { code: 'Space', label: 'space', w: 6.25 },
+                        { code: 'AltRight', label: 'alt', w: 1.25 },
+                        { code: 'MetaRight', label: 'win', w: 1.25 },
+                        { code: 'ContextMenu', label: 'menu', w: 1.25 },
+                        { code: 'ControlRight', label: 'ctrl', w: 1.25 },
+                        { code: 'ArrowLeft', label: '←', w: 1, gap: 0.5 },
+                        { code: 'ArrowDown', label: '↓', w: 1 },
+                        { code: 'ArrowRight', label: '→', w: 1 }
+                    ]
+                ],
+                '100': [
+                    [
+                        { code: 'Escape', label: 'esc', w: 1 },
+                        { code: 'F1', label: 'f1', w: 1, gap: 1 }, { code: 'F2', label: 'f2', w: 1 }, { code: 'F3', label: 'f3', w: 1 }, { code: 'F4', label: 'f4', w: 1 },
+                        { code: 'F5', label: 'f5', w: 1, gap: 0.5 }, { code: 'F6', label: 'f6', w: 1 }, { code: 'F7', label: 'f7', w: 1 }, { code: 'F8', label: 'f8', w: 1 },
+                        { code: 'F9', label: 'f9', w: 1, gap: 0.5 }, { code: 'F10', label: 'f10', w: 1 }, { code: 'F11', label: 'f11', w: 1 }, { code: 'F12', label: 'f12', w: 1 },
+                        { code: 'PrintScreen', label: 'prtsc', w: 1, gap: 0.5 }, { code: 'ScrollLock', label: 'scrlk', w: 1 }, { code: 'Pause', label: 'pause', w: 1 }
+                    ],
+                    [
+                        { code: 'Backquote', label: '`', w: 1 },
+                        { code: 'Digit1', label: '1', w: 1 }, { code: 'Digit2', label: '2', w: 1 }, { code: 'Digit3', label: '3', w: 1 },
+                        { code: 'Digit4', label: '4', w: 1 }, { code: 'Digit5', label: '5', w: 1 }, { code: 'Digit6', label: '6', w: 1 },
+                        { code: 'Digit7', label: '7', w: 1 }, { code: 'Digit8', label: '8', w: 1 }, { code: 'Digit9', label: '9', w: 1 },
+                        { code: 'Digit0', label: '0', w: 1 }, { code: 'Minus', label: '-', w: 1 }, { code: 'Equal', label: '=', w: 1 },
+                        { code: 'Backspace', label: 'backspace', w: 2 },
+                        { code: 'Insert', label: 'ins', w: 1, gap: 0.5 }, { code: 'Home', label: 'home', w: 1 }, { code: 'PageUp', label: 'pgup', w: 1 },
+                        { code: 'NumLock', label: 'num', w: 1, gap: 0.5 }, { code: 'NumpadDivide', label: 'num /', w: 1 }, { code: 'NumpadMultiply', label: 'num *', w: 1 }, { code: 'NumpadSubtract', label: 'num -', w: 1 }
+                    ],
+                    [
+                        { code: 'Tab', label: 'tab', w: 1.5 },
+                        { code: 'KeyQ', label: 'q', w: 1 }, { code: 'KeyW', label: 'w', w: 1 }, { code: 'KeyE', label: 'e', w: 1 },
+                        { code: 'KeyR', label: 'r', w: 1 }, { code: 'KeyT', label: 't', w: 1 }, { code: 'KeyY', label: 'y', w: 1 },
+                        { code: 'KeyU', label: 'u', w: 1 }, { code: 'KeyI', label: 'i', w: 1 }, { code: 'KeyO', label: 'o', w: 1 },
+                        { code: 'KeyP', label: 'p', w: 1 }, { code: 'BracketLeft', label: '[', w: 1 }, { code: 'BracketRight', label: ']', w: 1 },
+                        { code: 'Backslash', label: '\\', w: 1.5 },
+                        { code: 'Delete', label: 'del', w: 1, gap: 0.5 }, { code: 'End', label: 'end', w: 1 }, { code: 'PageDown', label: 'pgdn', w: 1 },
+                        { code: 'Numpad7', label: 'num 7', w: 1, gap: 0.5 }, { code: 'Numpad8', label: 'num 8', w: 1 }, { code: 'Numpad9', label: 'num 9', w: 1 }, { code: 'NumpadAdd', label: 'num +', w: 1 }
+                    ],
+                    [
+                        { code: 'CapsLock', label: 'caps', w: 1.75 },
+                        { code: 'KeyA', label: 'a', w: 1 }, { code: 'KeyS', label: 's', w: 1 }, { code: 'KeyD', label: 'd', w: 1 },
+                        { code: 'KeyF', label: 'f', w: 1 }, { code: 'KeyG', label: 'g', w: 1 }, { code: 'KeyH', label: 'h', w: 1 },
+                        { code: 'KeyJ', label: 'j', w: 1 }, { code: 'KeyK', label: 'k', w: 1 }, { code: 'KeyL', label: 'l', w: 1 },
+                        { code: 'Semicolon', label: ';', w: 1 }, { code: 'Quote', label: "'", w: 1 },
+                        { code: 'Enter', label: 'enter', w: 2.25 },
+                        { code: 'Numpad4', label: 'num 4', w: 1, gap: 4 }, { code: 'Numpad5', label: 'num 5', w: 1 }, { code: 'Numpad6', label: 'num 6', w: 1 }
+                    ],
+                    [
+                        { code: 'ShiftLeft', label: 'shift', w: 2.25 },
+                        { code: 'KeyZ', label: 'z', w: 1 }, { code: 'KeyX', label: 'x', w: 1 }, { code: 'KeyC', label: 'c', w: 1 },
+                        { code: 'KeyV', label: 'v', w: 1 }, { code: 'KeyB', label: 'b', w: 1 }, { code: 'KeyN', label: 'n', w: 1 },
+                        { code: 'KeyM', label: 'm', w: 1 }, { code: 'Comma', label: ',', w: 1 }, { code: 'Period', label: '.', w: 1 },
+                        { code: 'Slash', label: '/', w: 1 },
+                        { code: 'ShiftRight', label: 'shift', w: 2.75 },
+                        { code: 'ArrowUp', label: '↑', w: 1, gap: 1.5 },
+                        { code: 'Numpad1', label: 'num 1', w: 1, gap: 1.5 }, { code: 'Numpad2', label: 'num 2', w: 1 }, { code: 'Numpad3', label: 'num 3', w: 1 }, { code: 'NumpadEnter', label: 'num ent', w: 1 }
+                    ],
+                    [
+                        { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
+                        { code: 'MetaLeft', label: 'win', w: 1.25 },
+                        { code: 'AltLeft', label: 'alt', w: 1.25 },
+                        { code: 'Space', label: 'space', w: 6.25 },
+                        { code: 'AltRight', label: 'alt', w: 1.25 },
+                        { code: 'MetaRight', label: 'win', w: 1.25 },
+                        { code: 'ContextMenu', label: 'menu', w: 1.25 },
+                        { code: 'ControlRight', label: 'ctrl', w: 1.25 },
+                        { code: 'ArrowLeft', label: '←', w: 1, gap: 0.5 }, { code: 'ArrowDown', label: '↓', w: 1 }, { code: 'ArrowRight', label: '→', w: 1 },
+                        { code: 'Numpad0', label: 'num 0', w: 2, gap: 0.5 }, { code: 'NumpadDecimal', label: 'num .', w: 1 }
+                    ]
+                ]
+            };
+
+            function cloneRows(rows) {
+                return JSON.parse(JSON.stringify(rows));
+            }
+
+            // application configuration and state
+            let appConfig = {
+                title: '75% switch planner and tester',
+                subtitle: 'custom mechanical switch replacement studio',
+                layoutId: '75_custom',
+                combineGroup3IntoGroup1: true,
+                groups: {
+                    group1: { name: 'tactile', color: '#a855f7' },
+                    group2: { name: 'linear', color: '#eab308' },
+                    group3: { name: 'buy', color: '#10b981' }
+                },
+                customLayouts: {} // layoutId -> customized rows array
+            };
+
+            const keyStates = new Map();      // physical code -> 'group1' | 'group2' | 'group3' | 'unchecked'
             const activeCodes = new Set();    // currently held physical codes
-            const keycapElements = new Map(); // physical code -> { el, badgeEl, label }
-            const seenEvents = new WeakSet(); // deduplication across window/document/body listeners
-            let currentBrush = 'tactile';     // active colour mode applied on keypress: 'tactile' | 'linear' | 'buy' | 'unchecked'
+            const keycapElements = new Map(); // physical code -> { el, badgeEl, label, rowIdx, keyIdx }
+            const seenEvents = new WeakSet();
+            let currentBrush = 'group1';      // 'group1' | 'group2' | 'group3' | 'unchecked'
             let isDark = true;
             let isKeyboardLocked = false;
 
-            // dom references
-            const totalTactileCountEl = document.getElementById('totalTactileCountEl');
-            const totalTactilePctEl = document.getElementById('totalTactilePctEl');
-            const tactileSubtextEl = document.getElementById('tactileSubtext');
-            const buyCountEl = document.getElementById('buyCountEl');
-            const buySubtextEl = document.getElementById('buySubtext');
-            const linearCountEl = document.getElementById('linearCountEl');
-            const linearSubtextEl = document.getElementById('linearSubtext');
-            const uncheckedCountEl = document.getElementById('uncheckedCountEl');
-            const uncheckedSubtextEl = document.getElementById('uncheckedSubtext');
-            const totalBadgeEl = document.getElementById('totalBadge');
+            // layout editor state
+            let isEditLayoutMode = false;
+            let selectedKeyPos = null;        // { rowIdx, keyIdx }
+            let isSwapPending = false;
+            let isBindingKeyCode = false;
 
-            const lastKeyDisplayEl = document.getElementById('lastKeyDisplay');
-            const keyCodeLabelEl = document.getElementById('keyCodeLabel');
-            const lastKeySubtextEl = document.getElementById('lastKeySubtext');
-            const shieldStatusTextEl = document.getElementById('shieldStatusText');
-            const chartSummaryEl = document.getElementById('chartSummary');
-
+            // dom elements
+            const workspaceTitleEl = document.getElementById('workspaceTitleEl');
+            const workspaceSubtitleEl = document.getElementById('workspaceSubtitleEl');
+            const quickLayoutSelect = document.getElementById('quickLayoutSelect');
+            const editLayoutBtn = document.getElementById('editLayoutBtn');
+            const openSettingsBtn = document.getElementById('openSettingsBtn');
             const pasteListBtn = document.getElementById('pasteListBtn');
-            const pasteDrawer = document.getElementById('pasteDrawer');
-            const pasteTextarea = document.getElementById('pasteTextarea');
-            const pasteFeedback = document.getElementById('pasteFeedback');
-            const applyPasteBtn = document.getElementById('applyPasteBtn');
-            const cancelPasteBtn = document.getElementById('cancelPasteBtn');
-
             const copyListBtn = document.getElementById('copyListBtn');
-            const resetBtn = document.getElementById('resetBtn');
             const lockBtn = document.getElementById('lockBtn');
             const themeToggleBtn = document.getElementById('themeToggle');
             const sunIcon = document.getElementById('sunIcon');
             const moonIcon = document.getElementById('moonIcon');
+            const resetBtn = document.getElementById('resetBtn');
             const focusBadgeEl = document.getElementById('focusBadge');
             const statusDotEl = document.getElementById('statusDot');
-            const kbdMainBlock = document.getElementById('kbdMainBlock');
+
+            // paste drawer dom
+            const pasteDrawer = document.getElementById('pasteDrawer');
+            const pasteTextarea = document.getElementById('pasteTextarea');
+            const pasteFeedback = document.getElementById('pasteFeedback');
+            const loadDefaultPlanBtn = document.getElementById('loadDefaultPlanBtn');
+            const applyPasteBtn = document.getElementById('applyPasteBtn');
+            const cancelPasteBtn = document.getElementById('cancelPasteBtn');
+
+            // per-key layout editor dom
+            const layoutEditorBar = document.getElementById('layoutEditorBar');
+            const resetLayoutDefaultBtn = document.getElementById('resetLayoutDefaultBtn');
+            const closeEditLayoutBtn = document.getElementById('closeEditLayoutBtn');
+            const editKeyLabelInput = document.getElementById('editKeyLabelInput');
+            const editKeyCodeInput = document.getElementById('editKeyCodeInput');
+            const bindPhysicalKeyBtn = document.getElementById('bindPhysicalKeyBtn');
+            const editKeyWidthSelect = document.getElementById('editKeyWidthSelect');
+            const editKeyGapSelect = document.getElementById('editKeyGapSelect');
+            const applyKeyEditBtn = document.getElementById('applyKeyEditBtn');
+            const swapKeyModeBtn = document.getElementById('swapKeyModeBtn');
+            const insertKeyAfterBtn = document.getElementById('insertKeyAfterBtn');
+            const deleteSelectedKeyBtn = document.getElementById('deleteSelectedKeyBtn');
+            const editInspectorStatus = document.getElementById('editInspectorStatus');
+
+            // stat cards dom
+            const group1CardTitle = document.getElementById('group1CardTitle');
+            const group1Dot = document.getElementById('group1Dot');
+            const group1ComboDot = document.getElementById('group1ComboDot');
+            const group1CountEl = document.getElementById('group1CountEl');
+            const group1PctEl = document.getElementById('group1PctEl');
+            const group1Subtext = document.getElementById('group1Subtext');
+
+            const group3CardTitle = document.getElementById('group3CardTitle');
+            const group3Dot = document.getElementById('group3Dot');
+            const group3CountEl = document.getElementById('group3CountEl');
+            const group3Subtext = document.getElementById('group3Subtext');
+
+            const group2CardTitle = document.getElementById('group2CardTitle');
+            const group2Dot = document.getElementById('group2Dot');
+            const group2CountEl = document.getElementById('group2CountEl');
+            const group2Subtext = document.getElementById('group2Subtext');
+
+            const totalBadgeEl = document.getElementById('totalBadge');
+            const uncheckedCountEl = document.getElementById('uncheckedCountEl');
+            const uncheckedSubtextEl = document.getElementById('uncheckedSubtext');
+
+            const lastKeyDisplayEl = document.getElementById('lastKeyDisplay');
+            const keyCodeLabelEl = document.getElementById('keyCodeLabel');
+            const lastKeySubtextEl = document.getElementById('lastKeySubtext');
+
+            // keyboard & brush dom
+            const shieldStatusTextEl = document.getElementById('shieldStatusText');
             const brushButtons = document.querySelectorAll('.brush-btn');
+            const brushDot1 = document.getElementById('brushDot1');
+            const brushLabel1 = document.getElementById('brushLabel1');
+            const brushDot2 = document.getElementById('brushDot2');
+            const brushLabel2 = document.getElementById('brushLabel2');
+            const brushDot3 = document.getElementById('brushDot3');
+            const brushLabel3 = document.getElementById('brushLabel3');
+            const kbdMainBlock = document.getElementById('kbdMainBlock');
+
+            // chart dom
+            const chartSummaryEl = document.getElementById('chartSummary');
             const canvas = document.getElementById('frequencyCanvas');
             const ctx = canvas.getContext('2d');
 
-            // compact 75% mechanical keyboard layout definition (16u per row, 82 keys total)
-            const LAYOUT_75_ROWS = [
-                // row 1: function row (1 + 0.5 + 4 + 0.25 + 4 + 0.25 + 4 + 1 + 1 = 16u; del then prtsc on top right)
-                [
-                    { code: 'Escape', label: 'esc', w: 1 },
-                    { spacer: true, w: 0.5 },
-                    { code: 'F1', label: 'f1', w: 1 },
-                    { code: 'F2', label: 'f2', w: 1 },
-                    { code: 'F3', label: 'f3', w: 1 },
-                    { code: 'F4', label: 'f4', w: 1 },
-                    { spacer: true, w: 0.25 },
-                    { code: 'F5', label: 'f5', w: 1 },
-                    { code: 'F6', label: 'f6', w: 1 },
-                    { code: 'F7', label: 'f7', w: 1 },
-                    { code: 'F8', label: 'f8', w: 1 },
-                    { spacer: true, w: 0.25 },
-                    { code: 'F9', label: 'f9', w: 1 },
-                    { code: 'F10', label: 'f10', w: 1 },
-                    { code: 'F11', label: 'f11', w: 1 },
-                    { code: 'F12', label: 'f12', w: 1 },
-                    { code: 'Delete', label: 'del', w: 1 },
-                    { code: 'Home', label: 'home', w: 1 }
-                ],
-                // row 2: number row (13 + 2 + 1 = 16u)
-                [
-                    { code: 'Backquote', label: '`', w: 1 },
-                    { code: 'Digit1', label: '1', w: 1 },
-                    { code: 'Digit2', label: '2', w: 1 },
-                    { code: 'Digit3', label: '3', w: 1 },
-                    { code: 'Digit4', label: '4', w: 1 },
-                    { code: 'Digit5', label: '5', w: 1 },
-                    { code: 'Digit6', label: '6', w: 1 },
-                    { code: 'Digit7', label: '7', w: 1 },
-                    { code: 'Digit8', label: '8', w: 1 },
-                    { code: 'Digit9', label: '9', w: 1 },
-                    { code: 'Digit0', label: '0', w: 1 },
-                    { code: 'Minus', label: '-', w: 1 },
-                    { code: 'Equal', label: '=', w: 1 },
-                    { code: 'Backspace', label: 'backspace', w: 2 },
-                    { code: 'PageUp', label: 'pgup', w: 1 }
-                ],
-                // row 3: qwerty row (1.5 + 12 + 1.5 + 1 = 16u)
-                [
-                    { code: 'Tab', label: 'tab', w: 1.5 },
-                    { code: 'KeyQ', label: 'q', w: 1 },
-                    { code: 'KeyW', label: 'w', w: 1 },
-                    { code: 'KeyE', label: 'e', w: 1 },
-                    { code: 'KeyR', label: 'r', w: 1 },
-                    { code: 'KeyT', label: 't', w: 1 },
-                    { code: 'KeyY', label: 'y', w: 1 },
-                    { code: 'KeyU', label: 'u', w: 1 },
-                    { code: 'KeyI', label: 'i', w: 1 },
-                    { code: 'KeyO', label: 'o', w: 1 },
-                    { code: 'KeyP', label: 'p', w: 1 },
-                    { code: 'BracketLeft', label: '[', w: 1 },
-                    { code: 'BracketRight', label: ']', w: 1 },
-                    { code: 'Backslash', label: '\\', w: 1.5 },
-                    { code: 'PageDown', label: 'pgdn', w: 1 }
-                ],
-                // row 4: home row (1.75 + 11 + 2.25 + 1 = 16u)
-                [
-                    { code: 'CapsLock', label: 'caps', w: 1.75 },
-                    { code: 'KeyA', label: 'a', w: 1 },
-                    { code: 'KeyS', label: 's', w: 1 },
-                    { code: 'KeyD', label: 'd', w: 1 },
-                    { code: 'KeyF', label: 'f', w: 1 },
-                    { code: 'KeyG', label: 'g', w: 1 },
-                    { code: 'KeyH', label: 'h', w: 1 },
-                    { code: 'KeyJ', label: 'j', w: 1 },
-                    { code: 'KeyK', label: 'k', w: 1 },
-                    { code: 'KeyL', label: 'l', w: 1 },
-                    { code: 'Semicolon', label: ';', w: 1 },
-                    { code: 'Quote', label: "'", w: 1 },
-                    { code: 'Enter', label: 'enter', w: 2.25 },
-                    { code: 'End', label: 'end', w: 1 }
-                ],
-                // row 5: shift row (2.25 + 10 + 1.75 + 1 + 1 = 16u)
-                [
-                    { code: 'ShiftLeft', label: 'shift', w: 2.25 },
-                    { code: 'KeyZ', label: 'z', w: 1 },
-                    { code: 'KeyX', label: 'x', w: 1 },
-                    { code: 'KeyC', label: 'c', w: 1 },
-                    { code: 'KeyV', label: 'v', w: 1 },
-                    { code: 'KeyB', label: 'b', w: 1 },
-                    { code: 'KeyN', label: 'n', w: 1 },
-                    { code: 'KeyM', label: 'm', w: 1 },
-                    { code: 'Comma', label: ',', w: 1 },
-                    { code: 'Period', label: '.', w: 1 },
-                    { code: 'Slash', label: '/', w: 1 },
-                    { code: 'ShiftRight', label: 'shift', w: 1.75 },
-                    { code: 'ArrowUp', label: '↑', w: 1 },
-                    { spacer: true, w: 1 }
-                ],
-                // row 6: bottom row (1.25*3 + 6.25 + 1 + 1 + 1 + 3 = 16u)
-                [
-                    { code: 'ControlLeft', label: 'ctrl', w: 1.25 },
-                    { code: 'MetaLeft', label: 'win', w: 1.25 },
-                    { code: 'AltLeft', label: 'alt', w: 1.25 },
-                    { code: 'Space', label: 'space', w: 6.25 },
-                    { code: 'AltRight', label: 'alt', w: 1 },
-                    { code: 'Fn', label: 'fn', w: 1 },
-                    { code: 'ControlRight', label: 'ctrl', w: 1 },
-                    { code: 'ArrowLeft', label: '←', w: 1 },
-                    { code: 'ArrowDown', label: '↓', w: 1 },
-                    { code: 'ArrowRight', label: '→', w: 1 }
-                ]
-            ];
+            // settings modal dom
+            const settingsModal = document.getElementById('settingsModal');
+            const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+            const settingsTitleInput = document.getElementById('settingsTitleInput');
+            const settingsSubtitleInput = document.getElementById('settingsSubtitleInput');
+            const group1ColorInput = document.getElementById('group1ColorInput');
+            const group1NameInput = document.getElementById('group1NameInput');
+            const group2ColorInput = document.getElementById('group2ColorInput');
+            const group2NameInput = document.getElementById('group2NameInput');
+            const group3ColorInput = document.getElementById('group3ColorInput');
+            const group3NameInput = document.getElementById('group3NameInput');
+            const combineGroup3Checkbox = document.getElementById('combineGroup3Checkbox');
+            const settingsLayoutSelect = document.getElementById('settingsLayoutSelect');
+            const launchPerKeyEditorFromSettingsBtn = document.getElementById('launchPerKeyEditorFromSettingsBtn');
+            const jsonConfigTextarea = document.getElementById('jsonConfigTextarea');
+            const jsonConfigStatus = document.getElementById('jsonConfigStatus');
+            const exportJsonBtn = document.getElementById('exportJsonBtn');
+            const importJsonBtn = document.getElementById('importJsonBtn');
+            const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
             /**
-             * checks whether the paste drawer textarea is currently active
+             * helper: converts hex color (#rrggbb) to rgba(r, g, b, alpha)
              */
-            function isPasteModeOpen() {
-                return pasteDrawer && !pasteDrawer.classList.contains('hidden');
+            function hexToRgba(hex, alpha) {
+                const clean = (hex || '#a855f7').replace('#', '');
+                const num = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
+                const r = (num >> 16) & 255;
+                const g = (num >> 8) & 255;
+                const b = num & 255;
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+
+            /**
+             * returns the active rows array for the current layoutId
+             */
+            function getActiveLayoutRows() {
+                const id = appConfig.layoutId || '75_custom';
+                if (!appConfig.customLayouts[id]) {
+                    const base = LAYOUT_PRESETS[id] || LAYOUT_PRESETS['75_custom'];
+                    appConfig.customLayouts[id] = cloneRows(base);
+                }
+                return appConfig.customLayouts[id];
+            }
+
+            /**
+             * checks if an input, textarea, select, or modal is currently active
+             */
+            function isInteractiveInputActive() {
+                if (!settingsModal.classList.contains('hidden')) return true;
+                if (!pasteDrawer.classList.contains('hidden')) return true;
+                const active = document.activeElement;
+                if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) {
+                    return true;
+                }
+                return false;
+            }
+
+            /**
+             * saves config and key assignments to localStorage
+             */
+            function saveToStorage() {
+                try {
+                    const serializedStates = {};
+                    keyStates.forEach((v, k) => {
+                        if (v && v !== 'unchecked') serializedStates[k] = v;
+                    });
+                    const payload = {
+                        appConfig,
+                        keyStates: serializedStates
+                    };
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+                } catch (_) {
+                    // ignore storage quota errors
+                }
+            }
+
+            /**
+             * loads saved state from localStorage or initializes with user's 82-key 75% switch plan
+             */
+            function loadFromStorage() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.appConfig) {
+                            appConfig = Object.assign(appConfig, parsed.appConfig);
+                        }
+                        buildVisualKeyboard();
+                        if (parsed && parsed.keyStates) {
+                            keyStates.clear();
+                            Object.entries(parsed.keyStates).forEach(([k, v]) => {
+                                keyStates.set(k, v);
+                            });
+                        }
+                        syncBrandingAndBrushUI();
+                        syncSwitchCountsUI();
+                        updateVisualKeyboardStyles();
+                        drawChart();
+                        return;
+                    }
+                } catch (_) {
+                    // fallback to default initialization
+                }
+
+                // first-run default: build 75% custom layout and pre-load the 82-key switch plan
+                buildVisualKeyboard();
+                syncBrandingAndBrushUI();
+                parseAndApplySwitchList(DEFAULT_75_PLAN_TEXT, true);
+            }
+
+            /**
+             * synchronizes workspace titles, brush buttons, and stat card headers with appConfig
+             */
+            function syncBrandingAndBrushUI() {
+                workspaceTitleEl.textContent = (appConfig.title || '75% switch planner and tester').toLowerCase();
+                workspaceSubtitleEl.textContent = (appConfig.subtitle || 'custom mechanical switch replacement studio').toLowerCase();
+                quickLayoutSelect.value = appConfig.layoutId || '75_custom';
+                settingsLayoutSelect.value = appConfig.layoutId || '75_custom';
+
+                const g1 = appConfig.groups.group1;
+                const g2 = appConfig.groups.group2;
+                const g3 = appConfig.groups.group3;
+
+                // brush bar dots and labels
+                brushDot1.style.backgroundColor = g1.color;
+                brushLabel1.textContent = g1.name.toLowerCase();
+
+                brushDot2.style.backgroundColor = g2.color;
+                brushLabel2.textContent = g2.name.toLowerCase();
+
+                brushDot3.style.backgroundColor = g3.color;
+                brushLabel3.textContent = g3.name.toLowerCase();
+
+                // stat card colors and titles
+                group1Dot.style.backgroundColor = g1.color;
+                group1ComboDot.style.backgroundColor = g3.color;
+                group1ComboDot.style.display = appConfig.combineGroup3IntoGroup1 ? 'inline-block' : 'none';
+                group1CountEl.style.color = g1.color;
+                group1CardTitle.style.color = g1.color;
+
+                group2Dot.style.backgroundColor = g2.color;
+                group2CountEl.style.color = g2.color;
+                group2CardTitle.style.color = g2.color;
+                group2CardTitle.textContent = g2.name.toLowerCase();
+
+                group3Dot.style.backgroundColor = g3.color;
+                group3CountEl.style.color = g3.color;
+                group3CardTitle.style.color = g3.color;
+                group1PctEl.style.color = appConfig.combineGroup3IntoGroup1 ? g3.color : g1.color;
+
+                if (appConfig.combineGroup3IntoGroup1) {
+                    group1CardTitle.textContent = `total ${g1.name} (+${g3.name})`.toLowerCase();
+                    group3CardTitle.textContent = `${g3.name} (+${g1.name})`.toLowerCase();
+                } else {
+                    group1CardTitle.textContent = g1.name.toLowerCase();
+                    group3CardTitle.textContent = g3.name.toLowerCase();
+                }
+
+                setActiveBrush(currentBrush);
             }
 
             /**
@@ -445,124 +1213,218 @@
                     const mode = btn.dataset.brush;
                     const isSelected = mode === brushMode;
 
-                    if (mode === 'tactile') {
+                    btn.style.backgroundColor = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+
+                    if (mode === 'unchecked') {
                         btn.className = isSelected
-                            ? 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-purple-600/30 border border-purple-400 text-purple-200 shadow-sm'
-                            : 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-purple-300';
-                    } else if (mode === 'linear') {
-                        btn.className = isSelected
-                            ? 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-amber-500/25 border border-amber-400 text-amber-200 shadow-sm'
-                            : 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-amber-300';
-                    } else if (mode === 'buy') {
-                        btn.className = isSelected
-                            ? 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-emerald-500/25 border border-emerald-400 text-emerald-200 shadow-sm'
-                            : 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-emerald-300';
-                    } else {
-                        btn.className = isSelected
-                            ? 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-700/50 border border-zinc-400 text-zinc-100 shadow-sm'
+                            ? 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-700/60 border border-zinc-400 text-zinc-100 shadow-sm'
                             : 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200';
+                    } else {
+                        const grp = appConfig.groups[mode];
+                        if (isSelected && grp) {
+                            btn.className = 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all border shadow-sm';
+                            btn.style.backgroundColor = hexToRgba(grp.color, 0.26);
+                            btn.style.borderColor = grp.color;
+                            btn.style.color = '#ffffff';
+                        } else {
+                            btn.className = 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200';
+                        }
                     }
                 });
 
-                if (!isKeyboardLocked) {
-                    shieldStatusTextEl.textContent = `active colour: ${brushMode} (press any key or click keycap to apply)`;
+                const activeBrushName = brushMode === 'unchecked'
+                    ? 'unchecked'
+                    : (appConfig.groups[brushMode]?.name || brushMode);
+
+                if (!isKeyboardLocked && !isEditLayoutMode) {
+                    shieldStatusTextEl.textContent = `active brush: ${activeBrushName.toLowerCase()} (press any key or left-click keycap to paint, middle-click for ${appConfig.groups.group3.name.toLowerCase()}, right-click to uncheck)`;
                 }
             }
 
             /**
-             * builds the interactive 75% visual keyboard dom from row definitions
+             * builds the interactive visual keyboard dom from the active layout rows
              */
             function buildVisualKeyboard() {
                 kbdMainBlock.innerHTML = '';
                 keycapElements.clear();
 
-                LAYOUT_75_ROWS.forEach((row) => {
+                const rows = getActiveLayoutRows();
+
+                rows.forEach((row, rowIdx) => {
                     const rowEl = document.createElement('div');
                     rowEl.className = 'flex items-stretch gap-1.5 h-10 sm:h-11';
 
-                    row.forEach((item) => {
-                        if (item.spacer) {
+                    row.forEach((item, keyIdx) => {
+                        // optional left blocker spacer
+                        const gap = parseFloat(item.gap) || 0;
+                        if (gap > 0) {
                             const spacerEl = document.createElement('div');
-                            spacerEl.style.flex = `${item.w} 1 0%`;
+                            spacerEl.style.flex = `${gap} 1 0%`;
                             spacerEl.setAttribute('aria-hidden', 'true');
                             rowEl.appendChild(spacerEl);
-                            return;
                         }
 
                         const keyEl = document.createElement('div');
-                        keyEl.style.flex = `${item.w} 1 0%`;
+                        const widthU = parseFloat(item.w) || 1;
+                        keyEl.style.flex = `${widthU} 1 0%`;
                         keyEl.dataset.code = item.code;
+                        keyEl.dataset.rowIdx = String(rowIdx);
+                        keyEl.dataset.keyIdx = String(keyIdx);
                         keyEl.className = 'keycap relative rounded-lg border-b-[3px] border border-zinc-800 bg-zinc-900 text-zinc-300 flex flex-col items-center justify-center px-1 overflow-hidden cursor-pointer';
 
                         const labelSpan = document.createElement('span');
                         labelSpan.className = 'font-mono text-[10px] sm:text-xs font-semibold leading-none tracking-tight truncate max-w-full';
-                        labelSpan.textContent = item.label;
+                        labelSpan.textContent = (item.label || item.code).toLowerCase();
 
                         const badgeSpan = document.createElement('span');
-                        badgeSpan.className = 'font-mono text-[9px] leading-none mt-1 opacity-0 transition-opacity';
+                        badgeSpan.className = 'font-mono text-[9px] leading-none mt-1 opacity-0 transition-opacity truncate max-w-full';
                         badgeSpan.textContent = '1';
 
                         keyEl.appendChild(labelSpan);
                         keyEl.appendChild(badgeSpan);
 
-                        // support left-click to apply current brush colour and right-click to quick-uncheck
+                        // pointer interaction: supports edit layout mode OR brush painting + middle-click + right-click
                         keyEl.addEventListener('pointerdown', (ev) => {
+                            if (isEditLayoutMode) {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                handleKeyClickInEditMode(rowIdx, keyIdx);
+                                return;
+                            }
+
                             if (ev.button === 0) {
                                 ev.preventDefault();
                                 ev.stopPropagation();
-                                applyBrushToKey(item.label, item.code);
+                                applyBrushToKey(item.label, item.code, currentBrush);
+                                setTimeout(() => releaseKeyVisual(item.code), 120);
+                            } else if (ev.button === 1) {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                applyBrushToKey(item.label, item.code, 'group3');
                                 setTimeout(() => releaseKeyVisual(item.code), 120);
                             } else if (ev.button === 2) {
                                 ev.preventDefault();
                                 ev.stopPropagation();
-                                clearSingleKey(item.label, item.code);
+                                applyBrushToKey(item.label, item.code, 'unchecked');
                             }
                         });
 
-                        // block context menu on keycaps
                         keyEl.addEventListener('contextmenu', (ev) => {
                             ev.preventDefault();
                             ev.stopPropagation();
                         });
 
                         rowEl.appendChild(keyEl);
-                        keycapElements.set(item.code, { el: keyEl, badgeEl: badgeSpan, label: item.label });
+                        keycapElements.set(item.code, {
+                            el: keyEl,
+                            badgeEl: badgeSpan,
+                            label: (item.label || item.code).toLowerCase(),
+                            rowIdx,
+                            keyIdx
+                        });
                     });
 
                     kbdMainBlock.appendChild(rowEl);
                 });
 
                 totalBadgeEl.textContent = `${keycapElements.size} total`;
+                highlightSelectedEditKey();
                 syncSwitchCountsUI();
                 updateVisualKeyboardStyles();
             }
 
             /**
-             * computes current counts for tactile, linear, buy, combined tactile, and unchecked keys
+             * handles clicking a keycap while per-key layout editor mode is open
+             */
+            function handleKeyClickInEditMode(rowIdx, keyIdx) {
+                const rows = getActiveLayoutRows();
+                if (!rows[rowIdx] || !rows[rowIdx][keyIdx]) return;
+
+                // if swap mode is active and we have a source key, swap them immediately
+                if (isSwapPending && selectedKeyPos) {
+                    const src = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
+                    const dst = rows[rowIdx]?.[keyIdx];
+                    if (src && dst) {
+                        const tempCode = src.code;
+                        const tempLabel = src.label;
+                        src.code = dst.code;
+                        src.label = dst.label;
+                        dst.code = tempCode;
+                        dst.label = tempLabel;
+
+                        isSwapPending = false;
+                        swapKeyModeBtn.textContent = 'swap with next clicked key';
+                        selectedKeyPos = { rowIdx, keyIdx };
+                        saveToStorage();
+                        buildVisualKeyboard();
+                        populateInspectorForSelectedKey();
+                        drawChart();
+                        editInspectorStatus.textContent = `swapped keys -> now inspecting ${dst.label} (${dst.code.toLowerCase()})`;
+                        return;
+                    }
+                }
+
+                selectedKeyPos = { rowIdx, keyIdx };
+                isSwapPending = false;
+                swapKeyModeBtn.textContent = 'swap with next clicked key';
+                populateInspectorForSelectedKey();
+                highlightSelectedEditKey();
+            }
+
+            /**
+             * populates the per-key inspector inputs with the currently selected key's properties
+             */
+            function populateInspectorForSelectedKey() {
+                if (!selectedKeyPos) return;
+                const rows = getActiveLayoutRows();
+                const item = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
+                if (!item) return;
+
+                editKeyLabelInput.value = (item.label || '').toLowerCase();
+                editKeyCodeInput.value = (item.code || '').toLowerCase();
+                editKeyWidthSelect.value = String(item.w || 1);
+                editKeyGapSelect.value = String(item.gap || 0);
+                editInspectorStatus.textContent = `editing row ${selectedKeyPos.rowIdx + 1}, key ${selectedKeyPos.keyIdx + 1}: "${item.label.toLowerCase()}" (code: ${item.code.toLowerCase()}, width: ${item.w || 1}u)`;
+            }
+
+            /**
+             * outlines the currently selected keycap in edit layout mode
+             */
+            function highlightSelectedEditKey() {
+                keycapElements.forEach(({ el, rowIdx, keyIdx }) => {
+                    el.classList.remove('selected-for-edit', 'swap-source');
+                    if (isEditLayoutMode && selectedKeyPos && selectedKeyPos.rowIdx === rowIdx && selectedKeyPos.keyIdx === keyIdx) {
+                        el.classList.add(isSwapPending ? 'swap-source' : 'selected-for-edit');
+                    }
+                });
+            }
+
+            /**
+             * computes current counts for group1, group2, group3, combined goal, and unchecked keys
              */
             function getSwitchBreakdown() {
-                const totalKeys = keycapElements.size || 82;
-                let tactile = 0;
-                let linear = 0;
-                let buy = 0;
+                const totalKeys = keycapElements.size || 1;
+                let group1 = 0;
+                let group2 = 0;
+                let group3 = 0;
                 let unchecked = 0;
 
                 keycapElements.forEach((_, code) => {
                     const st = keyStates.get(code) || 'unchecked';
-                    if (st === 'tactile') tactile += 1;
-                    else if (st === 'linear') linear += 1;
-                    else if (st === 'buy') buy += 1;
+                    if (st === 'group1') group1 += 1;
+                    else if (st === 'group2') group2 += 1;
+                    else if (st === 'group3') group3 += 1;
                     else unchecked += 1;
                 });
 
-                const totalTactile = tactile + buy;
-                return { totalKeys, tactile, linear, buy, totalTactile, unchecked };
+                const combinedPrimary = appConfig.combineGroup3IntoGroup1 ? (group1 + group3) : group1;
+                return { totalKeys, group1, group2, group3, combinedPrimary, unchecked };
             }
 
-            /**
-             * formats a clean percentage string with 1 decimal place when fractional
-             */
             function formatPercent(count, total) {
+                if (!total) return '0%';
                 const raw = (count / total) * 100;
                 const rounded = Math.round(raw * 10) / 10;
                 return `${rounded}%`;
@@ -572,39 +1434,48 @@
              * updates the top five switch planner stat cards
              */
             function syncSwitchCountsUI() {
-                const { totalKeys, tactile, linear, buy, totalTactile, unchecked } = getSwitchBreakdown();
-                const assigned = totalTactile + linear;
+                const { totalKeys, group1, group2, group3, combinedPrimary, unchecked } = getSwitchBreakdown();
+                const assigned = group1 + group2 + group3;
+                const g1Name = appConfig.groups.group1.name.toLowerCase();
+                const g3Name = appConfig.groups.group3.name.toLowerCase();
 
-                totalTactileCountEl.textContent = totalTactile.toLocaleString();
-                totalTactilePctEl.textContent = formatPercent(totalTactile, totalKeys);
-                tactileSubtextEl.textContent = `${tactile} tactile + ${buy} buy of ${totalKeys}`;
+                group1CountEl.textContent = combinedPrimary.toLocaleString();
+                group1PctEl.textContent = formatPercent(combinedPrimary, totalKeys);
+                if (appConfig.combineGroup3IntoGroup1) {
+                    group1Subtext.textContent = `${group1} ${g1Name} + ${group3} ${g3Name} of ${totalKeys}`;
+                    group3CountEl.textContent = `+${group3.toLocaleString()}`;
+                    group3Subtext.textContent = `adds +${formatPercent(group3, totalKeys)} to ${g1Name}`;
+                } else {
+                    group1Subtext.textContent = `${formatPercent(group1, totalKeys)} of ${totalKeys} keys`;
+                    group3CountEl.textContent = group3.toLocaleString();
+                    group3Subtext.textContent = `${formatPercent(group3, totalKeys)} of ${totalKeys} keys`;
+                }
 
-                buyCountEl.textContent = `+${buy.toLocaleString()}`;
-                buySubtextEl.textContent = `adds +${formatPercent(buy, totalKeys)} to tactile`;
-
-                linearCountEl.textContent = linear.toLocaleString();
-                linearSubtextEl.textContent = `${formatPercent(linear, totalKeys)} of ${totalKeys} keys`;
+                group2CountEl.textContent = group2.toLocaleString();
+                group2Subtext.textContent = `${formatPercent(group2, totalKeys)} of ${totalKeys} keys`;
 
                 uncheckedCountEl.textContent = unchecked.toLocaleString();
                 uncheckedSubtextEl.textContent = `${assigned} / ${totalKeys} assigned`;
             }
 
             /**
-             * updates the last input metric card with badge color matching switch assignment
+             * updates the last input metric card with dynamic color styling
              */
-            function updateLastInputCard(label, code, assignmentText) {
-                lastKeyDisplayEl.textContent = label;
-                keyCodeLabelEl.textContent = (code || label).toLowerCase();
-                lastKeySubtextEl.textContent = assignmentText;
+            function updateLastInputCard(label, code, groupKey) {
+                lastKeyDisplayEl.textContent = (label || 'none').toLowerCase();
+                keyCodeLabelEl.textContent = (code || label || 'waiting').toLowerCase();
 
-                if (assignmentText.startsWith('tactile')) {
-                    lastKeyDisplayEl.className = 'inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl bg-purple-950/70 border-b-4 border-purple-700 font-mono text-lg sm:text-xl font-bold text-purple-300 shadow-inner transition-transform duration-75';
-                } else if (assignmentText.startsWith('linear')) {
-                    lastKeyDisplayEl.className = 'inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl bg-amber-950/70 border-b-4 border-amber-700 font-mono text-lg sm:text-xl font-bold text-amber-300 shadow-inner transition-transform duration-75';
-                } else if (assignmentText.startsWith('buy')) {
-                    lastKeyDisplayEl.className = 'inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl bg-emerald-950/70 border-b-4 border-emerald-700 font-mono text-lg sm:text-xl font-bold text-emerald-300 shadow-inner transition-transform duration-75';
+                if (groupKey && appConfig.groups[groupKey]) {
+                    const grp = appConfig.groups[groupKey];
+                    lastKeySubtextEl.textContent = `marked ${grp.name.toLowerCase()}`;
+                    lastKeyDisplayEl.style.backgroundColor = hexToRgba(grp.color, 0.25);
+                    lastKeyDisplayEl.style.borderColor = grp.color;
+                    lastKeyDisplayEl.style.color = grp.color;
                 } else {
-                    lastKeyDisplayEl.className = 'inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl bg-zinc-800 border-b-4 border-zinc-700 font-mono text-lg sm:text-xl font-bold text-zinc-300 shadow-inner transition-transform duration-75';
+                    lastKeySubtextEl.textContent = typeof groupKey === 'string' ? groupKey.toLowerCase() : 'unchecked (cleared)';
+                    lastKeyDisplayEl.style.backgroundColor = '';
+                    lastKeyDisplayEl.style.borderColor = '';
+                    lastKeyDisplayEl.style.color = '';
                 }
 
                 lastKeyDisplayEl.classList.add('scale-95');
@@ -612,29 +1483,23 @@
             }
 
             /**
-             * updates visual state (active press + linear yellow / tactile purple / buy green / unchecked) across all keycaps
+             * updates visual keycap colors across all keys based on custom hex colors
              */
             function updateVisualKeyboardStyles() {
                 keycapElements.forEach(({ el, badgeEl }, code) => {
                     const markState = keyStates.get(code) || 'unchecked';
                     const isPressed = activeCodes.has(code);
-                    const isAssigned = markState !== 'unchecked';
+                    const grp = appConfig.groups[markState];
 
-                    if (isAssigned) {
-                        badgeEl.textContent = '1';
+                    if (grp) {
+                        badgeEl.textContent = grp.name.slice(0, 3).toLowerCase();
                         badgeEl.classList.remove('opacity-0');
                         badgeEl.classList.add('opacity-90');
                     } else {
-                        badgeEl.textContent = '0';
+                        badgeEl.textContent = '';
                         badgeEl.classList.add('opacity-0');
                         badgeEl.classList.remove('opacity-90');
                     }
-
-                    // reset inline overrides before applying current key state
-                    el.style.backgroundColor = '';
-                    el.style.borderColor = '';
-                    el.style.boxShadow = '';
-                    el.style.color = '';
 
                     if (isPressed) {
                         el.classList.add('is-pressed');
@@ -642,64 +1507,29 @@
                         el.classList.remove('is-pressed');
                     }
 
-                    if (markState === 'tactile') {
+                    if (grp) {
+                        const hex = grp.color;
                         if (isPressed) {
-                            el.style.backgroundColor = '#7e22ce';
-                            el.style.borderColor = '#d8b4fe';
+                            el.style.backgroundColor = hex;
+                            el.style.borderColor = '#ffffff';
                             el.style.color = '#ffffff';
-                            el.style.boxShadow = '0 0 18px rgba(168, 85, 247, 0.75)';
-                            badgeEl.style.color = '#f3e8ff';
+                            el.style.boxShadow = `0 0 18px ${hexToRgba(hex, 0.8)}`;
+                            badgeEl.style.color = '#ffffff';
                         } else if (isDark) {
-                            el.style.backgroundColor = 'rgba(147, 51, 234, 0.55)';
-                            el.style.borderColor = '#a855f7';
-                            el.style.color = '#f3e8ff';
-                            el.style.boxShadow = '0 0 10px rgba(168, 85, 247, 0.25)';
-                            badgeEl.style.color = '#e9d5ff';
+                            el.style.backgroundColor = hexToRgba(hex, 0.38);
+                            el.style.borderColor = hex;
+                            el.style.color = '#f4f4f5';
+                            el.style.boxShadow = `0 0 10px ${hexToRgba(hex, 0.22)}`;
+                            badgeEl.style.color = '#e4e4e7';
                         } else {
-                            el.style.backgroundColor = 'rgba(168, 85, 247, 0.35)';
-                            el.style.borderColor = '#9333ea';
-                            el.style.color = '#3b0764';
-                            badgeEl.style.color = '#581c87';
-                        }
-                    } else if (markState === 'linear') {
-                        if (isPressed) {
-                            el.style.backgroundColor = '#eab308';
-                            el.style.borderColor = '#fef08a';
+                            el.style.backgroundColor = hexToRgba(hex, 0.28);
+                            el.style.borderColor = hex;
                             el.style.color = '#18181b';
-                            el.style.boxShadow = '0 0 18px rgba(250, 204, 21, 0.75)';
-                            badgeEl.style.color = '#18181b';
-                        } else if (isDark) {
-                            el.style.backgroundColor = 'rgba(234, 179, 8, 0.36)';
-                            el.style.borderColor = '#facc15';
-                            el.style.color = '#fef9c3';
-                            el.style.boxShadow = '0 0 10px rgba(250, 204, 21, 0.22)';
-                            badgeEl.style.color = '#fde047';
-                        } else {
-                            el.style.backgroundColor = '#fef08a';
-                            el.style.borderColor = '#eab308';
-                            el.style.color = '#713f12';
-                            badgeEl.style.color = '#854d0e';
-                        }
-                    } else if (markState === 'buy') {
-                        if (isPressed) {
-                            el.style.backgroundColor = '#10b981';
-                            el.style.borderColor = '#a7f3d0';
-                            el.style.color = '#052e16';
-                            el.style.boxShadow = '0 0 18px rgba(16, 185, 129, 0.75)';
-                            badgeEl.style.color = '#052e16';
-                        } else if (isDark) {
-                            el.style.backgroundColor = 'rgba(16, 185, 129, 0.36)';
-                            el.style.borderColor = '#34d399';
-                            el.style.color = '#d1fae5';
-                            el.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.24)';
-                            badgeEl.style.color = '#6ee7b7';
-                        } else {
-                            el.style.backgroundColor = '#a7f3d0';
-                            el.style.borderColor = '#10b981';
-                            el.style.color = '#064e3b';
-                            badgeEl.style.color = '#065f46';
+                            el.style.boxShadow = 'none';
+                            badgeEl.style.color = '#27272a';
                         }
                     } else {
+                        el.style.boxShadow = '';
                         if (isDark) {
                             el.style.backgroundColor = '#18181b';
                             el.style.borderColor = '#27272a';
@@ -716,11 +1546,21 @@
             }
 
             /**
-             * resolves physical code from event.code or fallback from event.key
+             * resolves physical code from event.code or fallback from event.key against current layout
              */
             function resolvePhysicalCode(e) {
                 if (e.code && keycapElements.has(e.code)) {
                     return e.code;
+                }
+
+                // case-insensitive match against custom bound key codes
+                if (e.code) {
+                    const lowerCode = e.code.toLowerCase();
+                    for (const [canonicalCode] of keycapElements.entries()) {
+                        if (canonicalCode.toLowerCase() === lowerCode) {
+                            return canonicalCode;
+                        }
+                    }
                 }
 
                 const key = (e.key || '').toLowerCase();
@@ -759,7 +1599,10 @@
                     alt: 'AltLeft',
                     fn: 'Fn',
                     home: 'Home',
-                    printscreen: 'Home',
+                    printscreen: keycapElements.has('PrintScreen') ? 'PrintScreen' : 'Home',
+                    scrolllock: 'ScrollLock',
+                    pause: 'Pause',
+                    insert: 'Insert',
                     pageup: 'PageUp',
                     delete: 'Delete',
                     end: 'End',
@@ -771,92 +1614,38 @@
                 };
 
                 if (keyToCode[key]) return keyToCode[key];
-                if (e.code) return e.code;
-                return '';
+                return e.code || '';
             }
 
             /**
              * normalizes physical e.code and e.key into a clean lowercase label
              */
             function formatKeyLabel(e, resolvedCode) {
-                const code = resolvedCode || e.code || '';
-                const codeMap = {
-                    Escape: 'esc',
-                    F1: 'f1', F2: 'f2', F3: 'f3', F4: 'f4',
-                    F5: 'f5', F6: 'f6', F7: 'f7', F8: 'f8',
-                    F9: 'f9', F10: 'f10', F11: 'f11', F12: 'f12',
-                    Backquote: '`',
-                    Digit1: '1', Digit2: '2', Digit3: '3', Digit4: '4', Digit5: '5',
-                    Digit6: '6', Digit7: '7', Digit8: '8', Digit9: '9', Digit0: '0',
-                    Minus: '-', Equal: '=',
-                    Backspace: 'backspace',
-                    Tab: 'tab',
-                    CapsLock: 'caps',
-                    Enter: 'enter',
-                    ShiftLeft: 'shift', ShiftRight: 'shift',
-                    ControlLeft: 'ctrl', ControlRight: 'ctrl',
-                    MetaLeft: 'win',
-                    Fn: 'fn',
-                    AltLeft: 'alt', AltRight: 'alt',
-                    Space: 'space',
-                    Home: 'home',
-                    PrintScreen: 'home',
-                    PageUp: 'pgup',
-                    Delete: 'del',
-                    End: 'end',
-                    PageDown: 'pgdn',
-                    ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→'
-                };
-
-                if (code && codeMap[code]) {
-                    return codeMap[code];
-                }
-                if (code && code.startsWith('Key') && code.length === 4) {
-                    return code.slice(3).toLowerCase();
+                if (resolvedCode && keycapElements.has(resolvedCode)) {
+                    return keycapElements.get(resolvedCode).label;
                 }
                 if (e.key === ' ') return 'space';
                 if (e.key && e.key.length === 1) return e.key.toLowerCase();
-                return (e.key || code || 'unknown').toLowerCase();
+                return (e.key || resolvedCode || 'key').toLowerCase();
             }
 
             /**
-             * applies the currently selected brush colour to a key on keypress
+             * applies a brush group to a specific key
              */
-            function applyBrushToKey(label, code) {
-                if (code) {
+            function applyBrushToKey(label, code, targetBrush) {
+                const brush = targetBrush || currentBrush;
+                if (code && keycapElements.has(code)) {
                     activeCodes.add(code);
-                    keyStates.set(code, currentBrush);
+                    keyStates.set(code, brush);
+                    saveToStorage();
                 }
 
-                const statusLabels = {
-                    tactile: 'tactile (purple)',
-                    linear: 'linear (yellow)',
-                    buy: 'buy (+tactile green)',
-                    unchecked: 'unchecked (cleared)'
-                };
-
-                updateLastInputCard(label, code, statusLabels[currentBrush] || currentBrush);
+                updateLastInputCard(label, code, brush === 'unchecked' ? 'unchecked (cleared)' : brush);
                 syncSwitchCountsUI();
                 updateVisualKeyboardStyles();
                 drawChart();
             }
 
-            /**
-             * quick-clears a single key to unchecked on right-click
-             */
-            function clearSingleKey(label, code) {
-                if (code) {
-                    keyStates.set(code, 'unchecked');
-                }
-                updateLastInputCard(label, code, 'unchecked (cleared)');
-                syncSwitchCountsUI();
-                updateVisualKeyboardStyles();
-                drawChart();
-            }
-
-            /**
-             * clears active pressed glow for a released physical key
-             */
             function releaseKeyVisual(code) {
                 if (!code) return;
                 if (activeCodes.has(code)) {
@@ -865,13 +1654,10 @@
                 }
             }
 
-            /**
-             * updates focus badge indicator so user knows typing is active
-             */
             function updateFocusIndicator(hasFocus) {
                 if (!focusBadgeEl || !statusDotEl) return;
-                if (isPasteModeOpen()) {
-                    focusBadgeEl.textContent = 'paste mode active';
+                if (isInteractiveInputActive()) {
+                    focusBadgeEl.textContent = 'input / settings active';
                     focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 transition-colors cursor-pointer';
                     statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse';
                     return;
@@ -887,11 +1673,8 @@
                 }
             }
 
-            /**
-             * grabs window and body focus safely when not typing into the paste textarea
-             */
             function ensurePageFocus() {
-                if (isPasteModeOpen()) return;
+                if (isInteractiveInputActive()) return;
                 try {
                     if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
                         document.activeElement.blur();
@@ -901,18 +1684,34 @@
                         document.body.focus({ preventScroll: true });
                     }
                     updateFocusIndicator(document.hasFocus());
-                } catch (_) {
-                    // ignore restricted sandbox focus errors
-                }
+                } catch (_) {}
             }
 
             /**
-             * capture-phase keydown handler: suspends when paste drawer is open, otherwise paints pressed key with active brush
+             * capture-phase keydown handler
              */
             function handleGlobalKeyDown(e) {
-                if (isPasteModeOpen()) return;
                 if (!e || seenEvents.has(e)) return;
                 seenEvents.add(e);
+
+                // if user is binding a physical key code inside the layout inspector
+                if (isBindingKeyCode) {
+                    const capturedCode = e.code || e.key || 'CustomKey';
+                    editKeyCodeInput.value = capturedCode.toLowerCase();
+                    isBindingKeyCode = false;
+                    bindPhysicalKeyBtn.textContent = 'bind';
+                    editInspectorStatus.textContent = `captured physical key code: ${capturedCode.toLowerCase()} (click save key to apply)`;
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } catch (_) {}
+                    return;
+                }
+
+                // allow normal typing inside settings modal, paste drawer, or inspector text inputs
+                if (isInteractiveInputActive()) {
+                    return;
+                }
 
                 if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
                     document.activeElement.blur();
@@ -920,41 +1719,41 @@
 
                 updateFocusIndicator(true);
 
-                // allow shift+alt+1/2/3/4 shortcut to switch active brush colour without painting number keys
+                // shift+alt+1/2/3/4 quick brush switch
                 if (e.shiftKey && e.altKey && ['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
-                    const shortcutBrushMap = {
-                        Digit1: 'tactile',
-                        Digit2: 'linear',
-                        Digit3: 'buy',
+                    const map = {
+                        Digit1: 'group1',
+                        Digit2: 'group2',
+                        Digit3: 'group3',
                         Digit4: 'unchecked'
                     };
-                    setActiveBrush(shortcutBrushMap[e.code]);
+                    setActiveBrush(map[e.code]);
                     try {
                         e.preventDefault();
                         e.stopPropagation();
-                    } catch (_) {
-                        // ignore non-cancelable system events
-                    }
+                    } catch (_) {}
                     return;
                 }
 
                 const resolvedCode = resolvePhysicalCode(e);
                 const label = formatKeyLabel(e, resolvedCode);
-                applyBrushToKey(label, resolvedCode);
+
+                // prevent key-repeat spam while holding a key down
+                if (!e.repeat) {
+                    applyBrushToKey(label, resolvedCode, currentBrush);
+                }
 
                 try {
                     e.preventDefault();
                     e.stopPropagation();
-                } catch (_) {
-                    // ignore non-cancelable system events
-                }
+                } catch (_) {}
             }
 
             /**
-             * capture-phase keyup handler: releases pressed state on visual keycap
+             * capture-phase keyup handler
              */
             function handleGlobalKeyUp(e) {
-                if (isPasteModeOpen()) return;
+                if (isInteractiveInputActive()) return;
                 if (!e || seenEvents.has(e)) return;
                 seenEvents.add(e);
 
@@ -967,9 +1766,7 @@
                 try {
                     e.preventDefault();
                     e.stopPropagation();
-                } catch (_) {
-                    // ignore non-cancelable system events
-                }
+                } catch (_) {}
             }
 
             /**
@@ -983,8 +1780,7 @@
                         lookup.set(label.toLowerCase(), canonicalCode);
                     }
                 });
-                // map legacy prtsc / printscreen tokens gracefully to Home
-                if (keycapElements.has('Home')) {
+                if (keycapElements.has('Home') && !keycapElements.has('PrintScreen')) {
                     lookup.set('printscreen', 'Home');
                     lookup.set('prtsc', 'Home');
                 }
@@ -992,12 +1788,12 @@
             }
 
             /**
-             * parses pasted switch plan text and applies tactile, linear, buy, and unchecked states
+             * parses pasted switch plan text (supports custom group names + standard tactile/linear/buy)
              */
-            function parseAndApplySwitchList(rawText) {
+            function parseAndApplySwitchList(rawText, silent = false) {
                 const text = (rawText || '').trim().toLowerCase();
                 if (!text) {
-                    pasteFeedback.textContent = 'paste text is empty';
+                    if (!silent) pasteFeedback.textContent = 'paste text is empty';
                     return;
                 }
 
@@ -1006,14 +1802,23 @@
                 const parsedAssignments = new Map();
                 let matchedCount = 0;
 
+                const g1Name = appConfig.groups.group1.name.toLowerCase();
+                const g2Name = appConfig.groups.group2.name.toLowerCase();
+                const g3Name = appConfig.groups.group3.name.toLowerCase();
+
                 lines.forEach((line) => {
                     const trimmed = line.trim();
                     let targetCategory = null;
 
-                    if (trimmed.startsWith('tactile:')) targetCategory = 'tactile';
-                    else if (trimmed.startsWith('linear:')) targetCategory = 'linear';
-                    else if (trimmed.startsWith('buy:')) targetCategory = 'buy';
-                    else if (trimmed.startsWith('unchecked:')) targetCategory = 'unchecked';
+                    if (trimmed.startsWith(`${g1Name}:`) || trimmed.startsWith('tactile:') || trimmed.startsWith('group 1:')) {
+                        targetCategory = 'group1';
+                    } else if (trimmed.startsWith(`${g2Name}:`) || trimmed.startsWith('linear:') || trimmed.startsWith('group 2:')) {
+                        targetCategory = 'group2';
+                    } else if (trimmed.startsWith(`${g3Name}:`) || trimmed.startsWith('buy:') || trimmed.startsWith('group 3:')) {
+                        targetCategory = 'group3';
+                    } else if (trimmed.startsWith('unchecked:')) {
+                        targetCategory = 'unchecked';
+                    }
 
                     if (!targetCategory) return;
 
@@ -1023,13 +1828,11 @@
                     const listPart = trimmed.slice(arrowIdx + 2).trim();
                     if (!listPart) return;
 
-                    // split items by comma followed by space (so comma key "," is preserved cleanly)
                     const tokens = listPart.split(/,\s+/);
                     tokens.forEach((token) => {
                         const item = token.trim();
                         if (!item) return;
 
-                        // match "label (keycode)" format first
                         const parenMatch = item.match(/\(([^()]+)\)\s*$/);
                         let canonicalCode = null;
 
@@ -1040,7 +1843,6 @@
                             }
                         }
 
-                        // fallback to matching raw label or keycode directly
                         if (!canonicalCode && lookup.has(item)) {
                             canonicalCode = lookup.get(item);
                         }
@@ -1053,27 +1855,580 @@
                 });
 
                 if (matchedCount === 0) {
-                    pasteFeedback.textContent = 'no valid key assignments found in text';
+                    if (!silent) pasteFeedback.textContent = 'no valid key assignments found in text';
                     return;
                 }
 
-                // reset all keys to unchecked first, then apply parsed assignments
                 keyStates.clear();
                 activeCodes.clear();
                 parsedAssignments.forEach((category, canonicalCode) => {
                     keyStates.set(canonicalCode, category);
                 });
 
+                saveToStorage();
                 syncSwitchCountsUI();
                 updateVisualKeyboardStyles();
                 drawChart();
                 updateLastInputCard('imported', `${matchedCount} keys`, `loaded ${matchedCount} switch assignments`);
 
-                pasteDrawer.classList.add('hidden');
-                pasteFeedback.textContent = 'waiting for text';
+                if (!silent) {
+                    pasteDrawer.classList.add('hidden');
+                    pasteFeedback.textContent = 'waiting for text';
+                    ensurePageFocus();
+                }
+            }
+
+            /**
+             * copies the current switch plan to the clipboard using custom group names
+             */
+            function copySwitchListToClipboard() {
+                const { totalKeys, group1, group2, group3, combinedPrimary, unchecked } = getSwitchBreakdown();
+                const lists = { group1: [], group2: [], group3: [] };
+
+                keycapElements.forEach(({ label }, code) => {
+                    const st = keyStates.get(code) || 'unchecked';
+                    if (lists[st]) {
+                        lists[st].push(`${label} (${code.toLowerCase()})`);
+                    }
+                });
+
+                const g1Name = appConfig.groups.group1.name.toLowerCase();
+                const g2Name = appConfig.groups.group2.name.toLowerCase();
+                const g3Name = appConfig.groups.group3.name.toLowerCase();
+
+                const summaryLines = [
+                    `${appConfig.title.toLowerCase()} (${totalKeys} keys total)`,
+                    appConfig.combineGroup3IntoGroup1
+                        ? `total ${g1Name} coverage (+${g3Name}): ${combinedPrimary} / ${totalKeys} (${formatPercent(combinedPrimary, totalKeys)})`
+                        : `${g1Name} coverage: ${group1} / ${totalKeys} (${formatPercent(group1, totalKeys)})`,
+                    `${g1Name}: ${group1} switches${lists.group1.length ? ' -> ' + lists.group1.join(', ') : ''}`,
+                    `${g2Name}: ${group2} switches${lists.group2.length ? ' -> ' + lists.group2.join(', ') : ''}`,
+                    `${g3Name}: ${group3} switches${lists.group3.length ? ' -> ' + lists.group3.join(', ') : ''}`,
+                    `unchecked: ${unchecked} keys`
+                ];
+
+                const textToCopy = summaryLines.join('\n').toLowerCase();
+                const tempArea = document.createElement('textarea');
+                tempArea.value = textToCopy;
+                tempArea.style.position = 'fixed';
+                tempArea.style.left = '-9999px';
+                document.body.appendChild(tempArea);
+                tempArea.select();
+
+                try {
+                    document.execCommand('copy');
+                    copyListBtn.textContent = 'copied list';
+                    setTimeout(() => { copyListBtn.textContent = 'copy list'; }, 1800);
+                } catch (_) {
+                    copyListBtn.textContent = 'copy failed';
+                    setTimeout(() => { copyListBtn.textContent = 'copy list'; }, 1800);
+                } finally {
+                    document.body.removeChild(tempArea);
+                    copyListBtn.blur();
+                    ensurePageFocus();
+                }
+            }
+
+            /**
+             * draws the live switch breakdown chart on html5 canvas using custom group names and colors
+             */
+            function drawChart() {
+                if (!canvas || !ctx) return;
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                const width = Math.max(1, rect.width);
+                const height = Math.max(1, rect.height);
+
+                if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+                    canvas.width = Math.round(width * dpr);
+                    canvas.height = Math.round(height * dpr);
+                }
+
+                ctx.save();
+                ctx.scale(dpr, dpr);
+                ctx.clearRect(0, 0, width, height);
+
+                const { totalKeys, group1, group2, group3, combinedPrimary, unchecked } = getSwitchBreakdown();
+                const assignedCount = group1 + group2 + group3;
+                const g1 = appConfig.groups.group1;
+                const g2 = appConfig.groups.group2;
+                const g3 = appConfig.groups.group3;
+
+                const combinedPct = formatPercent(combinedPrimary, totalKeys);
+                if (chartSummaryEl) {
+                    if (appConfig.combineGroup3IntoGroup1) {
+                        chartSummaryEl.textContent = `total ${g1.name}: ${combinedPct} (${group1} + ${group3} = ${combinedPrimary} / ${totalKeys})`.toLowerCase();
+                    } else {
+                        chartSummaryEl.textContent = `assigned: ${assignedCount} / ${totalKeys} (${formatPercent(assignedCount, totalKeys)})`.toLowerCase();
+                    }
+                    chartSummaryEl.style.borderColor = hexToRgba(g1.color, 0.4);
+                    chartSummaryEl.style.color = g1.color;
+                }
+
+                const padLeft = 24;
+                const padRight = 24;
+                const progressBarY = 14;
+                const progressBarH = 12;
+                const progressBarW = Math.max(10, width - padLeft - padRight);
+
+                // stacked multi-segment horizontal allocation bar track
+                ctx.fillStyle = isDark ? '#27272a' : '#e4e4e7';
+                ctx.beginPath();
+                ctx.roundRect(padLeft, progressBarY, progressBarW, progressBarH, 6);
+                ctx.fill();
+
+                if (assignedCount > 0) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(padLeft, progressBarY, progressBarW, progressBarH, 6);
+                    ctx.clip();
+
+                    let currentX = padLeft;
+                    const segments = [
+                        { count: group1, color: g1.color },
+                        { count: group3, color: g3.color },
+                        { count: group2, color: g2.color }
+                    ];
+
+                    segments.forEach((seg) => {
+                        if (seg.count > 0) {
+                            const segW = (seg.count / totalKeys) * progressBarW;
+                            ctx.fillStyle = seg.color;
+                            ctx.fillRect(currentX, progressBarY, segW, progressBarH);
+                            currentX += segW;
+                        }
+                    });
+                    ctx.restore();
+                }
+
+                const categories = [];
+                if (appConfig.combineGroup3IntoGroup1) {
+                    categories.push({
+                        label: `total ${g1.name} (+${g3.name})`.toLowerCase(),
+                        count: combinedPrimary,
+                        subText: `${combinedPrimary} (${combinedPct})`,
+                        stacked: true,
+                        g1Count: group1,
+                        g3Count: group3,
+                        color: g1.color,
+                        comboColor: g3.color
+                    });
+                }
+
+                categories.push(
+                    {
+                        label: g1.name.toLowerCase(),
+                        count: group1,
+                        subText: `${group1} (${formatPercent(group1, totalKeys)})`,
+                        color: g1.color
+                    },
+                    {
+                        label: appConfig.combineGroup3IntoGroup1 ? `${g3.name} (+${g1.name})`.toLowerCase() : g3.name.toLowerCase(),
+                        count: group3,
+                        subText: appConfig.combineGroup3IntoGroup1
+                            ? `+${group3} (+${formatPercent(group3, totalKeys)})`
+                            : `${group3} (${formatPercent(group3, totalKeys)})`,
+                        color: g3.color
+                    },
+                    {
+                        label: g2.name.toLowerCase(),
+                        count: group2,
+                        subText: `${group2} (${formatPercent(group2, totalKeys)})`,
+                        color: g2.color
+                    },
+                    {
+                        label: 'unchecked',
+                        count: unchecked,
+                        subText: `${unchecked} (${formatPercent(unchecked, totalKeys)})`,
+                        color: isDark ? '#52525b' : '#a1a1aa'
+                    }
+                );
+
+                const padTop = 52;
+                const padBottom = 34;
+                const chartW = Math.max(10, width - padLeft - padRight);
+                const chartH = Math.max(10, height - padTop - padBottom);
+
+                // horizontal guide lines
+                ctx.strokeStyle = isDark ? 'rgba(63, 63, 70, 0.45)' : 'rgba(212, 212, 216, 0.75)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 3; i++) {
+                    const y = padTop + (chartH / 3) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(padLeft, y);
+                    ctx.lineTo(width - padRight, y);
+                    ctx.stroke();
+                }
+
+                const slotW = chartW / categories.length;
+                const barW = Math.min(72, Math.max(24, slotW * 0.5));
+
+                categories.forEach((cat, idx) => {
+                    const ratio = cat.count / totalKeys;
+                    const barH = cat.count > 0 ? Math.max(8, ratio * chartH) : 4;
+                    const x = padLeft + idx * slotW + (slotW - barW) / 2;
+                    const y = padTop + chartH - barH;
+                    const radius = Math.min(8, barW / 2, barH / 2);
+
+                    if (cat.stacked && cat.count > 0) {
+                        const g3H = (cat.g3Count / cat.count) * barH;
+                        const g1H = barH - g3H;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, barW, barH, [radius, radius, 0, 0]);
+                        ctx.clip();
+
+                        if (g3H > 0) {
+                            ctx.fillStyle = cat.comboColor;
+                            ctx.fillRect(x, y, barW, g3H);
+                        }
+                        if (g1H > 0) {
+                            ctx.fillStyle = cat.color;
+                            ctx.fillRect(x, y + g3H, barW, g1H);
+                        }
+                        ctx.restore();
+                    } else {
+                        ctx.fillStyle = cat.color;
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, barW, barH, [radius, radius, 0, 0]);
+                        ctx.fill();
+                    }
+
+                    ctx.fillStyle = isDark ? '#e4e4e7' : '#27272a';
+                    ctx.font = '600 10.5px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(cat.subText.toLowerCase(), x + barW / 2, y - 5);
+
+                    ctx.fillStyle = isDark ? '#a1a1aa' : '#52525b';
+                    ctx.font = '600 10.5px "JetBrains Mono", monospace';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(cat.label.toLowerCase(), x + barW / 2, padTop + chartH + 10);
+                });
+
+                ctx.restore();
+            }
+
+            /**
+             * switches active keyboard layout preset
+             */
+            function switchLayoutPreset(newLayoutId) {
+                appConfig.layoutId = newLayoutId;
+                selectedKeyPos = null;
+                isSwapPending = false;
+                saveToStorage();
+                buildVisualKeyboard();
+                syncBrandingAndBrushUI();
+                drawChart();
                 ensurePageFocus();
             }
 
+            quickLayoutSelect.addEventListener('change', () => {
+                switchLayoutPreset(quickLayoutSelect.value);
+                quickLayoutSelect.blur();
+            });
+
+            /**
+             * toggles on-board per-key layout editor mode
+             */
+            function toggleEditLayoutMode(forceState) {
+                isEditLayoutMode = typeof forceState === 'boolean' ? forceState : !isEditLayoutMode;
+                isSwapPending = false;
+                isBindingKeyCode = false;
+
+                if (isEditLayoutMode) {
+                    layoutEditorBar.classList.remove('hidden');
+                    editLayoutBtn.textContent = 'edit layout: on';
+                    editLayoutBtn.className = 'px-3.5 py-2 rounded-xl bg-sky-500/20 border border-sky-400 text-xs font-mono font-semibold text-sky-300 transition-all focus:outline-none';
+                    shieldStatusTextEl.textContent = 'edit layout mode: click any keycap to rename, rebind, resize, swap, or delete it';
+                    // select first key by default if none selected
+                    if (!selectedKeyPos) {
+                        selectedKeyPos = { rowIdx: 0, keyIdx: 0 };
+                    }
+                    populateInspectorForSelectedKey();
+                } else {
+                    layoutEditorBar.classList.add('hidden');
+                    editLayoutBtn.textContent = 'edit layout: off';
+                    editLayoutBtn.className = 'px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none';
+                    setActiveBrush(currentBrush);
+                }
+
+                highlightSelectedEditKey();
+                editLayoutBtn.blur();
+            }
+
+            editLayoutBtn.addEventListener('click', () => toggleEditLayoutMode());
+            closeEditLayoutBtn.addEventListener('click', () => {
+                toggleEditLayoutMode(false);
+                ensurePageFocus();
+            });
+
+            // save changes to selected key in inspector
+            applyKeyEditBtn.addEventListener('click', () => {
+                if (!selectedKeyPos) return;
+                const rows = getActiveLayoutRows();
+                const item = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
+                if (!item) return;
+
+                const newLabel = (editKeyLabelInput.value || '').trim().toLowerCase() || 'key';
+                const rawCode = (editKeyCodeInput.value || '').trim();
+                const newCode = rawCode || item.code;
+                const newW = parseFloat(editKeyWidthSelect.value) || 1;
+                const newGap = parseFloat(editKeyGapSelect.value) || 0;
+
+                // preserve switch assignment when key code is renamed
+                if (newCode !== item.code && keyStates.has(item.code)) {
+                    const prev = keyStates.get(item.code);
+                    keyStates.delete(item.code);
+                    keyStates.set(newCode, prev);
+                }
+
+                item.label = newLabel;
+                item.code = newCode;
+                item.w = newW;
+                if (newGap > 0) item.gap = newGap;
+                else delete item.gap;
+
+                saveToStorage();
+                buildVisualKeyboard();
+                drawChart();
+                editInspectorStatus.textContent = `saved key "${newLabel}" (${newCode.toLowerCase()}, ${newW}u)`;
+            });
+
+            // bind physical key button
+            bindPhysicalKeyBtn.addEventListener('click', () => {
+                isBindingKeyCode = !isBindingKeyCode;
+                if (isBindingKeyCode) {
+                    bindPhysicalKeyBtn.textContent = 'press key...';
+                    editInspectorStatus.textContent = 'press any physical key on your keyboard now to capture its code...';
+                } else {
+                    bindPhysicalKeyBtn.textContent = 'bind';
+                }
+            });
+
+            // swap key mode button
+            swapKeyModeBtn.addEventListener('click', () => {
+                if (!selectedKeyPos) {
+                    editInspectorStatus.textContent = 'click a key on the keyboard first, then click swap';
+                    return;
+                }
+                isSwapPending = !isSwapPending;
+                swapKeyModeBtn.textContent = isSwapPending ? 'click 2nd key to swap...' : 'swap with next clicked key';
+                editInspectorStatus.textContent = isSwapPending
+                    ? 'now click any second key on the keyboard to swap positions with the highlighted key'
+                    : 'swap cancelled';
+                highlightSelectedEditKey();
+            });
+
+            // insert key after selected key
+            insertKeyAfterBtn.addEventListener('click', () => {
+                if (!selectedKeyPos) return;
+                const rows = getActiveLayoutRows();
+                const row = rows[selectedKeyPos.rowIdx];
+                if (!row) return;
+
+                const customId = `CustomKey${Date.now().toString().slice(-4)}`;
+                const newKey = { code: customId, label: 'custom', w: 1 };
+                row.splice(selectedKeyPos.keyIdx + 1, 0, newKey);
+                selectedKeyPos = { rowIdx: selectedKeyPos.rowIdx, keyIdx: selectedKeyPos.keyIdx + 1 };
+
+                saveToStorage();
+                buildVisualKeyboard();
+                populateInspectorForSelectedKey();
+                drawChart();
+            });
+
+            // delete selected key
+            deleteSelectedKeyBtn.addEventListener('click', () => {
+                if (!selectedKeyPos) return;
+                const rows = getActiveLayoutRows();
+                const row = rows[selectedKeyPos.rowIdx];
+                if (!row || row.length <= 1) {
+                    editInspectorStatus.textContent = 'cannot remove the last remaining key in a row';
+                    return;
+                }
+                const removed = row.splice(selectedKeyPos.keyIdx, 1)[0];
+                if (removed && removed.code) {
+                    keyStates.delete(removed.code);
+                }
+                selectedKeyPos.keyIdx = Math.max(0, selectedKeyPos.keyIdx - 1);
+
+                saveToStorage();
+                buildVisualKeyboard();
+                populateInspectorForSelectedKey();
+                drawChart();
+                editInspectorStatus.textContent = `removed key "${removed.label}"`;
+            });
+
+            // reset current layout to preset default
+            resetLayoutDefaultBtn.addEventListener('click', () => {
+                const id = appConfig.layoutId || '75_custom';
+                appConfig.customLayouts[id] = cloneRows(LAYOUT_PRESETS[id] || LAYOUT_PRESETS['75_custom']);
+                selectedKeyPos = { rowIdx: 0, keyIdx: 0 };
+                saveToStorage();
+                buildVisualKeyboard();
+                populateInspectorForSelectedKey();
+                drawChart();
+                editInspectorStatus.textContent = `reset ${id} layout to factory preset default`;
+            });
+
+            /**
+             * settings modal handlers
+             */
+            function openSettingsModal() {
+                settingsTitleInput.value = appConfig.title.toLowerCase();
+                settingsSubtitleInput.value = appConfig.subtitle.toLowerCase();
+
+                group1NameInput.value = appConfig.groups.group1.name.toLowerCase();
+                group1ColorInput.value = appConfig.groups.group1.color;
+
+                group2NameInput.value = appConfig.groups.group2.name.toLowerCase();
+                group2ColorInput.value = appConfig.groups.group2.color;
+
+                group3NameInput.value = appConfig.groups.group3.name.toLowerCase();
+                group3ColorInput.value = appConfig.groups.group3.color;
+
+                combineGroup3Checkbox.checked = Boolean(appConfig.combineGroup3IntoGroup1);
+                settingsLayoutSelect.value = appConfig.layoutId || '75_custom';
+
+                settingsModal.classList.remove('hidden');
+                updateFocusIndicator(false);
+            }
+
+            function closeSettingsModal() {
+                settingsModal.classList.add('hidden');
+                ensurePageFocus();
+            }
+
+            openSettingsBtn.addEventListener('click', openSettingsModal);
+            closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
+
+            // one-click use-case preset buttons inside settings
+            document.querySelectorAll('.usecase-preset-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const preset = btn.dataset.usecase;
+                    if (preset === 'tactile_upgrade') {
+                        settingsTitleInput.value = '75% tactile switch upgrade planner';
+                        settingsSubtitleInput.value = 'tactile + buy goal vs linear switches';
+                        group1NameInput.value = 'tactile';
+                        group1ColorInput.value = '#a855f7';
+                        group2NameInput.value = 'linear';
+                        group2ColorInput.value = '#eab308';
+                        group3NameInput.value = 'buy';
+                        group3ColorInput.value = '#10b981';
+                        combineGroup3Checkbox.checked = true;
+                    } else if (preset === 'linear_upgrade') {
+                        settingsTitleInput.value = 'linear switch upgrade planner';
+                        settingsSubtitleInput.value = 'linear + buy goal vs tactile switches';
+                        group1NameInput.value = 'linear';
+                        group1ColorInput.value = '#eab308';
+                        group2NameInput.value = 'tactile';
+                        group2ColorInput.value = '#a855f7';
+                        group3NameInput.value = 'buy';
+                        group3ColorInput.value = '#10b981';
+                        combineGroup3Checkbox.checked = true;
+                    } else if (preset === 'three_way_mix') {
+                        settingsTitleInput.value = 'custom 3-way switch mix studio';
+                        settingsSubtitleInput.value = 'independent switch zoning across the board';
+                        group1NameInput.value = 'tactile';
+                        group1ColorInput.value = '#a855f7';
+                        group2NameInput.value = 'linear';
+                        group2ColorInput.value = '#eab308';
+                        group3NameInput.value = 'silent';
+                        group3ColorInput.value = '#06b6d4';
+                        combineGroup3Checkbox.checked = false;
+                    } else if (preset === 'pcb_tester') {
+                        settingsTitleInput.value = 'mechanical keyboard pcb switch tester';
+                        settingsSubtitleInput.value = 'press every key to verify switch registration';
+                        group1NameInput.value = 'working';
+                        group1ColorInput.value = '#10b981';
+                        group2NameInput.value = 'chatter';
+                        group2ColorInput.value = '#eab308';
+                        group3NameInput.value = 'dead';
+                        group3ColorInput.value = '#f43f5e';
+                        combineGroup3Checkbox.checked = false;
+                    }
+                    jsonConfigStatus.textContent = `applied "${preset.replace('_', ' ')}" preset -> click save & apply settings below`;
+                });
+            });
+
+            launchPerKeyEditorFromSettingsBtn.addEventListener('click', () => {
+                saveAndApplySettingsFromModal();
+                toggleEditLayoutMode(true);
+            });
+
+            function saveAndApplySettingsFromModal() {
+                appConfig.title = (settingsTitleInput.value || '75% switch planner and tester').trim().toLowerCase();
+                appConfig.subtitle = (settingsSubtitleInput.value || 'custom mechanical switch replacement studio').trim().toLowerCase();
+
+                appConfig.groups.group1.name = (group1NameInput.value || 'tactile').trim().toLowerCase();
+                appConfig.groups.group1.color = group1ColorInput.value || '#a855f7';
+
+                appConfig.groups.group2.name = (group2NameInput.value || 'linear').trim().toLowerCase();
+                appConfig.groups.group2.color = group2ColorInput.value || '#eab308';
+
+                appConfig.groups.group3.name = (group3NameInput.value || 'buy').trim().toLowerCase();
+                appConfig.groups.group3.color = group3ColorInput.value || '#10b981';
+
+                appConfig.combineGroup3IntoGroup1 = Boolean(combineGroup3Checkbox.checked);
+
+                const chosenLayout = settingsLayoutSelect.value || '75_custom';
+                if (chosenLayout !== appConfig.layoutId) {
+                    appConfig.layoutId = chosenLayout;
+                }
+
+                saveToStorage();
+                buildVisualKeyboard();
+                syncBrandingAndBrushUI();
+                syncSwitchCountsUI();
+                updateVisualKeyboardStyles();
+                drawChart();
+                closeSettingsModal();
+            }
+
+            saveSettingsBtn.addEventListener('click', saveAndApplySettingsFromModal);
+
+            // json config export / import inside settings
+            exportJsonBtn.addEventListener('click', () => {
+                const serializedStates = {};
+                keyStates.forEach((v, k) => {
+                    if (v && v !== 'unchecked') serializedStates[k] = v;
+                });
+                const payload = { appConfig, keyStates: serializedStates };
+                jsonConfigTextarea.value = JSON.stringify(payload);
+                jsonConfigStatus.textContent = 'exported full setup json to box above';
+            });
+
+            importJsonBtn.addEventListener('click', () => {
+                try {
+                    const raw = (jsonConfigTextarea.value || '').trim();
+                    if (!raw) {
+                        jsonConfigStatus.textContent = 'paste a valid json config first';
+                        return;
+                    }
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.appConfig) {
+                        appConfig = Object.assign(appConfig, parsed.appConfig);
+                    }
+                    buildVisualKeyboard();
+                    if (parsed && parsed.keyStates) {
+                        keyStates.clear();
+                        Object.entries(parsed.keyStates).forEach(([k, v]) => keyStates.set(k, v));
+                    }
+                    saveToStorage();
+                    openSettingsModal();
+                    syncBrandingAndBrushUI();
+                    syncSwitchCountsUI();
+                    updateVisualKeyboardStyles();
+                    drawChart();
+                    jsonConfigStatus.textContent = 'imported setup json successfully';
+                } catch (_) {
+                    jsonConfigStatus.textContent = 'invalid json format';
+                }
+            });
+
+            // paste drawer controls
             pasteListBtn.addEventListener('click', () => {
                 const willOpen = pasteDrawer.classList.contains('hidden');
                 if (willOpen) {
@@ -1088,89 +2443,36 @@
                 pasteListBtn.blur();
             });
 
+            loadDefaultPlanBtn.addEventListener('click', () => {
+                pasteTextarea.value = DEFAULT_75_PLAN_TEXT;
+                pasteFeedback.textContent = 'loaded sample 82-key 75% plan into box -> click apply switch list';
+            });
+
             cancelPasteBtn.addEventListener('click', () => {
                 pasteDrawer.classList.add('hidden');
                 ensurePageFocus();
             });
 
             applyPasteBtn.addEventListener('click', () => {
-                parseAndApplySwitchList(pasteTextarea.value);
+                parseAndApplySwitchList(pasteTextarea.value, false);
             });
-
-            /**
-             * builds and copies a lowercase switch shopping/replacement list to the clipboard
-             */
-            function copySwitchListToClipboard() {
-                const { totalKeys, tactile, linear, buy, totalTactile, unchecked } = getSwitchBreakdown();
-                const lists = {
-                    tactile: [],
-                    linear: [],
-                    buy: []
-                };
-
-                keycapElements.forEach(({ label }, code) => {
-                    const st = keyStates.get(code) || 'unchecked';
-                    if (st === 'tactile') lists.tactile.push(`${label} (${code.toLowerCase()})`);
-                    else if (st === 'linear') lists.linear.push(`${label} (${code.toLowerCase()})`);
-                    else if (st === 'buy') lists.buy.push(`${label} (${code.toLowerCase()})`);
-                });
-
-                const summaryLines = [
-                    `75% mechanical keyboard switch plan (${totalKeys} keys total)`,
-                    `total tactile coverage: ${totalTactile} / ${totalKeys} (${formatPercent(totalTactile, totalKeys)})`,
-                    `tactile: ${tactile} switches${lists.tactile.length ? ' -> ' + lists.tactile.join(', ') : ''}`,
-                    `linear: ${linear} switches${lists.linear.length ? ' -> ' + lists.linear.join(', ') : ''}`,
-                    `buy: ${buy} switches${lists.buy.length ? ' -> ' + lists.buy.join(', ') : ''}`,
-                    `unchecked: ${unchecked} keys`
-                ];
-
-                const textToCopy = summaryLines.join('\n').toLowerCase();
-
-                // use textarea + document.execCommand('copy') for reliable iframe clipboard support
-                const tempArea = document.createElement('textarea');
-                tempArea.value = textToCopy;
-                tempArea.style.position = 'fixed';
-                tempArea.style.left = '-9999px';
-                document.body.appendChild(tempArea);
-                tempArea.select();
-
-                try {
-                    document.execCommand('copy');
-                    copyListBtn.textContent = 'copied switch list';
-                    setTimeout(() => {
-                        copyListBtn.textContent = 'copy switch list';
-                    }, 1800);
-                } catch (_) {
-                    copyListBtn.textContent = 'copy failed';
-                    setTimeout(() => {
-                        copyListBtn.textContent = 'copy switch list';
-                    }, 1800);
-                } finally {
-                    document.body.removeChild(tempArea);
-                    copyListBtn.blur();
-                    ensurePageFocus();
-                }
-            }
 
             copyListBtn.addEventListener('click', copySwitchListToClipboard);
 
-            /**
-             * resets all counters, key marking states, and chart
-             */
+            // clear marks button
             resetBtn.addEventListener('click', () => {
                 keyStates.clear();
                 activeCodes.clear();
+                saveToStorage();
                 syncSwitchCountsUI();
-                updateLastInputCard('none', 'waiting', 'reset: select brush and press keys');
+                updateLastInputCard('none', 'waiting', 'cleared all marks');
                 resetBtn.blur();
                 ensurePageFocus();
                 updateVisualKeyboardStyles();
                 drawChart();
             });
 
-            /**
-             * toggles dark and light color themes
-             */
+            // dark / light theme toggle
             themeToggleBtn.addEventListener('click', () => {
                 isDark = !isDark;
                 const htmlEl = document.documentElement;
@@ -1210,209 +2512,7 @@
                 drawChart();
             });
 
-            /**
-             * draws responsive 75% switch breakdown diagram with combined tactile + buy percentage on html5 canvas
-             */
-            function drawChart() {
-                if (!canvas || !ctx) return;
-                const dpr = window.devicePixelRatio || 1;
-                const rect = canvas.getBoundingClientRect();
-                const width = Math.max(1, rect.width);
-                const height = Math.max(1, rect.height);
-
-                if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
-                    canvas.width = Math.round(width * dpr);
-                    canvas.height = Math.round(height * dpr);
-                }
-
-                ctx.save();
-                ctx.scale(dpr, dpr);
-                ctx.clearRect(0, 0, width, height);
-
-                const { totalKeys, tactile, linear, buy, totalTactile, unchecked } = getSwitchBreakdown();
-                const assignedCount = totalTactile + linear;
-                const combinedTactilePct = formatPercent(totalTactile, totalKeys);
-
-                if (chartSummaryEl) {
-                    chartSummaryEl.textContent = `total tactile: ${combinedTactilePct} (${tactile} + ${buy} = ${totalTactile} / ${totalKeys})`;
-                }
-
-                const padLeft = 24;
-                const padRight = 24;
-                const progressBarY = 14;
-                const progressBarH = 12;
-                const progressBarW = Math.max(10, width - padLeft - padRight);
-
-                // stacked multi-segment horizontal allocation bar track (tactile + buy sit adjacent)
-                ctx.fillStyle = isDark ? '#27272a' : '#e4e4e7';
-                ctx.beginPath();
-                ctx.roundRect(padLeft, progressBarY, progressBarW, progressBarH, 6);
-                ctx.fill();
-
-                if (assignedCount > 0) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.roundRect(padLeft, progressBarY, progressBarW, progressBarH, 6);
-                    ctx.clip();
-
-                    let currentX = padLeft;
-                    const segments = [
-                        { count: tactile, color: '#a855f7' },
-                        { count: buy, color: '#10b981' },
-                        { count: linear, color: '#facc15' }
-                    ];
-
-                    segments.forEach((seg) => {
-                        if (seg.count > 0) {
-                            const segW = (seg.count / totalKeys) * progressBarW;
-                            ctx.fillStyle = seg.color;
-                            ctx.fillRect(currentX, progressBarY, segW, progressBarH);
-                            currentX += segW;
-                        }
-                    });
-                    ctx.restore();
-                }
-
-                const categories = [
-                    {
-                        label: 'total tactile (+buy)',
-                        count: totalTactile,
-                        subText: `${totalTactile} (${combinedTactilePct})`,
-                        stacked: true,
-                        tactileCount: tactile,
-                        buyCount: buy,
-                        colorTop: '#a855f7',
-                        colorBottom: '#7e22ce'
-                    },
-                    {
-                        label: 'tactile only',
-                        count: tactile,
-                        subText: `${tactile} (${formatPercent(tactile, totalKeys)})`,
-                        colorTop: '#c084fc',
-                        colorBottom: '#9333ea'
-                    },
-                    {
-                        label: 'buy (+tactile)',
-                        count: buy,
-                        subText: `+${buy} (+${formatPercent(buy, totalKeys)})`,
-                        colorTop: '#34d399',
-                        colorBottom: '#059669'
-                    },
-                    {
-                        label: 'linear',
-                        count: linear,
-                        subText: `${linear} (${formatPercent(linear, totalKeys)})`,
-                        colorTop: '#facc15',
-                        colorBottom: '#ca8a04'
-                    },
-                    {
-                        label: 'unchecked',
-                        count: unchecked,
-                        subText: `${unchecked} (${formatPercent(unchecked, totalKeys)})`,
-                        colorTop: isDark ? '#52525b' : '#a1a1aa',
-                        colorBottom: isDark ? '#3f3f46' : '#71717a'
-                    }
-                ];
-
-                const padTop = 52;
-                const padBottom = 34;
-                const chartW = Math.max(10, width - padLeft - padRight);
-                const chartH = Math.max(10, height - padTop - padBottom);
-
-                // horizontal guide lines
-                ctx.strokeStyle = isDark ? 'rgba(63, 63, 70, 0.45)' : 'rgba(212, 212, 216, 0.75)';
-                ctx.lineWidth = 1;
-                for (let i = 0; i <= 3; i++) {
-                    const y = padTop + (chartH / 3) * i;
-                    ctx.beginPath();
-                    ctx.moveTo(padLeft, y);
-                    ctx.lineTo(width - padRight, y);
-                    ctx.stroke();
-                }
-
-                const slotW = chartW / categories.length;
-                const barW = Math.min(72, Math.max(24, slotW * 0.5));
-
-                categories.forEach((cat, idx) => {
-                    const ratio = cat.count / totalKeys;
-                    const barH = cat.count > 0 ? Math.max(8, ratio * chartH) : 4;
-                    const x = padLeft + idx * slotW + (slotW - barW) / 2;
-                    const y = padTop + chartH - barH;
-                    const radius = Math.min(8, barW / 2, barH / 2);
-
-                    if (cat.stacked && cat.count > 0) {
-                        // draw combined stacked bar: tactile (bottom purple) + buy (top green)
-                        const buyH = (cat.buyCount / cat.count) * barH;
-                        const tacH = barH - buyH;
-
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.moveTo(x + radius, y);
-                        ctx.lineTo(x + barW - radius, y);
-                        ctx.quadraticCurveTo(x + barW, y, x + barW, y + radius);
-                        ctx.lineTo(x + barW, padTop + chartH);
-                        ctx.lineTo(x, padTop + chartH);
-                        ctx.lineTo(x, y + radius);
-                        ctx.quadraticCurveTo(x, y, x + radius, y);
-                        ctx.closePath();
-                        ctx.clip();
-
-                        // top emerald buy portion
-                        if (buyH > 0) {
-                            ctx.fillStyle = '#10b981';
-                            ctx.fillRect(x, y, barW, buyH);
-                        }
-                        // bottom purple tactile portion
-                        if (tacH > 0) {
-                            ctx.fillStyle = '#9333ea';
-                            ctx.fillRect(x, y + buyH, barW, tacH);
-                        }
-                        ctx.restore();
-                    } else {
-                        const grad = ctx.createLinearGradient(0, y, 0, padTop + chartH);
-                        grad.addColorStop(0, cat.colorTop);
-                        grad.addColorStop(1, cat.colorBottom);
-
-                        ctx.fillStyle = grad;
-                        ctx.beginPath();
-                        ctx.moveTo(x + radius, y);
-                        ctx.lineTo(x + barW - radius, y);
-                        ctx.quadraticCurveTo(x + barW, y, x + barW, y + radius);
-                        ctx.lineTo(x + barW, padTop + chartH);
-                        ctx.lineTo(x, padTop + chartH);
-                        ctx.lineTo(x, y + radius);
-                        ctx.quadraticCurveTo(x, y, x + radius, y);
-                        ctx.closePath();
-                        ctx.fill();
-                    }
-
-                    // count + percentage label above bar
-                    ctx.fillStyle = isDark ? '#e4e4e7' : '#27272a';
-                    ctx.font = '600 10.5px "JetBrains Mono", monospace';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'bottom';
-                    ctx.fillText(cat.subText, x + barW / 2, y - 5);
-
-                    // category label below baseline
-                    ctx.fillStyle = isDark ? '#a1a1aa' : '#52525b';
-                    ctx.font = '600 10.5px "JetBrains Mono", monospace';
-                    ctx.textBaseline = 'top';
-                    ctx.fillText(cat.label, x + barW / 2, padTop + chartH + 10);
-                });
-
-                ctx.restore();
-            }
-
-            /**
-             * resizes canvas to match container dimensions cleanly
-             */
-            function resizeCanvas() {
-                drawChart();
-            }
-
-            /**
-             * toggles fullscreen and os keyboard lock where supported
-             */
+            // fullscreen keyboard lock
             async function toggleKeyboardLock() {
                 try {
                     if (!document.fullscreenElement) {
@@ -1430,7 +2530,7 @@
                         await document.exitFullscreen();
                         isKeyboardLocked = false;
                         lockBtn.textContent = 'lock keyboard';
-                        shieldStatusTextEl.textContent = `active colour: ${currentBrush} (press any key or click keycap to apply)`;
+                        setActiveBrush(currentBrush);
                     }
                 } catch (_) {
                     shieldStatusTextEl.textContent = 'fullscreen lock unavailable in embedded preview; capture shield active';
@@ -1443,15 +2543,13 @@
             lockBtn.addEventListener('click', toggleKeyboardLock);
             focusBadgeEl.addEventListener('click', ensurePageFocus);
 
-            // attach direct click and pointerdown handlers to every brush toggle button
+            // attach brush toggle listeners
             brushButtons.forEach((btn) => {
                 const selectBrush = (ev) => {
                     ev.preventDefault();
                     ev.stopPropagation();
                     const mode = btn.dataset.brush;
-                    if (mode) {
-                        setActiveBrush(mode);
-                    }
+                    if (mode) setActiveBrush(mode);
                     btn.blur();
                     ensurePageFocus();
                 };
@@ -1459,63 +2557,40 @@
                 btn.addEventListener('click', selectBrush);
             });
 
-            // allow clicking top stat cards to select that brush colour as well
+            // stat card click selects corresponding brush
             document.querySelectorAll('[data-select-brush]').forEach((cardEl) => {
                 cardEl.addEventListener('click', (ev) => {
                     ev.stopPropagation();
                     const mode = cardEl.dataset.selectBrush;
-                    if (mode) {
-                        setActiveBrush(mode);
-                    }
+                    if (mode) setActiveBrush(mode);
                     ensurePageFocus();
                 });
             });
 
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement && isKeyboardLocked) {
-                    isKeyboardLocked = false;
-                    lockBtn.textContent = 'lock keyboard';
-                    shieldStatusTextEl.textContent = `active colour: ${currentBrush} (press any key or click keycap to apply)`;
-                }
-                ensurePageFocus();
-            });
-
-            // attach capture-phase listeners to window, document, and document.body
+            // attach global keyboard listeners
             [window, document, document.body].forEach((target) => {
                 target.addEventListener('keydown', handleGlobalKeyDown, { capture: true, passive: false });
                 target.addEventListener('keyup', handleGlobalKeyUp, { capture: true, passive: false });
             });
 
-            // retain focus across clicks, visibility changes, and window focus events
-            window.addEventListener('pointerup', ensurePageFocus, { capture: true });
-            window.addEventListener('mousedown', ensurePageFocus, { capture: true });
+            window.addEventListener('pointerup', () => {
+                if (!isInteractiveInputActive()) ensurePageFocus();
+            });
             window.addEventListener('focus', () => updateFocusIndicator(true));
             window.addEventListener('blur', () => {
                 activeCodes.clear();
                 updateVisualKeyboardStyles();
                 updateFocusIndicator(false);
             });
-            document.addEventListener('focusout', () => {
-                setTimeout(() => updateFocusIndicator(document.hasFocus()), 20);
-            });
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) ensurePageFocus();
-            });
+            window.addEventListener('resize', drawChart);
 
-            // initialize visual keyboard, brush mode, focus, and canvas on load
-            buildVisualKeyboard();
-            setActiveBrush('tactile');
+            // initialize studio
+            loadFromStorage();
             ensurePageFocus();
-            window.addEventListener('resize', resizeCanvas);
-            document.addEventListener('DOMContentLoaded', () => {
-                ensurePageFocus();
-                resizeCanvas();
-            });
             window.addEventListener('load', () => {
                 ensurePageFocus();
-                resizeCanvas();
+                drawChart();
             });
-            resizeCanvas();
         })();
     </script>
 </body>
