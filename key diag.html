@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
+<html lang="en" class="dark"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mechanical keyboard switch planner and tester</title>
+    <title>switch planner and tester</title>
     <!-- load tailwind css -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- load inter and jetbrains mono fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -82,27 +81,23 @@
     <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-5 pb-2 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-3">
             <div class="flex items-center gap-2.5">
-                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></div>
                 <div>
-                    <h1 id="workspaceTitleEl" class="text-sm font-semibold tracking-wider text-zinc-200">75% switch planner and tester</h1>
-                    <p id="workspaceSubtitleEl" class="text-[11px] text-zinc-500 font-mono">custom mechanical switch replacement studio</p>
+                    <h1 id="workspaceTitleEl" class="text-sm font-semibold tracking-wider text-zinc-200">switch planner and tester</h1>
+                    <p id="workspaceSubtitleEl" class="text-[11px] text-zinc-500 font-mono">file-isolated switch studio (zero browser cache)</p>
                 </div>
             </div>
-            <button id="focusBadge" type="button"
-                class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-colors cursor-pointer">
-                ready: listening for keys
-            </button>
+            <button id="focusBadge" type="button" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 transition-colors cursor-pointer">input / settings active</button>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
             <!-- quick layout preset selector -->
             <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-xl px-2.5 py-1.5">
                 <span class="text-[11px] font-mono text-zinc-500">layout:</span>
-                <select id="quickLayoutSelect" aria-label="select keyboard layout"
-                    class="bg-transparent text-xs font-mono font-semibold text-zinc-200 focus:outline-none cursor-pointer">
+                <select id="quickLayoutSelect" aria-label="select keyboard layout" class="bg-transparent text-xs font-mono font-semibold text-zinc-200 focus:outline-none cursor-pointer">
                     <option value="60" class="bg-zinc-900 text-zinc-200">60% (61 keys)</option>
                     <option value="65" class="bg-zinc-900 text-zinc-200">65% (68 keys)</option>
-                    <option value="75_custom" selected class="bg-zinc-900 text-zinc-200">75% custom (82 keys)</option>
+                    <option value="75_custom" selected="" class="bg-zinc-900 text-zinc-200">75% custom (82 keys)</option>
                     <option value="75_std" class="bg-zinc-900 text-zinc-200">75% standard (84 keys)</option>
                     <option value="tkl" class="bg-zinc-900 text-zinc-200">tkl 80% (87 keys)</option>
                     <option value="100" class="bg-zinc-900 text-zinc-200">100% full (104 keys)</option>
@@ -110,38 +105,43 @@
             </div>
 
             <!-- on-board per-key layout editor toggle -->
-            <button id="editLayoutBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none">
+            <button id="editLayoutBtn" type="button" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none">
                 edit layout: off
             </button>
 
             <!-- settings modal button -->
-            <button id="openSettingsBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-purple-600/20 border border-purple-500/40 text-xs font-mono font-semibold text-purple-300 hover:bg-purple-600/30 hover:border-purple-400 active:scale-95 transition-all focus:outline-none">
-                settings & presets
+            <button id="openSettingsBtn" type="button" class="px-3.5 py-2 rounded-xl bg-purple-600/20 border border-purple-500/40 text-xs font-mono font-semibold text-purple-300 hover:bg-purple-600/30 hover:border-purple-400 active:scale-95 transition-all focus:outline-none">
+                brushes &amp; settings
             </button>
 
+            <!-- save self-contained html file button (opens filename prompt modal) -->
+            <button id="saveFileBtn" type="button" title="save all edits directly inside a standalone html file" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-xs font-mono font-semibold text-emerald-300 hover:bg-emerald-600/30 hover:border-emerald-400 active:scale-95 transition-all focus:outline-none">save file</button>
+
             <!-- paste switch list button -->
-            <button id="pasteListBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 active:scale-95 transition-all focus:outline-none">
+            <button id="pasteListBtn" type="button" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 active:scale-95 transition-all focus:outline-none">
                 paste list
             </button>
 
             <!-- copy switch list button -->
-            <button id="copyListBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 active:scale-95 transition-all focus:outline-none">
+            <button id="copyListBtn" type="button" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 active:scale-95 transition-all focus:outline-none">
                 copy list
             </button>
 
-            <!-- fullscreen keyboard lock toggle -->
-            <button id="lockBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 active:scale-95 transition-all focus:outline-none">
-                lock keyboard
+            <!-- input lock toggle (actually stops taking keyboard & keycap input) -->
+            <button id="lockBtn" type="button" title="freeze keyboard and keycap input so accidental presses do not alter marks" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/30 active:scale-95 transition-all focus:outline-none">lock keyboard: off</button>
+
+            <!-- dedicated fullscreen icon button next to theme icon -->
+            <button id="fullscreenBtn" type="button" aria-label="toggle fullscreen" title="toggle fullscreen" class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors focus:outline-none">
+                <svg id="expandIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path>
+                </svg>
+                <svg id="compressIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 4v4H4M16 4v4h4M8 20v-4H4M16 20v-4h4"></path>
+                </svg>
             </button>
 
             <!-- theme toggle button -->
-            <button id="themeToggle" type="button" aria-label="toggle color theme"
-                class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors focus:outline-none">
+            <button id="themeToggle" type="button" aria-label="toggle color theme" title="toggle dark/light theme" class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors focus:outline-none">
                 <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
@@ -151,8 +151,7 @@
             </button>
 
             <!-- clear assignments button -->
-            <button id="resetBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 active:scale-95 transition-all focus:outline-none">
+            <button id="resetBtn" type="button" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 active:scale-95 transition-all focus:outline-none">
                 clear marks
             </button>
         </div>
@@ -164,25 +163,20 @@
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div>
                     <h2 class="text-xs font-mono font-semibold text-purple-400">paste exported switch list</h2>
-                    <p class="text-[11px] text-zinc-400">paste your copied switch plan below and click apply to restore key assignments (supports custom group names and legacy prtsc/home)</p>
+                    <p class="text-[11px] text-zinc-400">paste your copied switch plan below and click apply to restore key assignments (automatically matches any brush name)</p>
                 </div>
                 <span id="pasteFeedback" class="text-[11px] font-mono text-zinc-400">waiting for text</span>
             </div>
-            <textarea id="pasteTextarea" rows="5"
-                placeholder="paste copied switch plan here (e.g. tactile: ..., linear: ..., buy: ..., unchecked: ...)"
-                class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
+            <textarea id="pasteTextarea" rows="5" placeholder="paste copied switch plan here (e.g. tactile: ..., linear: ..., buy: ..., unchecked: ...)" class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
             <div class="flex flex-wrap items-center justify-between gap-2 mt-2.5">
-                <button id="loadDefaultPlanBtn" type="button"
-                    class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-purple-300 hover:bg-zinc-700 transition-colors">
+                <button id="loadDefaultPlanBtn" type="button" class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-purple-300 hover:bg-zinc-700 transition-colors">
                     load sample 75% tactile plan (33 tactile / 31 linear / 18 buy)
                 </button>
                 <div class="flex items-center gap-2">
-                    <button id="cancelPasteBtn" type="button"
-                        class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 transition-colors">
+                    <button id="cancelPasteBtn" type="button" class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 transition-colors">
                         close
                     </button>
-                    <button id="applyPasteBtn" type="button"
-                        class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                    <button id="applyPasteBtn" type="button" class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
                         apply switch list
                     </button>
                 </div>
@@ -199,12 +193,10 @@
                     <h2 class="text-xs font-mono font-bold text-sky-300">per-key layout editor active: click any keycap below to customize or swap it</h2>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="resetLayoutDefaultBtn" type="button"
-                        class="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[11px] font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
+                    <button id="resetLayoutDefaultBtn" type="button" class="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[11px] font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
                         reset layout to preset default
                     </button>
-                    <button id="closeEditLayoutBtn" type="button"
-                        class="px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-[11px] font-mono text-zinc-200 hover:bg-zinc-700 transition-colors">
+                    <button id="closeEditLayoutBtn" type="button" class="px-3 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-[11px] font-mono text-zinc-200 hover:bg-zinc-700 transition-colors">
                         done editing
                     </button>
                 </div>
@@ -214,24 +206,20 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-end">
                 <div>
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">keycap label (shown on key)</label>
-                    <input id="editKeyLabelInput" type="text" placeholder="e.g. del, home, fn"
-                        class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                    <input id="editKeyLabelInput" type="text" placeholder="e.g. del, home, fn" class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
                 </div>
                 <div>
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">physical key code</label>
                     <div class="flex gap-1">
-                        <input id="editKeyCodeInput" type="text" placeholder="e.g. delete, home"
-                            class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
-                        <button id="bindPhysicalKeyBtn" type="button" title="press a physical key to auto-fill its code"
-                            class="px-2.5 py-1.5 rounded-lg bg-sky-500/20 border border-sky-500/40 text-[10px] font-mono text-sky-300 hover:bg-sky-500/30 shrink-0">
+                        <input id="editKeyCodeInput" type="text" placeholder="e.g. delete, home" class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                        <button id="bindPhysicalKeyBtn" type="button" title="press a physical key to auto-fill its code" class="px-2.5 py-1.5 rounded-lg bg-sky-500/20 border border-sky-500/40 text-[10px] font-mono text-sky-300 hover:bg-sky-500/30 shrink-0">
                             bind
                         </button>
                     </div>
                 </div>
                 <div>
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">key width (u)</label>
-                    <select id="editKeyWidthSelect"
-                        class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                    <select id="editKeyWidthSelect" class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
                         <option value="1">1u (standard)</option>
                         <option value="1.25">1.25u (modifier)</option>
                         <option value="1.5">1.5u (tab / backslash)</option>
@@ -245,8 +233,7 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">left blocker gap (u)</label>
-                    <select id="editKeyGapSelect"
-                        class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
+                    <select id="editKeyGapSelect" class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
                         <option value="0">0u (no gap)</option>
                         <option value="0.25">0.25u (f-row micro gap)</option>
                         <option value="0.5">0.5u (blocker gap)</option>
@@ -254,20 +241,16 @@
                     </select>
                 </div>
                 <div class="lg:col-span-2 flex flex-wrap items-center gap-1.5">
-                    <button id="applyKeyEditBtn" type="button"
-                        class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-mono font-semibold text-white transition-colors">
+                    <button id="applyKeyEditBtn" type="button" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-mono font-semibold text-white transition-colors">
                         save key
                     </button>
-                    <button id="swapKeyModeBtn" type="button"
-                        class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-amber-300 hover:bg-zinc-700 transition-colors">
+                    <button id="swapKeyModeBtn" type="button" class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-amber-300 hover:bg-zinc-700 transition-colors">
                         swap with next clicked key
                     </button>
-                    <button id="insertKeyAfterBtn" type="button"
-                        class="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700 transition-colors">
+                    <button id="insertKeyAfterBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700 transition-colors">
                         + add key after
                     </button>
-                    <button id="deleteSelectedKeyBtn" type="button"
-                        class="px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-xs font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
+                    <button id="deleteSelectedKeyBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-xs font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
                         remove key
                     </button>
                 </div>
@@ -281,115 +264,19 @@
     <!-- main dashboard container -->
     <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex-1 flex flex-col justify-center gap-5">
         
-        <!-- top switch planner stat cards -->
-        <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            
-            <!-- 1. primary switch group (or combined primary + group 3) -->
-            <div id="group1Card" data-select-brush="group1" role="button" tabindex="-1"
-                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-purple-500/50">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                    <span id="group1CardTitle" class="text-xs font-semibold tracking-wider text-purple-400">total tactile (+buy)</span>
-                    <span class="inline-flex items-center gap-1">
-                        <span id="group1Dot" class="w-2.5 h-2.5 rounded-sm bg-purple-500 inline-block"></span>
-                        <span id="group1ComboDot" class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
-                    </span>
-                </div>
-                <div class="my-1 flex items-baseline gap-2">
-                    <span id="group1CountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-purple-400 tabular-nums">0</span>
-                    <span id="group1PctEl" class="font-mono text-sm font-bold text-emerald-400">0%</span>
-                </div>
-                <p id="group1Subtext" class="text-[11px] text-zinc-400 mt-2 font-mono">0 tactile + 0 buy</p>
-            </div>
-
-            <!-- 2. group 3 (buy / extra switches) -->
-            <div id="group3Card" data-select-brush="group3" role="button" tabindex="-1"
-                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-emerald-500/50">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                    <span id="group3CardTitle" class="text-xs font-semibold tracking-wider text-emerald-400">buy (+tactile)</span>
-                    <span id="group3Dot" class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
-                </div>
-                <div class="my-1">
-                    <span id="group3CountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-emerald-400 tabular-nums block">+0</span>
-                </div>
-                <p id="group3Subtext" class="text-[11px] text-zinc-500 mt-2 font-mono">adds +0% to tactile</p>
-            </div>
-
-            <!-- 3. group 2 (linear / secondary switches) -->
-            <div id="group2Card" data-select-brush="group2" role="button" tabindex="-1"
-                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-amber-500/50">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                    <span id="group2CardTitle" class="text-xs font-semibold tracking-wider text-amber-400">linear</span>
-                    <span id="group2Dot" class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span>
-                </div>
-                <div class="my-1">
-                    <span id="group2CountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-amber-400 tabular-nums block">0</span>
-                </div>
-                <p id="group2Subtext" class="text-[11px] text-zinc-500 mt-2 font-mono">0% of 82 keys</p>
-            </div>
-
-            <!-- 4. unchecked remaining count -->
-            <div id="uncheckedCard" data-select-brush="unchecked" role="button" tabindex="-1"
-                class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer hover:border-zinc-500/50">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class="text-xs font-semibold tracking-wider text-zinc-400">unchecked</span>
-                    <span id="totalBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400">82 total</span>
-                </div>
-                <div class="my-1">
-                    <span id="uncheckedCountEl" class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums block">82</span>
-                </div>
-                <p id="uncheckedSubtext" class="text-[11px] text-zinc-500 mt-2 font-mono">0 / 82 assigned</p>
-            </div>
-
-            <!-- 5. last input card -->
-            <div id="lastKeyCard" class="theme-card col-span-2 sm:col-span-1 rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors">
-                <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class="text-xs font-semibold tracking-wider text-zinc-400">last input</span>
-                    <span id="keyCodeLabel" class="text-[11px] font-mono text-zinc-500 truncate max-w-[90px]">waiting</span>
-                </div>
-                <div class="my-1 flex items-center justify-start min-h-[2.5rem]">
-                    <kbd id="lastKeyDisplay"
-                        class="inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl bg-zinc-800 border-b-4 border-zinc-700 font-mono text-lg sm:text-xl font-bold text-purple-400 shadow-inner transition-transform duration-75">
-                        none
-                    </kbd>
-                </div>
-                <p id="lastKeySubtext" class="text-[11px] text-zinc-500 mt-2 truncate">select brush and press or click keys</p>
-            </div>
-
-        </section>
+        <!-- dynamic switch planner stat cards grid -->
+        <section id="statCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"></section>
 
         <!-- interactive visual mechanical keyboard card -->
         <section id="keyboardCard" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-6 shadow-xl transition-colors">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
                 <div>
                     <h2 id="kbdTitle" class="text-sm font-semibold text-zinc-100">live mechanical keyboard layout</h2>
-                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-0.5">select a switch brush below, then press any physical key or click any keycap (right-click to uncheck, middle-click for group 3)</p>
+                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-0.5">active brush: buy (press any key or left-click keycap to paint, middle-click for buy, right-click to uncheck)</p>
                 </div>
 
-                <!-- keyboard brush colour toggle bar -->
-                <div id="brushToggleGroup" role="group" aria-label="active keypress colour toggle"
-                    class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-zinc-950/90 border border-zinc-800">
-                    <span class="text-[11px] font-mono text-zinc-500 px-2">active brush:</span>
-                    <button type="button" data-brush="group1" id="brushBtn1"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
-                        <span id="brushDot1" class="w-2.5 h-2.5 rounded-sm inline-block"></span>
-                        <span id="brushLabel1">tactile</span>
-                    </button>
-                    <button type="button" data-brush="group2" id="brushBtn2"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
-                        <span id="brushDot2" class="w-2.5 h-2.5 rounded-sm inline-block"></span>
-                        <span id="brushLabel2">linear</span>
-                    </button>
-                    <button type="button" data-brush="group3" id="brushBtn3"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
-                        <span id="brushDot3" class="w-2.5 h-2.5 rounded-sm inline-block"></span>
-                        <span id="brushLabel3">buy</span>
-                    </button>
-                    <button type="button" data-brush="unchecked" id="brushBtnUnchecked"
-                        class="brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all">
-                        <span class="w-2.5 h-2.5 rounded-sm bg-zinc-700 border border-zinc-500 inline-block"></span>
-                        <span>unchecked</span>
-                    </button>
-                </div>
+                <!-- dynamic keyboard brush colour toggle bar -->
+                <div id="brushToggleGroup" role="group" aria-label="active keypress colour toggle" class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-zinc-950/90 border border-zinc-800"></div>
             </div>
 
             <!-- responsive keyboard chassis -->
@@ -407,29 +294,59 @@
                     <h2 id="chartTitle" class="text-sm font-semibold text-zinc-100">switch allocation diagram</h2>
                     <p id="chartSubtitle" class="text-xs text-zinc-400 mt-0.5">live breakdown of your switch replacement plan across the active layout</p>
                 </div>
-                <span id="chartSummary" class="text-xs font-mono text-purple-300 bg-purple-950/50 border border-purple-500/30 px-3 py-1 rounded-lg self-start sm:self-auto">
-                    total tactile: 0% (0 + 0 = 0 / 82)
-                </span>
+                <span id="chartSummary" class="text-xs font-mono text-purple-300 bg-purple-950/50 border border-purple-500/30 px-3 py-1 rounded-lg self-start sm:self-auto" style="border-color: rgba(168, 85, 247, 0.4); color: rgb(168, 85, 247);">total tactile: 0% (0 + 0 = 0 / 82)</span>
             </div>
 
             <!-- responsive html5 canvas wrapper -->
             <div class="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden">
-                <canvas id="frequencyCanvas" class="w-full h-full block"></canvas>
+                <canvas id="frequencyCanvas" class="w-full h-full block" width="1109" height="269"></canvas>
             </div>
         </section>
 
     </main>
+
+    <!-- save file prompt modal (asks for filename before downloading) -->
+    <div id="saveFileModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 hidden">
+        <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 shadow-2xl">
+            <div class="flex items-center justify-between gap-2 pb-3 border-b border-zinc-800">
+                <div>
+                    <h2 class="text-sm font-bold text-emerald-300 font-mono">save standalone html file</h2>
+                    <p class="text-[11px] text-zinc-400 mt-0.5">enter a file name for this copy (all edits will be baked inside)</p>
+                </div>
+                <button id="closeSaveModalBtn" type="button" class="px-2.5 py-1 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
+                    close
+                </button>
+            </div>
+
+            <div class="py-4">
+                <label for="saveFileNameInput" class="block text-xs font-mono text-zinc-400 mb-1.5">file name:</label>
+                <div class="flex items-center rounded-xl bg-zinc-950 border border-zinc-800 focus-within:border-emerald-500 px-3 py-2">
+                    <input id="saveFileNameInput" type="text" placeholder="e.g. kreo-swarm-tactile-plan" class="w-full bg-transparent text-xs font-mono text-zinc-100 focus:outline-none lowercase">
+                    <span class="text-xs font-mono text-zinc-500 select-none pl-1">.html</span>
+                </div>
+                <p class="text-[11px] font-mono text-zinc-500 mt-2">disclaimer: this is a vibe coded site.</p>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-800">
+                <button id="cancelSaveFileBtn" type="button" class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
+                    cancel
+                </button>
+                <button id="confirmSaveFileBtn" type="button" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-mono font-semibold text-white transition-colors">
+                    download file
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- settings & customization modal -->
     <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
         <div class="w-full max-w-3xl rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto kbd-scroll">
             <div class="flex items-center justify-between gap-2 pb-4 border-b border-zinc-800">
                 <div>
-                    <h2 class="text-base font-bold text-zinc-100 font-mono">studio settings & switch customization</h2>
-                    <p class="text-xs text-zinc-400 mt-0.5">customize switch names, colors, goal formulas, layouts, and portable json configs</p>
+                    <h2 class="text-base font-bold text-zinc-100 font-mono">brushes, presets &amp; file state settings</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">add or remove any number of brushes, configure goal math, and save directly into this html file</p>
                 </div>
-                <button id="closeSettingsModalBtn" type="button"
-                    class="px-3 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
+                <button id="closeSettingsModalBtn" type="button" class="px-3 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
                     close
                 </button>
             </div>
@@ -439,24 +356,20 @@
                 <div>
                     <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">1. quick use-case presets (one-click configure)</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <button type="button" data-usecase="tactile_upgrade"
-                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-purple-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-purple-300">tactile upgrade planner (default)</div>
-                            <div class="text-[11px] text-zinc-400 mt-0.5">group 1: tactile (purple) + group 3: buy (green) vs group 2: linear (yellow)</div>
+                        <button type="button" data-usecase="tactile_upgrade" class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-purple-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-purple-300">tactile upgrade planner (3 brushes)</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">tactile (purple) + buy (green) combined goal vs linear (yellow)</div>
                         </button>
-                        <button type="button" data-usecase="linear_upgrade"
-                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-amber-300">linear upgrade planner</div>
-                            <div class="text-[11px] text-zinc-400 mt-0.5">group 1: linear (yellow) + group 3: buy (green) vs group 2: tactile (purple)</div>
+                        <button type="button" data-usecase="two_way_split" class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-amber-300">simple 2-brush split</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">only 2 brushes: tactile (purple) vs linear (yellow)</div>
                         </button>
-                        <button type="button" data-usecase="three_way_mix"
-                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-sky-300">3-way switch mix (independent counts)</div>
-                            <div class="text-[11px] text-zinc-400 mt-0.5">tactile (purple) / linear (yellow) / clicky or silent (cyan) without combining</div>
+                        <button type="button" data-usecase="four_way_mix" class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-sky-300">4-brush custom zoning</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">tactile (purple) / linear (yellow) / silent (cyan) / heavy (rose)</div>
                         </button>
-                        <button type="button" data-usecase="pcb_tester"
-                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-emerald-300">pcb switch tester mode</div>
+                        <button type="button" data-usecase="pcb_tester" class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-emerald-300">pcb switch tester mode (3 brushes)</div>
                             <div class="text-[11px] text-zinc-400 mt-0.5">working (green) / chatter (yellow) / dead switch (rose)</div>
                         </button>
                     </div>
@@ -466,67 +379,36 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-zinc-800/80">
                     <div>
                         <label class="block text-xs font-mono text-zinc-400 mb-1">workspace title</label>
-                        <input id="settingsTitleInput" type="text"
-                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
+                        <input id="settingsTitleInput" type="text" class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
                     </div>
                     <div>
                         <label class="block text-xs font-mono text-zinc-400 mb-1">workspace subtitle</label>
-                        <input id="settingsSubtitleInput" type="text"
-                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
+                        <input id="settingsSubtitleInput" type="text" class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
                     </div>
                 </div>
 
-                <!-- 3. custom switch groups (names + hex colors) -->
+                <!-- 3. dynamic brush list manager (add or remove brushes more or less than 3) -->
                 <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2.5">2. customize switch categories & colors</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <!-- group 1 -->
-                        <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">group 1 (primary switch)</div>
-                            <div class="flex items-center gap-2">
-                                <input id="group1ColorInput" type="color" value="#a855f7" class="w-8 h-8 rounded cursor-pointer bg-transparent shrink-0">
-                                <input id="group1NameInput" type="text" value="tactile"
-                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
-                            </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                        <div>
+                            <h3 class="text-xs font-mono font-semibold text-purple-400">2. switch brushes (add or remove any number of brushes)</h3>
+                            <p class="text-[11px] text-zinc-400">customize brush names, colors, and optionally combine extra brushes into your primary goal</p>
                         </div>
-                        <!-- group 2 -->
-                        <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">group 2 (secondary switch)</div>
-                            <div class="flex items-center gap-2">
-                                <input id="group2ColorInput" type="color" value="#eab308" class="w-8 h-8 rounded cursor-pointer bg-transparent shrink-0">
-                                <input id="group2NameInput" type="text" value="linear"
-                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-amber-500">
-                            </div>
-                        </div>
-                        <!-- group 3 -->
-                        <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">group 3 (buy / extra / middle-click)</div>
-                            <div class="flex items-center gap-2">
-                                <input id="group3ColorInput" type="color" value="#10b981" class="w-8 h-8 rounded cursor-pointer bg-transparent shrink-0">
-                                <input id="group3NameInput" type="text" value="buy"
-                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-emerald-500">
-                            </div>
-                        </div>
+                        <button id="addBrushBtn" type="button" class="px-3 py-1.5 rounded-xl bg-purple-600/25 border border-purple-500/40 text-xs font-mono font-semibold text-purple-200 hover:bg-purple-600/40 transition-colors">
+                            + add new brush
+                        </button>
                     </div>
 
-                    <!-- combine group 3 into group 1 toggle -->
-                    <label class="mt-3 flex items-center gap-2.5 cursor-pointer select-none">
-                        <input id="combineGroup3Checkbox" type="checkbox" checked
-                            class="w-4 h-4 rounded accent-purple-500 cursor-pointer">
-                        <span class="text-xs font-mono text-zinc-300">
-                            add group 3 switches (+buy) into group 1 to calculate combined goal percentage
-                        </span>
-                    </label>
+                    <div id="brushEditorList" class="space-y-2"></div>
                 </div>
 
                 <!-- 4. layout preset & per-key customization launcher -->
                 <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">3. keyboard layout preset & per-key customization</h3>
+                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">3. keyboard layout preset &amp; per-key customization</h3>
                     <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-zinc-950 border border-zinc-800">
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-mono text-zinc-400">base layout:</span>
-                            <select id="settingsLayoutSelect"
-                                class="rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none">
+                            <select id="settingsLayoutSelect" class="rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none">
                                 <option value="60">60% (61 keys poker)</option>
                                 <option value="65">65% (68 keys compact)</option>
                                 <option value="75_custom">75% custom (82 keys: del + home on top right, no menu)</option>
@@ -535,8 +417,7 @@
                                 <option value="100">100% full size (104 keys with numpad)</option>
                             </select>
                         </div>
-                        <button id="launchPerKeyEditorFromSettingsBtn" type="button"
-                            class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-xs font-mono font-semibold text-sky-300 hover:bg-sky-500/30 transition-colors">
+                        <button id="launchPerKeyEditorFromSettingsBtn" type="button" class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-xs font-mono font-semibold text-sky-300 hover:bg-sky-500/30 transition-colors">
                             open on-board per-key editor
                         </button>
                     </div>
@@ -544,19 +425,16 @@
 
                 <!-- 5. portable json config export / import -->
                 <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">4. shareable setup json (export or import full custom layout + colors + plan)</h3>
-                    <textarea id="jsonConfigTextarea" rows="3"
-                        placeholder="click export json to generate a shareable config string, or paste one here and click import json"
-                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
+                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">4. file-isolated state &amp; portable json backup</h3>
+                    <p class="text-[11px] text-zinc-400 mb-2">this file does not use browser localstorage. every copy of this html file keeps its own independent state. click "save file" in the top bar (or below) to choose a file name and download a copy with your changes baked inside.</p>
+                    <textarea id="jsonConfigTextarea" rows="3" placeholder="click export json to view current file state, or paste json here to import" class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
                     <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
-                        <span id="jsonConfigStatus" class="text-[11px] font-mono text-zinc-500">all changes auto-save to browser storage</span>
+                        <span id="jsonConfigStatus" class="text-[11px] font-mono text-zinc-500">zero browser storage used: 100% self-contained in this file</span>
                         <div class="flex items-center gap-2">
-                            <button id="exportJsonBtn" type="button"
-                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:bg-zinc-700">
+                            <button id="exportJsonBtn" type="button" class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:bg-zinc-700">
                                 export json to box
                             </button>
-                            <button id="importJsonBtn" type="button"
-                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700">
+                            <button id="importJsonBtn" type="button" class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700">
                                 import json from box
                             </button>
                         </div>
@@ -564,10 +442,12 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-2 pt-4 border-t border-zinc-800">
-                <button id="saveSettingsBtn" type="button"
-                    class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
-                    save & apply settings
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-zinc-800">
+                <button id="saveFileFromModalBtn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600/25 border border-emerald-500/40 hover:bg-emerald-600/35 text-xs font-mono font-semibold text-emerald-300 transition-colors">
+                    apply &amp; save html file...
+                </button>
+                <button id="saveSettingsBtn" type="button" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                    apply changes to session
                 </button>
             </div>
         </div>
@@ -575,18 +455,485 @@
 
     <!-- subtle footer -->
     <footer class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 text-center">
-        <p class="text-xs text-zinc-500">select a brush above and press any physical key or click any keycap. use edit layout to rename, rebind, resize, or swap any key.</p>
+        <p class="text-xs text-zinc-500">zero browser memory used: each copy of this html file keeps its own isolated state. click "save file" to name and download your updated copy.</p>
     </footer>
+
+    <!-- embedded file-isolated state block (updated automatically when saving file) -->
+    <script id="embedded-file-state" type="application/json">
+{
+  "appConfig": {
+    "title": "switch planner and tester",
+    "subtitle": "file-isolated switch studio (zero browser cache)",
+    "layoutId": "75_custom",
+    "brushes": [
+      {
+        "id": "brush_tactile",
+        "name": "tactile",
+        "color": "#a855f7",
+        "combineIntoPrimary": false
+      },
+      {
+        "id": "brush_linear",
+        "name": "linear",
+        "color": "#eab308",
+        "combineIntoPrimary": false
+      },
+      {
+        "id": "brush_buy",
+        "name": "buy",
+        "color": "#10b981",
+        "combineIntoPrimary": true
+      }
+    ],
+    "customLayouts": {
+      "75_custom": [
+        [
+          {
+            "code": "Escape",
+            "label": "esc",
+            "w": 1
+          },
+          {
+            "code": "F1",
+            "label": "f1",
+            "w": 1,
+            "gap": 0.5
+          },
+          {
+            "code": "F2",
+            "label": "f2",
+            "w": 1
+          },
+          {
+            "code": "F3",
+            "label": "f3",
+            "w": 1
+          },
+          {
+            "code": "F4",
+            "label": "f4",
+            "w": 1
+          },
+          {
+            "code": "F5",
+            "label": "f5",
+            "w": 1,
+            "gap": 0.25
+          },
+          {
+            "code": "F6",
+            "label": "f6",
+            "w": 1
+          },
+          {
+            "code": "F7",
+            "label": "f7",
+            "w": 1
+          },
+          {
+            "code": "F8",
+            "label": "f8",
+            "w": 1
+          },
+          {
+            "code": "F9",
+            "label": "f9",
+            "w": 1,
+            "gap": 0.25
+          },
+          {
+            "code": "F10",
+            "label": "f10",
+            "w": 1
+          },
+          {
+            "code": "F11",
+            "label": "f11",
+            "w": 1
+          },
+          {
+            "code": "F12",
+            "label": "f12",
+            "w": 1
+          },
+          {
+            "code": "Delete",
+            "label": "del",
+            "w": 1
+          },
+          {
+            "code": "Home",
+            "label": "home",
+            "w": 1
+          }
+        ],
+        [
+          {
+            "code": "Backquote",
+            "label": "`",
+            "w": 1
+          },
+          {
+            "code": "Digit1",
+            "label": "1",
+            "w": 1
+          },
+          {
+            "code": "Digit2",
+            "label": "2",
+            "w": 1
+          },
+          {
+            "code": "Digit3",
+            "label": "3",
+            "w": 1
+          },
+          {
+            "code": "Digit4",
+            "label": "4",
+            "w": 1
+          },
+          {
+            "code": "Digit5",
+            "label": "5",
+            "w": 1
+          },
+          {
+            "code": "Digit6",
+            "label": "6",
+            "w": 1
+          },
+          {
+            "code": "Digit7",
+            "label": "7",
+            "w": 1
+          },
+          {
+            "code": "Digit8",
+            "label": "8",
+            "w": 1
+          },
+          {
+            "code": "Digit9",
+            "label": "9",
+            "w": 1
+          },
+          {
+            "code": "Digit0",
+            "label": "0",
+            "w": 1
+          },
+          {
+            "code": "Minus",
+            "label": "-",
+            "w": 1
+          },
+          {
+            "code": "Equal",
+            "label": "=",
+            "w": 1
+          },
+          {
+            "code": "Backspace",
+            "label": "backspace",
+            "w": 2
+          },
+          {
+            "code": "PageUp",
+            "label": "pgup",
+            "w": 1
+          }
+        ],
+        [
+          {
+            "code": "Tab",
+            "label": "tab",
+            "w": 1.5
+          },
+          {
+            "code": "KeyQ",
+            "label": "q",
+            "w": 1
+          },
+          {
+            "code": "KeyW",
+            "label": "w",
+            "w": 1
+          },
+          {
+            "code": "KeyE",
+            "label": "e",
+            "w": 1
+          },
+          {
+            "code": "KeyR",
+            "label": "r",
+            "w": 1
+          },
+          {
+            "code": "KeyT",
+            "label": "t",
+            "w": 1
+          },
+          {
+            "code": "KeyY",
+            "label": "y",
+            "w": 1
+          },
+          {
+            "code": "KeyU",
+            "label": "u",
+            "w": 1
+          },
+          {
+            "code": "KeyI",
+            "label": "i",
+            "w": 1
+          },
+          {
+            "code": "KeyO",
+            "label": "o",
+            "w": 1
+          },
+          {
+            "code": "KeyP",
+            "label": "p",
+            "w": 1
+          },
+          {
+            "code": "BracketLeft",
+            "label": "[",
+            "w": 1
+          },
+          {
+            "code": "BracketRight",
+            "label": "]",
+            "w": 1
+          },
+          {
+            "code": "Backslash",
+            "label": "\\",
+            "w": 1.5
+          },
+          {
+            "code": "PageDown",
+            "label": "pgdn",
+            "w": 1
+          }
+        ],
+        [
+          {
+            "code": "CapsLock",
+            "label": "caps",
+            "w": 1.75
+          },
+          {
+            "code": "KeyA",
+            "label": "a",
+            "w": 1
+          },
+          {
+            "code": "KeyS",
+            "label": "s",
+            "w": 1
+          },
+          {
+            "code": "KeyD",
+            "label": "d",
+            "w": 1
+          },
+          {
+            "code": "KeyF",
+            "label": "f",
+            "w": 1
+          },
+          {
+            "code": "KeyG",
+            "label": "g",
+            "w": 1
+          },
+          {
+            "code": "KeyH",
+            "label": "h",
+            "w": 1
+          },
+          {
+            "code": "KeyJ",
+            "label": "j",
+            "w": 1
+          },
+          {
+            "code": "KeyK",
+            "label": "k",
+            "w": 1
+          },
+          {
+            "code": "KeyL",
+            "label": "l",
+            "w": 1
+          },
+          {
+            "code": "Semicolon",
+            "label": ";",
+            "w": 1
+          },
+          {
+            "code": "Quote",
+            "label": "'",
+            "w": 1
+          },
+          {
+            "code": "Enter",
+            "label": "enter",
+            "w": 2.25
+          },
+          {
+            "code": "End",
+            "label": "end",
+            "w": 1
+          }
+        ],
+        [
+          {
+            "code": "ShiftLeft",
+            "label": "shift",
+            "w": 2.25
+          },
+          {
+            "code": "KeyZ",
+            "label": "z",
+            "w": 1
+          },
+          {
+            "code": "KeyX",
+            "label": "x",
+            "w": 1
+          },
+          {
+            "code": "KeyC",
+            "label": "c",
+            "w": 1
+          },
+          {
+            "code": "KeyV",
+            "label": "v",
+            "w": 1
+          },
+          {
+            "code": "KeyB",
+            "label": "b",
+            "w": 1
+          },
+          {
+            "code": "KeyN",
+            "label": "n",
+            "w": 1
+          },
+          {
+            "code": "KeyM",
+            "label": "m",
+            "w": 1
+          },
+          {
+            "code": "Comma",
+            "label": ",",
+            "w": 1
+          },
+          {
+            "code": "Period",
+            "label": ".",
+            "w": 1
+          },
+          {
+            "code": "Slash",
+            "label": "/",
+            "w": 1
+          },
+          {
+            "code": "ShiftRight",
+            "label": "shift",
+            "w": 1.75
+          },
+          {
+            "code": "ArrowUp",
+            "label": "↑",
+            "w": 1
+          }
+        ],
+        [
+          {
+            "code": "ControlLeft",
+            "label": "ctrl",
+            "w": 1.25
+          },
+          {
+            "code": "MetaLeft",
+            "label": "win",
+            "w": 1.25
+          },
+          {
+            "code": "AltLeft",
+            "label": "alt",
+            "w": 1.25
+          },
+          {
+            "code": "Space",
+            "label": "space",
+            "w": 6.25
+          },
+          {
+            "code": "AltRight",
+            "label": "alt",
+            "w": 1
+          },
+          {
+            "code": "Fn",
+            "label": "fn",
+            "w": 1
+          },
+          {
+            "code": "ControlRight",
+            "label": "ctrl",
+            "w": 1
+          },
+          {
+            "code": "ArrowLeft",
+            "label": "←",
+            "w": 1
+          },
+          {
+            "code": "ArrowDown",
+            "label": "↓",
+            "w": 1
+          },
+          {
+            "code": "ArrowRight",
+            "label": "→",
+            "w": 1
+          }
+        ]
+      ]
+    }
+  },
+  "keyStates": {}
+}
+    </script>
 
     <script>
         /**
-         * customizable mechanical keyboard switch planner, layout studio, and tester
+         * file-isolated mechanical keyboard switch planner, layout studio, and tester
+         * holds zero browser memory (no localstorage); state lives strictly inside each html file copy
+         * supports dynamic add/remove brushes (any count: 1, 2, 3, 4, 5+)
          * strictly lowercase text, zero em-dashes
          */
         (() => {
-            const STORAGE_KEY = 'mech_switch_planner_studio_v2';
+            const COLOR_PALETTE = [
+                '#a855f7', '#eab308', '#10b981', '#06b6d4',
+                '#f43f5e', '#f97316', '#3b82f6', '#ec4899',
+                '#84cc16', '#8b5cf6', '#14b8a6', '#f59e0b'
+            ];
 
-            // default user switch plan for 82-key 75% custom layout (33 tactile, 31 linear, 18 buy)
+            // sample 82-key 75% custom layout plan (33 tactile, 31 linear, 18 buy)
             const DEFAULT_75_PLAN_TEXT = [
                 '75% mechanical keyboard switch plan (82 keys total)',
                 'tactile: 33 switches -> f4 (f4), backspace (backspace), tab (tab), q (keyq), w (keyw), e (keye), r (keyr), t (keyt), y (keyy), u (keyu), i (keyi), o (keyo), p (keyp), a (keya), s (keys), d (keyd), f (keyf), g (keyg), h (keyh), j (keyj), k (keyk), l (keyl), z (keyz), x (keyx), c (keyc), v (keyv), b (keyb), n (keyn), m (keym), ctrl (controlleft), win (metaleft), alt (altleft), space (space)',
@@ -929,31 +1276,30 @@
                 ]
             };
 
-            function cloneRows(rows) {
-                return JSON.parse(JSON.stringify(rows));
+            function cloneObj(obj) {
+                return JSON.parse(JSON.stringify(obj));
             }
 
-            // application configuration and state
+            // default fallback config
             let appConfig = {
-                title: '75% switch planner and tester',
-                subtitle: 'custom mechanical switch replacement studio',
+                title: 'switch planner and tester',
+                subtitle: 'file-isolated switch studio (zero browser cache)',
                 layoutId: '75_custom',
-                combineGroup3IntoGroup1: true,
-                groups: {
-                    group1: { name: 'tactile', color: '#a855f7' },
-                    group2: { name: 'linear', color: '#eab308' },
-                    group3: { name: 'buy', color: '#10b981' }
-                },
-                customLayouts: {} // layoutId -> customized rows array
+                brushes: [
+                    { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                    { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false },
+                    { id: 'brush_buy', name: 'buy', color: '#10b981', combineIntoPrimary: true }
+                ],
+                customLayouts: {}
             };
 
-            const keyStates = new Map();      // physical code -> 'group1' | 'group2' | 'group3' | 'unchecked'
+            const keyStates = new Map();      // physical code -> brushId | 'unchecked'
             const activeCodes = new Set();    // currently held physical codes
             const keycapElements = new Map(); // physical code -> { el, badgeEl, label, rowIdx, keyIdx }
             const seenEvents = new WeakSet();
-            let currentBrush = 'group1';      // 'group1' | 'group2' | 'group3' | 'unchecked'
+            let currentBrush = 'brush_tactile';
             let isDark = true;
-            let isKeyboardLocked = false;
+            let isInputLocked = false;        // when true, stops taking keyboard and keycap input
 
             // layout editor state
             let isEditLayoutMode = false;
@@ -961,21 +1307,35 @@
             let isSwapPending = false;
             let isBindingKeyCode = false;
 
+            // temporary draft brushes list inside settings modal
+            let modalDraftBrushes = [];
+
             // dom elements
             const workspaceTitleEl = document.getElementById('workspaceTitleEl');
             const workspaceSubtitleEl = document.getElementById('workspaceSubtitleEl');
             const quickLayoutSelect = document.getElementById('quickLayoutSelect');
             const editLayoutBtn = document.getElementById('editLayoutBtn');
             const openSettingsBtn = document.getElementById('openSettingsBtn');
+            const saveFileBtn = document.getElementById('saveFileBtn');
             const pasteListBtn = document.getElementById('pasteListBtn');
             const copyListBtn = document.getElementById('copyListBtn');
             const lockBtn = document.getElementById('lockBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const expandIcon = document.getElementById('expandIcon');
+            const compressIcon = document.getElementById('compressIcon');
             const themeToggleBtn = document.getElementById('themeToggle');
             const sunIcon = document.getElementById('sunIcon');
             const moonIcon = document.getElementById('moonIcon');
             const resetBtn = document.getElementById('resetBtn');
             const focusBadgeEl = document.getElementById('focusBadge');
             const statusDotEl = document.getElementById('statusDot');
+
+            // save file prompt modal dom
+            const saveFileModal = document.getElementById('saveFileModal');
+            const saveFileNameInput = document.getElementById('saveFileNameInput');
+            const closeSaveModalBtn = document.getElementById('closeSaveModalBtn');
+            const cancelSaveFileBtn = document.getElementById('cancelSaveFileBtn');
+            const confirmSaveFileBtn = document.getElementById('confirmSaveFileBtn');
 
             // paste drawer dom
             const pasteDrawer = document.getElementById('pasteDrawer');
@@ -1000,41 +1360,10 @@
             const deleteSelectedKeyBtn = document.getElementById('deleteSelectedKeyBtn');
             const editInspectorStatus = document.getElementById('editInspectorStatus');
 
-            // stat cards dom
-            const group1CardTitle = document.getElementById('group1CardTitle');
-            const group1Dot = document.getElementById('group1Dot');
-            const group1ComboDot = document.getElementById('group1ComboDot');
-            const group1CountEl = document.getElementById('group1CountEl');
-            const group1PctEl = document.getElementById('group1PctEl');
-            const group1Subtext = document.getElementById('group1Subtext');
-
-            const group3CardTitle = document.getElementById('group3CardTitle');
-            const group3Dot = document.getElementById('group3Dot');
-            const group3CountEl = document.getElementById('group3CountEl');
-            const group3Subtext = document.getElementById('group3Subtext');
-
-            const group2CardTitle = document.getElementById('group2CardTitle');
-            const group2Dot = document.getElementById('group2Dot');
-            const group2CountEl = document.getElementById('group2CountEl');
-            const group2Subtext = document.getElementById('group2Subtext');
-
-            const totalBadgeEl = document.getElementById('totalBadge');
-            const uncheckedCountEl = document.getElementById('uncheckedCountEl');
-            const uncheckedSubtextEl = document.getElementById('uncheckedSubtext');
-
-            const lastKeyDisplayEl = document.getElementById('lastKeyDisplay');
-            const keyCodeLabelEl = document.getElementById('keyCodeLabel');
-            const lastKeySubtextEl = document.getElementById('lastKeySubtext');
-
-            // keyboard & brush dom
+            // dynamic stat cards & brush bar dom
+            const statCardsGrid = document.getElementById('statCardsGrid');
             const shieldStatusTextEl = document.getElementById('shieldStatusText');
-            const brushButtons = document.querySelectorAll('.brush-btn');
-            const brushDot1 = document.getElementById('brushDot1');
-            const brushLabel1 = document.getElementById('brushLabel1');
-            const brushDot2 = document.getElementById('brushDot2');
-            const brushLabel2 = document.getElementById('brushLabel2');
-            const brushDot3 = document.getElementById('brushDot3');
-            const brushLabel3 = document.getElementById('brushLabel3');
+            const brushToggleGroup = document.getElementById('brushToggleGroup');
             const kbdMainBlock = document.getElementById('kbdMainBlock');
 
             // chart dom
@@ -1047,13 +1376,8 @@
             const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
             const settingsTitleInput = document.getElementById('settingsTitleInput');
             const settingsSubtitleInput = document.getElementById('settingsSubtitleInput');
-            const group1ColorInput = document.getElementById('group1ColorInput');
-            const group1NameInput = document.getElementById('group1NameInput');
-            const group2ColorInput = document.getElementById('group2ColorInput');
-            const group2NameInput = document.getElementById('group2NameInput');
-            const group3ColorInput = document.getElementById('group3ColorInput');
-            const group3NameInput = document.getElementById('group3NameInput');
-            const combineGroup3Checkbox = document.getElementById('combineGroup3Checkbox');
+            const addBrushBtn = document.getElementById('addBrushBtn');
+            const brushEditorList = document.getElementById('brushEditorList');
             const settingsLayoutSelect = document.getElementById('settingsLayoutSelect');
             const launchPerKeyEditorFromSettingsBtn = document.getElementById('launchPerKeyEditorFromSettingsBtn');
             const jsonConfigTextarea = document.getElementById('jsonConfigTextarea');
@@ -1061,6 +1385,7 @@
             const exportJsonBtn = document.getElementById('exportJsonBtn');
             const importJsonBtn = document.getElementById('importJsonBtn');
             const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            const saveFileFromModalBtn = document.getElementById('saveFileFromModalBtn');
 
             /**
              * helper: converts hex color (#rrggbb) to rgba(r, g, b, alpha)
@@ -1075,13 +1400,20 @@
             }
 
             /**
+             * helper: finds a brush object by its id
+             */
+            function getBrushById(id) {
+                return appConfig.brushes.find((b) => b.id === id) || null;
+            }
+
+            /**
              * returns the active rows array for the current layoutId
              */
             function getActiveLayoutRows() {
                 const id = appConfig.layoutId || '75_custom';
                 if (!appConfig.customLayouts[id]) {
                     const base = LAYOUT_PRESETS[id] || LAYOUT_PRESETS['75_custom'];
-                    appConfig.customLayouts[id] = cloneRows(base);
+                    appConfig.customLayouts[id] = cloneObj(base);
                 }
                 return appConfig.customLayouts[id];
             }
@@ -1090,6 +1422,7 @@
              * checks if an input, textarea, select, or modal is currently active
              */
             function isInteractiveInputActive() {
+                if (!saveFileModal.classList.contains('hidden')) return true;
                 if (!settingsModal.classList.contains('hidden')) return true;
                 if (!pasteDrawer.classList.contains('hidden')) return true;
                 const active = document.activeElement;
@@ -1100,106 +1433,254 @@
             }
 
             /**
-             * saves config and key assignments to localStorage
+             * builds the serialized state object for this file copy
              */
-            function saveToStorage() {
-                try {
-                    const serializedStates = {};
-                    keyStates.forEach((v, k) => {
-                        if (v && v !== 'unchecked') serializedStates[k] = v;
-                    });
-                    const payload = {
-                        appConfig,
-                        keyStates: serializedStates
-                    };
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-                } catch (_) {
-                    // ignore storage quota errors
+            function buildSerializedFileState() {
+                const serializedStates = {};
+                keyStates.forEach((v, k) => {
+                    if (v && v !== 'unchecked' && getBrushById(v)) {
+                        serializedStates[k] = v;
+                    }
+                });
+                return {
+                    appConfig: cloneObj(appConfig),
+                    keyStates: serializedStates
+                };
+            }
+
+            /**
+             * updates the in-memory embedded state tag inside the current document
+             * (zero browser localstorage or sessionstorage is touched)
+             */
+            function syncEmbeddedStateTag() {
+                const embeddedTag = document.getElementById('embedded-file-state');
+                if (embeddedTag) {
+                    embeddedTag.textContent = '\n' + JSON.stringify(buildSerializedFileState(), null, 2) + '\n    ';
                 }
             }
 
             /**
-             * loads saved state from localStorage or initializes with user's 82-key 75% switch plan
+             * loads state strictly from the embedded <script id="embedded-file-state"> inside THIS html file
              */
-            function loadFromStorage() {
+            function loadFromEmbeddedFileState() {
                 try {
-                    const raw = localStorage.getItem(STORAGE_KEY);
-                    if (raw) {
-                        const parsed = JSON.parse(raw);
+                    const embeddedTag = document.getElementById('embedded-file-state');
+                    if (embeddedTag && embeddedTag.textContent.trim()) {
+                        const parsed = JSON.parse(embeddedTag.textContent.trim());
                         if (parsed && parsed.appConfig) {
                             appConfig = Object.assign(appConfig, parsed.appConfig);
+                            if (!Array.isArray(appConfig.brushes) || appConfig.brushes.length === 0) {
+                                appConfig.brushes = [
+                                    { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false }
+                                ];
+                            }
+                        }
+                        if (!getBrushById(currentBrush)) {
+                            currentBrush = appConfig.brushes[0].id;
                         }
                         buildVisualKeyboard();
                         if (parsed && parsed.keyStates) {
                             keyStates.clear();
                             Object.entries(parsed.keyStates).forEach(([k, v]) => {
-                                keyStates.set(k, v);
+                                if (getBrushById(v)) {
+                                    keyStates.set(k, v);
+                                }
                             });
                         }
                         syncBrandingAndBrushUI();
-                        syncSwitchCountsUI();
+                        renderStatCardsAndChart();
                         updateVisualKeyboardStyles();
-                        drawChart();
                         return;
                     }
                 } catch (_) {
-                    // fallback to default initialization
+                    // fallback if embedded tag was manually corrupted
                 }
 
-                // first-run default: build 75% custom layout and pre-load the 82-key switch plan
                 buildVisualKeyboard();
                 syncBrandingAndBrushUI();
                 parseAndApplySwitchList(DEFAULT_75_PLAN_TEXT, true);
             }
 
             /**
-             * synchronizes workspace titles, brush buttons, and stat card headers with appConfig
+             * opens the save-file filename prompt modal
+             */
+            function openSaveFileModal() {
+                const defaultSlug = (appConfig.title || 'switch-planner')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_-]+/g, '-')
+                    .replace(/^-+|-+$/g, '') || 'switch-planner';
+
+                saveFileNameInput.value = defaultSlug;
+                saveFileModal.classList.remove('hidden');
+                updateFocusIndicator(false);
+                setTimeout(() => {
+                    saveFileNameInput.focus();
+                    saveFileNameInput.select();
+                }, 20);
+            }
+
+            function closeSaveFileModal() {
+                saveFileModal.classList.add('hidden');
+                ensurePageFocus();
+            }
+
+            /**
+             * downloads a self-contained copy of this html file with the chosen filename
+             * and all current edits baked into #embedded-file-state
+             */
+            function downloadSelfContainedHtmlFile(customBaseName) {
+                syncEmbeddedStateTag();
+
+                const cloneDoc = document.documentElement.cloneNode(true);
+
+                // ensure all modals/drawers are closed in the saved copy
+                ['#saveFileModal', '#settingsModal', '#pasteDrawer', '#layoutEditorBar'].forEach((sel) => {
+                    const el = cloneDoc.querySelector(sel);
+                    if (el) el.classList.add('hidden');
+                });
+
+                // clear runtime-generated keyboard grid, stat cards, and brush bar so clean boot renders them fresh
+                const kbdGrid = cloneDoc.querySelector('#kbdMainBlock');
+                if (kbdGrid) kbdGrid.innerHTML = '';
+                const cardsGrid = cloneDoc.querySelector('#statCardsGrid');
+                if (cardsGrid) cardsGrid.innerHTML = '';
+                const brushBar = cloneDoc.querySelector('#brushToggleGroup');
+                if (brushBar) brushBar.innerHTML = '';
+
+                // reset lock button & status text to unlocked default in saved file
+                const clonedLockBtn = cloneDoc.querySelector('#lockBtn');
+                if (clonedLockBtn) {
+                    clonedLockBtn.textContent = 'lock keyboard: off';
+                }
+
+                // remove injected tailwind runtime style tags so cdn regenerates cleanly on open
+                cloneDoc.querySelectorAll('style').forEach((styleTag) => {
+                    if (!styleTag.textContent.includes('.keycap.is-pressed')) {
+                        styleTag.remove();
+                    }
+                });
+
+                cloneDoc.classList.add('dark');
+                const titleTag = cloneDoc.querySelector('title');
+                if (titleTag) {
+                    titleTag.textContent = (appConfig.title || 'mechanical keyboard switch planner and tester').toLowerCase();
+                }
+
+                const htmlOutput = '<!DOCTYPE html>\n' + cloneDoc.outerHTML;
+                const blob = new Blob([htmlOutput], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+
+                // sanitize user-provided filename and ensure .html extension
+                let cleanName = (customBaseName || '')
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\.html?$/i, '')
+                    .replace(/[\\/:*?"<>|]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+
+                if (!cleanName) {
+                    cleanName = (appConfig.title || 'switch-planner')
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_-]+/g, '-')
+                        .replace(/^-+|-+$/g, '') || 'switch-planner';
+                }
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${cleanName}.html`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                saveFileBtn.textContent = `saved ${cleanName}.html`;
+                setTimeout(() => { saveFileBtn.textContent = 'save file'; }, 2400);
+                saveFileBtn.blur();
+                ensurePageFocus();
+            }
+
+            /**
+             * renders the dynamic brush toggle bar (supports any number of brushes + unchecked)
+             */
+            function renderBrushBar() {
+                brushToggleGroup.innerHTML = '';
+
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'text-[11px] font-mono text-zinc-500 px-2';
+                labelSpan.textContent = 'active brush:';
+                brushToggleGroup.appendChild(labelSpan);
+
+                appConfig.brushes.forEach((b) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.dataset.brush = b.id;
+                    btn.className = 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all';
+
+                    const dot = document.createElement('span');
+                    dot.className = 'w-2.5 h-2.5 rounded-sm inline-block shrink-0';
+                    dot.style.backgroundColor = b.color;
+
+                    const text = document.createElement('span');
+                    text.textContent = b.name.toLowerCase();
+
+                    btn.appendChild(dot);
+                    btn.appendChild(text);
+
+                    const selectBrush = (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        setActiveBrush(b.id);
+                        btn.blur();
+                        ensurePageFocus();
+                    };
+                    btn.addEventListener('pointerdown', selectBrush);
+                    btn.addEventListener('click', selectBrush);
+
+                    brushToggleGroup.appendChild(btn);
+                });
+
+                // always append unchecked eraser brush
+                const unBtn = document.createElement('button');
+                unBtn.type = 'button';
+                unBtn.dataset.brush = 'unchecked';
+                unBtn.className = 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all';
+
+                const unDot = document.createElement('span');
+                unDot.className = 'w-2.5 h-2.5 rounded-sm bg-zinc-700 border border-zinc-500 inline-block shrink-0';
+
+                const unText = document.createElement('span');
+                unText.textContent = 'unchecked';
+
+                unBtn.appendChild(unDot);
+                unBtn.appendChild(unText);
+
+                const selectUnchecked = (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    setActiveBrush('unchecked');
+                    unBtn.blur();
+                    ensurePageFocus();
+                };
+                unBtn.addEventListener('pointerdown', selectUnchecked);
+                unBtn.addEventListener('click', selectUnchecked);
+
+                brushToggleGroup.appendChild(unBtn);
+            }
+
+            /**
+             * synchronizes workspace titles, layout dropdown, and dynamic brush bar
              */
             function syncBrandingAndBrushUI() {
-                workspaceTitleEl.textContent = (appConfig.title || '75% switch planner and tester').toLowerCase();
-                workspaceSubtitleEl.textContent = (appConfig.subtitle || 'custom mechanical switch replacement studio').toLowerCase();
+                workspaceTitleEl.textContent = (appConfig.title || 'switch planner and tester').toLowerCase();
+                workspaceSubtitleEl.textContent = (appConfig.subtitle || 'file-isolated switch studio (zero browser cache)').toLowerCase();
                 quickLayoutSelect.value = appConfig.layoutId || '75_custom';
                 settingsLayoutSelect.value = appConfig.layoutId || '75_custom';
 
-                const g1 = appConfig.groups.group1;
-                const g2 = appConfig.groups.group2;
-                const g3 = appConfig.groups.group3;
-
-                // brush bar dots and labels
-                brushDot1.style.backgroundColor = g1.color;
-                brushLabel1.textContent = g1.name.toLowerCase();
-
-                brushDot2.style.backgroundColor = g2.color;
-                brushLabel2.textContent = g2.name.toLowerCase();
-
-                brushDot3.style.backgroundColor = g3.color;
-                brushLabel3.textContent = g3.name.toLowerCase();
-
-                // stat card colors and titles
-                group1Dot.style.backgroundColor = g1.color;
-                group1ComboDot.style.backgroundColor = g3.color;
-                group1ComboDot.style.display = appConfig.combineGroup3IntoGroup1 ? 'inline-block' : 'none';
-                group1CountEl.style.color = g1.color;
-                group1CardTitle.style.color = g1.color;
-
-                group2Dot.style.backgroundColor = g2.color;
-                group2CountEl.style.color = g2.color;
-                group2CardTitle.style.color = g2.color;
-                group2CardTitle.textContent = g2.name.toLowerCase();
-
-                group3Dot.style.backgroundColor = g3.color;
-                group3CountEl.style.color = g3.color;
-                group3CardTitle.style.color = g3.color;
-                group1PctEl.style.color = appConfig.combineGroup3IntoGroup1 ? g3.color : g1.color;
-
-                if (appConfig.combineGroup3IntoGroup1) {
-                    group1CardTitle.textContent = `total ${g1.name} (+${g3.name})`.toLowerCase();
-                    group3CardTitle.textContent = `${g3.name} (+${g1.name})`.toLowerCase();
-                } else {
-                    group1CardTitle.textContent = g1.name.toLowerCase();
-                    group3CardTitle.textContent = g3.name.toLowerCase();
+                if (currentBrush !== 'unchecked' && !getBrushById(currentBrush)) {
+                    currentBrush = appConfig.brushes[0]?.id || 'unchecked';
                 }
 
+                renderBrushBar();
                 setActiveBrush(currentBrush);
             }
 
@@ -1209,7 +1690,7 @@
             function setActiveBrush(brushMode) {
                 currentBrush = brushMode;
 
-                brushButtons.forEach((btn) => {
+                brushToggleGroup.querySelectorAll('.brush-btn').forEach((btn) => {
                     const mode = btn.dataset.brush;
                     const isSelected = mode === brushMode;
 
@@ -1222,7 +1703,7 @@
                             ? 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-700/60 border border-zinc-400 text-zinc-100 shadow-sm'
                             : 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200';
                     } else {
-                        const grp = appConfig.groups[mode];
+                        const grp = getBrushById(mode);
                         if (isSelected && grp) {
                             btn.className = 'brush-btn px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 transition-all border shadow-sm';
                             btn.style.backgroundColor = hexToRgba(grp.color, 0.26);
@@ -1234,13 +1715,27 @@
                     }
                 });
 
-                const activeBrushName = brushMode === 'unchecked'
-                    ? 'unchecked'
-                    : (appConfig.groups[brushMode]?.name || brushMode);
+                updateStatusLine();
+            }
 
-                if (!isKeyboardLocked && !isEditLayoutMode) {
-                    shieldStatusTextEl.textContent = `active brush: ${activeBrushName.toLowerCase()} (press any key or left-click keycap to paint, middle-click for ${appConfig.groups.group3.name.toLowerCase()}, right-click to uncheck)`;
+            function updateStatusLine() {
+                if (isInputLocked) {
+                    shieldStatusTextEl.textContent = 'keyboard locked: all physical keypresses and keycap clicks are blocked (click "lock keyboard: on" to resume)';
+                    return;
                 }
+                if (isEditLayoutMode) {
+                    shieldStatusTextEl.textContent = 'edit layout mode: click any keycap to rename, rebind, resize, swap, or delete it';
+                    return;
+                }
+
+                const activeBrushObj = getBrushById(currentBrush);
+                const activeBrushName = currentBrush === 'unchecked'
+                    ? 'unchecked'
+                    : (activeBrushObj?.name || currentBrush);
+
+                const lastBrush = appConfig.brushes[appConfig.brushes.length - 1];
+                const middleHint = lastBrush ? `, middle-click for ${lastBrush.name.toLowerCase()}` : '';
+                shieldStatusTextEl.textContent = `active brush: ${activeBrushName.toLowerCase()} (press any key or left-click keycap to paint${middleHint}, right-click to uncheck)`;
             }
 
             /**
@@ -1257,7 +1752,6 @@
                     rowEl.className = 'flex items-stretch gap-1.5 h-10 sm:h-11';
 
                     row.forEach((item, keyIdx) => {
-                        // optional left blocker spacer
                         const gap = parseFloat(item.gap) || 0;
                         if (gap > 0) {
                             const spacerEl = document.createElement('div');
@@ -1280,17 +1774,23 @@
 
                         const badgeSpan = document.createElement('span');
                         badgeSpan.className = 'font-mono text-[9px] leading-none mt-1 opacity-0 transition-opacity truncate max-w-full';
-                        badgeSpan.textContent = '1';
+                        badgeSpan.textContent = '';
 
                         keyEl.appendChild(labelSpan);
                         keyEl.appendChild(badgeSpan);
 
-                        // pointer interaction: supports edit layout mode OR brush painting + middle-click + right-click
                         keyEl.addEventListener('pointerdown', (ev) => {
                             if (isEditLayoutMode) {
                                 ev.preventDefault();
                                 ev.stopPropagation();
                                 handleKeyClickInEditMode(rowIdx, keyIdx);
+                                return;
+                            }
+
+                            // when keyboard is locked, ignore keycap clicks completely
+                            if (isInputLocked) {
+                                ev.preventDefault();
+                                ev.stopPropagation();
                                 return;
                             }
 
@@ -1302,7 +1802,8 @@
                             } else if (ev.button === 1) {
                                 ev.preventDefault();
                                 ev.stopPropagation();
-                                applyBrushToKey(item.label, item.code, 'group3');
+                                const quickMiddleBrush = appConfig.brushes[appConfig.brushes.length - 1]?.id || currentBrush;
+                                applyBrushToKey(item.label, item.code, quickMiddleBrush);
                                 setTimeout(() => releaseKeyVisual(item.code), 120);
                             } else if (ev.button === 2) {
                                 ev.preventDefault();
@@ -1329,9 +1830,8 @@
                     kbdMainBlock.appendChild(rowEl);
                 });
 
-                totalBadgeEl.textContent = `${keycapElements.size} total`;
                 highlightSelectedEditKey();
-                syncSwitchCountsUI();
+                renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
             }
 
@@ -1342,7 +1842,6 @@
                 const rows = getActiveLayoutRows();
                 if (!rows[rowIdx] || !rows[rowIdx][keyIdx]) return;
 
-                // if swap mode is active and we have a source key, swap them immediately
                 if (isSwapPending && selectedKeyPos) {
                     const src = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
                     const dst = rows[rowIdx]?.[keyIdx];
@@ -1357,10 +1856,9 @@
                         isSwapPending = false;
                         swapKeyModeBtn.textContent = 'swap with next clicked key';
                         selectedKeyPos = { rowIdx, keyIdx };
-                        saveToStorage();
+                        syncEmbeddedStateTag();
                         buildVisualKeyboard();
                         populateInspectorForSelectedKey();
-                        drawChart();
                         editInspectorStatus.textContent = `swapped keys -> now inspecting ${dst.label} (${dst.code.toLowerCase()})`;
                         return;
                     }
@@ -1373,9 +1871,6 @@
                 highlightSelectedEditKey();
             }
 
-            /**
-             * populates the per-key inspector inputs with the currently selected key's properties
-             */
             function populateInspectorForSelectedKey() {
                 if (!selectedKeyPos) return;
                 const rows = getActiveLayoutRows();
@@ -1389,9 +1884,6 @@
                 editInspectorStatus.textContent = `editing row ${selectedKeyPos.rowIdx + 1}, key ${selectedKeyPos.keyIdx + 1}: "${item.label.toLowerCase()}" (code: ${item.code.toLowerCase()}, width: ${item.w || 1}u)`;
             }
 
-            /**
-             * outlines the currently selected keycap in edit layout mode
-             */
             function highlightSelectedEditKey() {
                 keycapElements.forEach(({ el, rowIdx, keyIdx }) => {
                     el.classList.remove('selected-for-edit', 'swap-source');
@@ -1402,25 +1894,40 @@
             }
 
             /**
-             * computes current counts for group1, group2, group3, combined goal, and unchecked keys
+             * computes dynamic counts across all configured brushes + unchecked keys
              */
-            function getSwitchBreakdown() {
+            function getDynamicBreakdown() {
                 const totalKeys = keycapElements.size || 1;
-                let group1 = 0;
-                let group2 = 0;
-                let group3 = 0;
+                const counts = new Map();
+                appConfig.brushes.forEach((b) => counts.set(b.id, 0));
                 let unchecked = 0;
 
                 keycapElements.forEach((_, code) => {
                     const st = keyStates.get(code) || 'unchecked';
-                    if (st === 'group1') group1 += 1;
-                    else if (st === 'group2') group2 += 1;
-                    else if (st === 'group3') group3 += 1;
-                    else unchecked += 1;
+                    if (counts.has(st)) {
+                        counts.set(st, counts.get(st) + 1);
+                    } else {
+                        unchecked += 1;
+                    }
                 });
 
-                const combinedPrimary = appConfig.combineGroup3IntoGroup1 ? (group1 + group3) : group1;
-                return { totalKeys, group1, group2, group3, combinedPrimary, unchecked };
+                const primaryBrush = appConfig.brushes[0] || null;
+                const combinedBrushes = appConfig.brushes.filter((b, idx) => idx > 0 && b.combineIntoPrimary);
+                let combinedPrimaryTotal = primaryBrush ? (counts.get(primaryBrush.id) || 0) : 0;
+                combinedBrushes.forEach((b) => {
+                    combinedPrimaryTotal += (counts.get(b.id) || 0);
+                });
+
+                const assignedTotal = totalKeys - unchecked;
+                return {
+                    totalKeys,
+                    counts,
+                    unchecked,
+                    assignedTotal,
+                    primaryBrush,
+                    combinedBrushes,
+                    combinedPrimaryTotal
+                };
             }
 
             function formatPercent(count, total) {
@@ -1431,65 +1938,202 @@
             }
 
             /**
-             * updates the top five switch planner stat cards
+             * renders dynamic stat cards for every brush + unchecked + last input, then redraws chart
              */
-            function syncSwitchCountsUI() {
-                const { totalKeys, group1, group2, group3, combinedPrimary, unchecked } = getSwitchBreakdown();
-                const assigned = group1 + group2 + group3;
-                const g1Name = appConfig.groups.group1.name.toLowerCase();
-                const g3Name = appConfig.groups.group3.name.toLowerCase();
+            let lastInputSnapshot = {
+                label: 'none',
+                code: 'waiting',
+                subtext: 'select brush and press or click keys',
+                color: null
+            };
 
-                group1CountEl.textContent = combinedPrimary.toLocaleString();
-                group1PctEl.textContent = formatPercent(combinedPrimary, totalKeys);
-                if (appConfig.combineGroup3IntoGroup1) {
-                    group1Subtext.textContent = `${group1} ${g1Name} + ${group3} ${g3Name} of ${totalKeys}`;
-                    group3CountEl.textContent = `+${group3.toLocaleString()}`;
-                    group3Subtext.textContent = `adds +${formatPercent(group3, totalKeys)} to ${g1Name}`;
+            function renderStatCardsAndChart() {
+                const {
+                    totalKeys,
+                    counts,
+                    unchecked,
+                    assignedTotal,
+                    primaryBrush,
+                    combinedBrushes,
+                    combinedPrimaryTotal
+                } = getDynamicBreakdown();
+
+                const totalCards = appConfig.brushes.length + 2;
+                if (totalCards <= 3) {
+                    statCardsGrid.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4';
+                } else if (totalCards === 4) {
+                    statCardsGrid.className = 'grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4';
+                } else if (totalCards === 5) {
+                    statCardsGrid.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4';
                 } else {
-                    group1Subtext.textContent = `${formatPercent(group1, totalKeys)} of ${totalKeys} keys`;
-                    group3CountEl.textContent = group3.toLocaleString();
-                    group3Subtext.textContent = `${formatPercent(group3, totalKeys)} of ${totalKeys} keys`;
+                    statCardsGrid.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4';
                 }
 
-                group2CountEl.textContent = group2.toLocaleString();
-                group2Subtext.textContent = `${formatPercent(group2, totalKeys)} of ${totalKeys} keys`;
+                const cardBaseClass = isDark
+                    ? 'theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer'
+                    : 'theme-card rounded-2xl bg-white/90 border border-zinc-200 p-4 sm:p-5 flex flex-col justify-between shadow-xl transition-colors cursor-pointer';
 
-                uncheckedCountEl.textContent = unchecked.toLocaleString();
-                uncheckedSubtextEl.textContent = `${assigned} / ${totalKeys} assigned`;
+                statCardsGrid.innerHTML = '';
+
+                appConfig.brushes.forEach((brush, idx) => {
+                    const count = counts.get(brush.id) || 0;
+                    const isPrimaryWithCombos = idx === 0 && combinedBrushes.length > 0;
+                    const isCombinedChild = idx > 0 && brush.combineIntoPrimary;
+
+                    const cardEl = document.createElement('div');
+                    cardEl.className = cardBaseClass;
+                    cardEl.dataset.selectBrush = brush.id;
+                    cardEl.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        setActiveBrush(brush.id);
+                        ensurePageFocus();
+                    });
+
+                    const headerEl = document.createElement('div');
+                    headerEl.className = 'flex items-center justify-between gap-2 mb-2';
+
+                    const titleSpan = document.createElement('span');
+                    titleSpan.className = 'text-xs font-semibold tracking-wider truncate';
+                    titleSpan.style.color = brush.color;
+
+                    if (isPrimaryWithCombos) {
+                        const comboNames = combinedBrushes.map((cb) => `+${cb.name}`).join(' ');
+                        titleSpan.textContent = `total ${brush.name} (${comboNames})`.toLowerCase();
+                    } else if (isCombinedChild && primaryBrush) {
+                        titleSpan.textContent = `${brush.name} (+${primaryBrush.name})`.toLowerCase();
+                    } else {
+                        titleSpan.textContent = brush.name.toLowerCase();
+                    }
+
+                    const dotsWrap = document.createElement('span');
+                    dotsWrap.className = 'inline-flex items-center gap-1 shrink-0';
+
+                    const mainDot = document.createElement('span');
+                    mainDot.className = 'w-2.5 h-2.5 rounded-sm inline-block';
+                    mainDot.style.backgroundColor = brush.color;
+                    dotsWrap.appendChild(mainDot);
+
+                    if (isPrimaryWithCombos) {
+                        combinedBrushes.forEach((cb) => {
+                            const cDot = document.createElement('span');
+                            cDot.className = 'w-2.5 h-2.5 rounded-sm inline-block';
+                            cDot.style.backgroundColor = cb.color;
+                            dotsWrap.appendChild(cDot);
+                        });
+                    }
+
+                    headerEl.appendChild(titleSpan);
+                    headerEl.appendChild(dotsWrap);
+
+                    const bodyEl = document.createElement('div');
+                    bodyEl.className = 'my-1 flex items-baseline gap-2';
+
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'font-mono text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums';
+                    numSpan.style.color = brush.color;
+
+                    if (isPrimaryWithCombos) {
+                        numSpan.textContent = combinedPrimaryTotal.toLocaleString();
+                        bodyEl.appendChild(numSpan);
+
+                        const pctSpan = document.createElement('span');
+                        pctSpan.className = 'font-mono text-sm font-bold';
+                        pctSpan.style.color = combinedBrushes[0].color;
+                        pctSpan.textContent = formatPercent(combinedPrimaryTotal, totalKeys);
+                        bodyEl.appendChild(pctSpan);
+                    } else if (isCombinedChild) {
+                        numSpan.textContent = `+${count.toLocaleString()}`;
+                        bodyEl.appendChild(numSpan);
+                    } else {
+                        numSpan.textContent = count.toLocaleString();
+                        bodyEl.appendChild(numSpan);
+                    }
+
+                    const subEl = document.createElement('p');
+                    subEl.className = 'text-[11px] text-zinc-400 mt-2 font-mono truncate';
+                    if (isPrimaryWithCombos) {
+                        const parts = [`${count} ${brush.name}`];
+                        combinedBrushes.forEach((cb) => {
+                            parts.push(`${counts.get(cb.id) || 0} ${cb.name}`);
+                        });
+                        subEl.textContent = `${parts.join(' + ')} of ${totalKeys}`.toLowerCase();
+                    } else if (isCombinedChild && primaryBrush) {
+                        subEl.textContent = `adds +${formatPercent(count, totalKeys)} to ${primaryBrush.name}`.toLowerCase();
+                    } else {
+                        subEl.textContent = `${formatPercent(count, totalKeys)} of ${totalKeys} keys`.toLowerCase();
+                    }
+
+                    cardEl.appendChild(headerEl);
+                    cardEl.appendChild(bodyEl);
+                    cardEl.appendChild(subEl);
+                    statCardsGrid.appendChild(cardEl);
+                });
+
+                // unchecked card
+                const unCard = document.createElement('div');
+                unCard.className = cardBaseClass;
+                unCard.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    setActiveBrush('unchecked');
+                    ensurePageFocus();
+                });
+
+                unCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="text-xs font-semibold tracking-wider text-zinc-400">unchecked</span>
+                        <span class="text-[11px] font-mono px-2 py-0.5 rounded-md ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-200 text-zinc-600'}">${totalKeys} total</span>
+                    </div>
+                    <div class="my-1">
+                        <span class="font-mono text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'} tabular-nums block">${unchecked.toLocaleString()}</span>
+                    </div>
+                    <p class="text-[11px] text-zinc-500 mt-2 font-mono">${assignedTotal} / ${totalKeys} assigned</p>
+                `;
+                statCardsGrid.appendChild(unCard);
+
+                // last input card
+                const lastCard = document.createElement('div');
+                lastCard.className = cardBaseClass.replace('cursor-pointer', '');
+                const badgeBg = lastInputSnapshot.color
+                    ? `background-color: ${hexToRgba(lastInputSnapshot.color, 0.25)}; border-color: ${lastInputSnapshot.color}; color: ${lastInputSnapshot.color};`
+                    : '';
+                lastCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="text-xs font-semibold tracking-wider text-zinc-400">last input</span>
+                        <span class="text-[11px] font-mono text-zinc-500 truncate max-w-[90px]">${lastInputSnapshot.code}</span>
+                    </div>
+                    <div class="my-1 flex items-center justify-start min-h-[2.5rem]">
+                        <kbd style="${badgeBg}"
+                            class="inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl ${isDark ? 'bg-zinc-800 border-zinc-700 text-purple-400' : 'bg-zinc-100 border-zinc-300 text-purple-600'} border-b-4 font-mono text-lg sm:text-xl font-bold shadow-inner transition-transform duration-75">
+                            ${lastInputSnapshot.label}
+                        </kbd>
+                    </div>
+                    <p class="text-[11px] text-zinc-500 mt-2 truncate">${lastInputSnapshot.subtext}</p>
+                `;
+                statCardsGrid.appendChild(lastCard);
+
+                drawChart();
+            }
+
+            function updateLastInputCard(label, code, brushOrNote) {
+                const brushObj = getBrushById(brushOrNote);
+                lastInputSnapshot = {
+                    label: (label || 'none').toLowerCase(),
+                    code: (code || label || 'waiting').toLowerCase(),
+                    subtext: brushObj
+                        ? `marked ${brushObj.name.toLowerCase()}`
+                        : (typeof brushOrNote === 'string' ? brushOrNote.toLowerCase() : 'unchecked (cleared)'),
+                    color: brushObj ? brushObj.color : null
+                };
             }
 
             /**
-             * updates the last input metric card with dynamic color styling
-             */
-            function updateLastInputCard(label, code, groupKey) {
-                lastKeyDisplayEl.textContent = (label || 'none').toLowerCase();
-                keyCodeLabelEl.textContent = (code || label || 'waiting').toLowerCase();
-
-                if (groupKey && appConfig.groups[groupKey]) {
-                    const grp = appConfig.groups[groupKey];
-                    lastKeySubtextEl.textContent = `marked ${grp.name.toLowerCase()}`;
-                    lastKeyDisplayEl.style.backgroundColor = hexToRgba(grp.color, 0.25);
-                    lastKeyDisplayEl.style.borderColor = grp.color;
-                    lastKeyDisplayEl.style.color = grp.color;
-                } else {
-                    lastKeySubtextEl.textContent = typeof groupKey === 'string' ? groupKey.toLowerCase() : 'unchecked (cleared)';
-                    lastKeyDisplayEl.style.backgroundColor = '';
-                    lastKeyDisplayEl.style.borderColor = '';
-                    lastKeyDisplayEl.style.color = '';
-                }
-
-                lastKeyDisplayEl.classList.add('scale-95');
-                setTimeout(() => lastKeyDisplayEl.classList.remove('scale-95'), 90);
-            }
-
-            /**
-             * updates visual keycap colors across all keys based on custom hex colors
+             * updates visual keycap colors across all keys based on custom brush hex colors
              */
             function updateVisualKeyboardStyles() {
                 keycapElements.forEach(({ el, badgeEl }, code) => {
                     const markState = keyStates.get(code) || 'unchecked';
                     const isPressed = activeCodes.has(code);
-                    const grp = appConfig.groups[markState];
+                    const grp = getBrushById(markState);
 
                     if (grp) {
                         badgeEl.textContent = grp.name.slice(0, 3).toLowerCase();
@@ -1505,6 +2149,14 @@
                         el.classList.add('is-pressed');
                     } else {
                         el.classList.remove('is-pressed');
+                    }
+
+                    if (isInputLocked && !isEditLayoutMode) {
+                        el.classList.remove('cursor-pointer');
+                        el.classList.add('cursor-not-allowed', 'opacity-80');
+                    } else {
+                        el.classList.add('cursor-pointer');
+                        el.classList.remove('cursor-not-allowed', 'opacity-80');
                     }
 
                     if (grp) {
@@ -1553,7 +2205,6 @@
                     return e.code;
                 }
 
-                // case-insensitive match against custom bound key codes
                 if (e.code) {
                     const lowerCode = e.code.toLowerCase();
                     for (const [canonicalCode] of keycapElements.entries()) {
@@ -1617,9 +2268,6 @@
                 return e.code || '';
             }
 
-            /**
-             * normalizes physical e.code and e.key into a clean lowercase label
-             */
             function formatKeyLabel(e, resolvedCode) {
                 if (resolvedCode && keycapElements.has(resolvedCode)) {
                     return keycapElements.get(resolvedCode).label;
@@ -1630,20 +2278,21 @@
             }
 
             /**
-             * applies a brush group to a specific key
+             * applies a brush to a specific key and updates embedded file state
              */
             function applyBrushToKey(label, code, targetBrush) {
+                if (isInputLocked) return;
+
                 const brush = targetBrush || currentBrush;
                 if (code && keycapElements.has(code)) {
                     activeCodes.add(code);
                     keyStates.set(code, brush);
-                    saveToStorage();
+                    syncEmbeddedStateTag();
                 }
 
                 updateLastInputCard(label, code, brush === 'unchecked' ? 'unchecked (cleared)' : brush);
-                syncSwitchCountsUI();
+                renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
-                drawChart();
             }
 
             function releaseKeyVisual(code) {
@@ -1656,12 +2305,21 @@
 
             function updateFocusIndicator(hasFocus) {
                 if (!focusBadgeEl || !statusDotEl) return;
+
+                if (isInputLocked) {
+                    focusBadgeEl.textContent = 'locked: ignoring input';
+                    focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 transition-colors cursor-pointer';
+                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-400';
+                    return;
+                }
+
                 if (isInteractiveInputActive()) {
                     focusBadgeEl.textContent = 'input / settings active';
                     focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 transition-colors cursor-pointer';
                     statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse';
                     return;
                 }
+
                 if (hasFocus) {
                     focusBadgeEl.textContent = 'ready: listening for keys';
                     focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-colors cursor-pointer';
@@ -1694,7 +2352,6 @@
                 if (!e || seenEvents.has(e)) return;
                 seenEvents.add(e);
 
-                // if user is binding a physical key code inside the layout inspector
                 if (isBindingKeyCode) {
                     const capturedCode = e.code || e.key || 'CustomKey';
                     editKeyCodeInput.value = capturedCode.toLowerCase();
@@ -1708,8 +2365,16 @@
                     return;
                 }
 
-                // allow normal typing inside settings modal, paste drawer, or inspector text inputs
                 if (isInteractiveInputActive()) {
+                    return;
+                }
+
+                // when lock keyboard is active, completely stop taking input
+                if (isInputLocked) {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } catch (_) {}
                     return;
                 }
 
@@ -1719,26 +2384,25 @@
 
                 updateFocusIndicator(true);
 
-                // shift+alt+1/2/3/4 quick brush switch
-                if (e.shiftKey && e.altKey && ['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
-                    const map = {
-                        Digit1: 'group1',
-                        Digit2: 'group2',
-                        Digit3: 'group3',
-                        Digit4: 'unchecked'
-                    };
-                    setActiveBrush(map[e.code]);
-                    try {
+                // shift+alt+1..9 quick brush switch across all dynamic brushes + unchecked
+                if (e.shiftKey && e.altKey && e.code && e.code.startsWith('Digit')) {
+                    const num = parseInt(e.code.replace('Digit', ''), 10);
+                    if (num >= 1 && num <= appConfig.brushes.length) {
+                        setActiveBrush(appConfig.brushes[num - 1].id);
                         e.preventDefault();
                         e.stopPropagation();
-                    } catch (_) {}
-                    return;
+                        return;
+                    } else if (num === appConfig.brushes.length + 1 || num === 0) {
+                        setActiveBrush('unchecked');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
                 }
 
                 const resolvedCode = resolvePhysicalCode(e);
                 const label = formatKeyLabel(e, resolvedCode);
 
-                // prevent key-repeat spam while holding a key down
                 if (!e.repeat) {
                     applyBrushToKey(label, resolvedCode, currentBrush);
                 }
@@ -1749,13 +2413,18 @@
                 } catch (_) {}
             }
 
-            /**
-             * capture-phase keyup handler
-             */
             function handleGlobalKeyUp(e) {
                 if (isInteractiveInputActive()) return;
                 if (!e || seenEvents.has(e)) return;
                 seenEvents.add(e);
+
+                if (isInputLocked) {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } catch (_) {}
+                    return;
+                }
 
                 const resolvedCode = resolvePhysicalCode(e);
                 releaseKeyVisual(resolvedCode);
@@ -1769,9 +2438,6 @@
                 } catch (_) {}
             }
 
-            /**
-             * builds a case-insensitive lookup map from lowercase keycode or label to canonical keycode
-             */
             function buildCodeLookupMap() {
                 const lookup = new Map();
                 keycapElements.forEach(({ label }, canonicalCode) => {
@@ -1788,7 +2454,7 @@
             }
 
             /**
-             * parses pasted switch plan text (supports custom group names + standard tactile/linear/buy)
+             * parses pasted switch plan text against any configured brush names
              */
             function parseAndApplySwitchList(rawText, silent = false) {
                 const text = (rawText || '').trim().toLowerCase();
@@ -1802,28 +2468,30 @@
                 const parsedAssignments = new Map();
                 let matchedCount = 0;
 
-                const g1Name = appConfig.groups.group1.name.toLowerCase();
-                const g2Name = appConfig.groups.group2.name.toLowerCase();
-                const g3Name = appConfig.groups.group3.name.toLowerCase();
-
                 lines.forEach((line) => {
                     const trimmed = line.trim();
-                    let targetCategory = null;
+                    const colonIdx = trimmed.indexOf(':');
+                    const arrowIdx = trimmed.indexOf('->');
+                    if (colonIdx === -1 || arrowIdx === -1 || arrowIdx < colonIdx) return;
 
-                    if (trimmed.startsWith(`${g1Name}:`) || trimmed.startsWith('tactile:') || trimmed.startsWith('group 1:')) {
-                        targetCategory = 'group1';
-                    } else if (trimmed.startsWith(`${g2Name}:`) || trimmed.startsWith('linear:') || trimmed.startsWith('group 2:')) {
-                        targetCategory = 'group2';
-                    } else if (trimmed.startsWith(`${g3Name}:`) || trimmed.startsWith('buy:') || trimmed.startsWith('group 3:')) {
-                        targetCategory = 'group3';
-                    } else if (trimmed.startsWith('unchecked:')) {
-                        targetCategory = 'unchecked';
+                    const categoryPrefix = trimmed.slice(0, colonIdx).trim();
+                    let targetBrushId = null;
+
+                    if (categoryPrefix === 'unchecked') {
+                        targetBrushId = 'unchecked';
+                    } else {
+                        const matchedBrush = appConfig.brushes.find((b) => b.name.toLowerCase() === categoryPrefix);
+                        if (matchedBrush) {
+                            targetBrushId = matchedBrush.id;
+                        } else if (categoryPrefix.startsWith('brush ') || categoryPrefix.startsWith('group ')) {
+                            const idxNum = parseInt(categoryPrefix.replace(/[^0-9]/g, ''), 10) - 1;
+                            if (appConfig.brushes[idxNum]) {
+                                targetBrushId = appConfig.brushes[idxNum].id;
+                            }
+                        }
                     }
 
-                    if (!targetCategory) return;
-
-                    const arrowIdx = trimmed.indexOf('->');
-                    if (arrowIdx === -1) return;
+                    if (!targetBrushId) return;
 
                     const listPart = trimmed.slice(arrowIdx + 2).trim();
                     if (!listPart) return;
@@ -1848,28 +2516,27 @@
                         }
 
                         if (canonicalCode) {
-                            parsedAssignments.set(canonicalCode, targetCategory);
+                            parsedAssignments.set(canonicalCode, targetBrushId);
                             matchedCount += 1;
                         }
                     });
                 });
 
                 if (matchedCount === 0) {
-                    if (!silent) pasteFeedback.textContent = 'no valid key assignments found in text';
+                    if (!silent) pasteFeedback.textContent = 'no matching brush names or key codes found in text';
                     return;
                 }
 
                 keyStates.clear();
                 activeCodes.clear();
-                parsedAssignments.forEach((category, canonicalCode) => {
-                    keyStates.set(canonicalCode, category);
+                parsedAssignments.forEach((bId, canonicalCode) => {
+                    keyStates.set(canonicalCode, bId);
                 });
 
-                saveToStorage();
-                syncSwitchCountsUI();
-                updateVisualKeyboardStyles();
-                drawChart();
+                syncEmbeddedStateTag();
                 updateLastInputCard('imported', `${matchedCount} keys`, `loaded ${matchedCount} switch assignments`);
+                renderStatCardsAndChart();
+                updateVisualKeyboardStyles();
 
                 if (!silent) {
                     pasteDrawer.classList.add('hidden');
@@ -1879,33 +2546,48 @@
             }
 
             /**
-             * copies the current switch plan to the clipboard using custom group names
+             * copies the current switch plan to the clipboard using all configured brush names
              */
             function copySwitchListToClipboard() {
-                const { totalKeys, group1, group2, group3, combinedPrimary, unchecked } = getSwitchBreakdown();
-                const lists = { group1: [], group2: [], group3: [] };
+                const {
+                    totalKeys,
+                    counts,
+                    unchecked,
+                    primaryBrush,
+                    combinedBrushes,
+                    combinedPrimaryTotal
+                } = getDynamicBreakdown();
+
+                const lists = new Map();
+                appConfig.brushes.forEach((b) => lists.set(b.id, []));
 
                 keycapElements.forEach(({ label }, code) => {
                     const st = keyStates.get(code) || 'unchecked';
-                    if (lists[st]) {
-                        lists[st].push(`${label} (${code.toLowerCase()})`);
+                    if (lists.has(st)) {
+                        lists.get(st).push(`${label} (${code.toLowerCase()})`);
                     }
                 });
 
-                const g1Name = appConfig.groups.group1.name.toLowerCase();
-                const g2Name = appConfig.groups.group2.name.toLowerCase();
-                const g3Name = appConfig.groups.group3.name.toLowerCase();
-
                 const summaryLines = [
-                    `${appConfig.title.toLowerCase()} (${totalKeys} keys total)`,
-                    appConfig.combineGroup3IntoGroup1
-                        ? `total ${g1Name} coverage (+${g3Name}): ${combinedPrimary} / ${totalKeys} (${formatPercent(combinedPrimary, totalKeys)})`
-                        : `${g1Name} coverage: ${group1} / ${totalKeys} (${formatPercent(group1, totalKeys)})`,
-                    `${g1Name}: ${group1} switches${lists.group1.length ? ' -> ' + lists.group1.join(', ') : ''}`,
-                    `${g2Name}: ${group2} switches${lists.group2.length ? ' -> ' + lists.group2.join(', ') : ''}`,
-                    `${g3Name}: ${group3} switches${lists.group3.length ? ' -> ' + lists.group3.join(', ') : ''}`,
-                    `unchecked: ${unchecked} keys`
+                    `${appConfig.title.toLowerCase()} (${totalKeys} keys total)`
                 ];
+
+                if (primaryBrush && combinedBrushes.length > 0) {
+                    const comboNames = combinedBrushes.map((cb) => `+${cb.name}`).join(' ');
+                    summaryLines.push(
+                        `total ${primaryBrush.name} coverage (${comboNames}): ${combinedPrimaryTotal} / ${totalKeys} (${formatPercent(combinedPrimaryTotal, totalKeys)})`
+                    );
+                }
+
+                appConfig.brushes.forEach((b) => {
+                    const cnt = counts.get(b.id) || 0;
+                    const items = lists.get(b.id) || [];
+                    summaryLines.push(
+                        `${b.name.toLowerCase()}: ${cnt} switches${items.length ? ' -> ' + items.join(', ') : ''}`
+                    );
+                });
+
+                summaryLines.push(`unchecked: ${unchecked} keys`);
 
                 const textToCopy = summaryLines.join('\n').toLowerCase();
                 const tempArea = document.createElement('textarea');
@@ -1930,7 +2612,7 @@
             }
 
             /**
-             * draws the live switch breakdown chart on html5 canvas using custom group names and colors
+             * draws the live dynamic switch breakdown chart on html5 canvas
              */
             function drawChart() {
                 if (!canvas || !ctx) return;
@@ -1948,21 +2630,30 @@
                 ctx.scale(dpr, dpr);
                 ctx.clearRect(0, 0, width, height);
 
-                const { totalKeys, group1, group2, group3, combinedPrimary, unchecked } = getSwitchBreakdown();
-                const assignedCount = group1 + group2 + group3;
-                const g1 = appConfig.groups.group1;
-                const g2 = appConfig.groups.group2;
-                const g3 = appConfig.groups.group3;
+                const {
+                    totalKeys,
+                    counts,
+                    unchecked,
+                    assignedTotal,
+                    primaryBrush,
+                    combinedBrushes,
+                    combinedPrimaryTotal
+                } = getDynamicBreakdown();
 
-                const combinedPct = formatPercent(combinedPrimary, totalKeys);
                 if (chartSummaryEl) {
-                    if (appConfig.combineGroup3IntoGroup1) {
-                        chartSummaryEl.textContent = `total ${g1.name}: ${combinedPct} (${group1} + ${group3} = ${combinedPrimary} / ${totalKeys})`.toLowerCase();
+                    if (primaryBrush && combinedBrushes.length > 0) {
+                        const primaryCount = counts.get(primaryBrush.id) || 0;
+                        const comboCounts = combinedBrushes.map((cb) => counts.get(cb.id) || 0);
+                        const formulaStr = [primaryCount, ...comboCounts].join(' + ');
+                        chartSummaryEl.textContent = `total ${primaryBrush.name}: ${formatPercent(combinedPrimaryTotal, totalKeys)} (${formulaStr} = ${combinedPrimaryTotal} / ${totalKeys})`.toLowerCase();
+                        chartSummaryEl.style.borderColor = hexToRgba(primaryBrush.color, 0.4);
+                        chartSummaryEl.style.color = primaryBrush.color;
                     } else {
-                        chartSummaryEl.textContent = `assigned: ${assignedCount} / ${totalKeys} (${formatPercent(assignedCount, totalKeys)})`.toLowerCase();
+                        chartSummaryEl.textContent = `assigned: ${assignedTotal} / ${totalKeys} (${formatPercent(assignedTotal, totalKeys)})`.toLowerCase();
+                        const topColor = primaryBrush ? primaryBrush.color : '#a855f7';
+                        chartSummaryEl.style.borderColor = hexToRgba(topColor, 0.4);
+                        chartSummaryEl.style.color = topColor;
                     }
-                    chartSummaryEl.style.borderColor = hexToRgba(g1.color, 0.4);
-                    chartSummaryEl.style.color = g1.color;
                 }
 
                 const padLeft = 24;
@@ -1971,29 +2662,23 @@
                 const progressBarH = 12;
                 const progressBarW = Math.max(10, width - padLeft - padRight);
 
-                // stacked multi-segment horizontal allocation bar track
                 ctx.fillStyle = isDark ? '#27272a' : '#e4e4e7';
                 ctx.beginPath();
                 ctx.roundRect(padLeft, progressBarY, progressBarW, progressBarH, 6);
                 ctx.fill();
 
-                if (assignedCount > 0) {
+                if (assignedTotal > 0) {
                     ctx.save();
                     ctx.beginPath();
                     ctx.roundRect(padLeft, progressBarY, progressBarW, progressBarH, 6);
                     ctx.clip();
 
                     let currentX = padLeft;
-                    const segments = [
-                        { count: group1, color: g1.color },
-                        { count: group3, color: g3.color },
-                        { count: group2, color: g2.color }
-                    ];
-
-                    segments.forEach((seg) => {
-                        if (seg.count > 0) {
-                            const segW = (seg.count / totalKeys) * progressBarW;
-                            ctx.fillStyle = seg.color;
+                    appConfig.brushes.forEach((b) => {
+                        const cnt = counts.get(b.id) || 0;
+                        if (cnt > 0) {
+                            const segW = (cnt / totalKeys) * progressBarW;
+                            ctx.fillStyle = b.color;
                             ctx.fillRect(currentX, progressBarY, segW, progressBarH);
                             currentX += segW;
                         }
@@ -2002,54 +2687,45 @@
                 }
 
                 const categories = [];
-                if (appConfig.combineGroup3IntoGroup1) {
+                if (primaryBrush && combinedBrushes.length > 0) {
+                    const comboNames = combinedBrushes.map((cb) => `+${cb.name}`).join(' ');
+                    const stackSlices = [
+                        { count: counts.get(primaryBrush.id) || 0, color: primaryBrush.color },
+                        ...combinedBrushes.map((cb) => ({ count: counts.get(cb.id) || 0, color: cb.color }))
+                    ];
                     categories.push({
-                        label: `total ${g1.name} (+${g3.name})`.toLowerCase(),
-                        count: combinedPrimary,
-                        subText: `${combinedPrimary} (${combinedPct})`,
-                        stacked: true,
-                        g1Count: group1,
-                        g3Count: group3,
-                        color: g1.color,
-                        comboColor: g3.color
+                        label: `total ${primaryBrush.name} (${comboNames})`.toLowerCase(),
+                        count: combinedPrimaryTotal,
+                        subText: `${combinedPrimaryTotal} (${formatPercent(combinedPrimaryTotal, totalKeys)})`,
+                        stackSlices
                     });
                 }
 
-                categories.push(
-                    {
-                        label: g1.name.toLowerCase(),
-                        count: group1,
-                        subText: `${group1} (${formatPercent(group1, totalKeys)})`,
-                        color: g1.color
-                    },
-                    {
-                        label: appConfig.combineGroup3IntoGroup1 ? `${g3.name} (+${g1.name})`.toLowerCase() : g3.name.toLowerCase(),
-                        count: group3,
-                        subText: appConfig.combineGroup3IntoGroup1
-                            ? `+${group3} (+${formatPercent(group3, totalKeys)})`
-                            : `${group3} (${formatPercent(group3, totalKeys)})`,
-                        color: g3.color
-                    },
-                    {
-                        label: g2.name.toLowerCase(),
-                        count: group2,
-                        subText: `${group2} (${formatPercent(group2, totalKeys)})`,
-                        color: g2.color
-                    },
-                    {
-                        label: 'unchecked',
-                        count: unchecked,
-                        subText: `${unchecked} (${formatPercent(unchecked, totalKeys)})`,
-                        color: isDark ? '#52525b' : '#a1a1aa'
-                    }
-                );
+                appConfig.brushes.forEach((b, idx) => {
+                    const cnt = counts.get(b.id) || 0;
+                    const isCombinedChild = idx > 0 && b.combineIntoPrimary && primaryBrush;
+                    categories.push({
+                        label: isCombinedChild ? `${b.name} (+${primaryBrush.name})`.toLowerCase() : b.name.toLowerCase(),
+                        count: cnt,
+                        subText: isCombinedChild
+                            ? `+${cnt} (+${formatPercent(cnt, totalKeys)})`
+                            : `${cnt} (${formatPercent(cnt, totalKeys)})`,
+                        color: b.color
+                    });
+                });
+
+                categories.push({
+                    label: 'unchecked',
+                    count: unchecked,
+                    subText: `${unchecked} (${formatPercent(unchecked, totalKeys)})`,
+                    color: isDark ? '#52525b' : '#a1a1aa'
+                });
 
                 const padTop = 52;
                 const padBottom = 34;
                 const chartW = Math.max(10, width - padLeft - padRight);
                 const chartH = Math.max(10, height - padTop - padBottom);
 
-                // horizontal guide lines
                 ctx.strokeStyle = isDark ? 'rgba(63, 63, 70, 0.45)' : 'rgba(212, 212, 216, 0.75)';
                 ctx.lineWidth = 1;
                 for (let i = 0; i <= 3; i++) {
@@ -2061,7 +2737,7 @@
                 }
 
                 const slotW = chartW / categories.length;
-                const barW = Math.min(72, Math.max(24, slotW * 0.5));
+                const barW = Math.min(72, Math.max(20, slotW * 0.5));
 
                 categories.forEach((cat, idx) => {
                     const ratio = cat.count / totalKeys;
@@ -2070,23 +2746,22 @@
                     const y = padTop + chartH - barH;
                     const radius = Math.min(8, barW / 2, barH / 2);
 
-                    if (cat.stacked && cat.count > 0) {
-                        const g3H = (cat.g3Count / cat.count) * barH;
-                        const g1H = barH - g3H;
-
+                    if (cat.stackSlices && cat.count > 0) {
                         ctx.save();
                         ctx.beginPath();
                         ctx.roundRect(x, y, barW, barH, [radius, radius, 0, 0]);
                         ctx.clip();
 
-                        if (g3H > 0) {
-                            ctx.fillStyle = cat.comboColor;
-                            ctx.fillRect(x, y, barW, g3H);
-                        }
-                        if (g1H > 0) {
-                            ctx.fillStyle = cat.color;
-                            ctx.fillRect(x, y + g3H, barW, g1H);
-                        }
+                        let sliceY = y;
+                        const reversedSlices = [...cat.stackSlices].reverse();
+                        reversedSlices.forEach((sl) => {
+                            if (sl.count > 0) {
+                                const slH = (sl.count / cat.count) * barH;
+                                ctx.fillStyle = sl.color;
+                                ctx.fillRect(x, sliceY, barW, slH);
+                                sliceY += slH;
+                            }
+                        });
                         ctx.restore();
                     } else {
                         ctx.fillStyle = cat.color;
@@ -2117,10 +2792,9 @@
                 appConfig.layoutId = newLayoutId;
                 selectedKeyPos = null;
                 isSwapPending = false;
-                saveToStorage();
+                syncEmbeddedStateTag();
                 buildVisualKeyboard();
                 syncBrandingAndBrushUI();
-                drawChart();
                 ensurePageFocus();
             }
 
@@ -2141,8 +2815,6 @@
                     layoutEditorBar.classList.remove('hidden');
                     editLayoutBtn.textContent = 'edit layout: on';
                     editLayoutBtn.className = 'px-3.5 py-2 rounded-xl bg-sky-500/20 border border-sky-400 text-xs font-mono font-semibold text-sky-300 transition-all focus:outline-none';
-                    shieldStatusTextEl.textContent = 'edit layout mode: click any keycap to rename, rebind, resize, swap, or delete it';
-                    // select first key by default if none selected
                     if (!selectedKeyPos) {
                         selectedKeyPos = { rowIdx: 0, keyIdx: 0 };
                     }
@@ -2151,9 +2823,9 @@
                     layoutEditorBar.classList.add('hidden');
                     editLayoutBtn.textContent = 'edit layout: off';
                     editLayoutBtn.className = 'px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none';
-                    setActiveBrush(currentBrush);
                 }
 
+                updateStatusLine();
                 highlightSelectedEditKey();
                 editLayoutBtn.blur();
             }
@@ -2164,7 +2836,6 @@
                 ensurePageFocus();
             });
 
-            // save changes to selected key in inspector
             applyKeyEditBtn.addEventListener('click', () => {
                 if (!selectedKeyPos) return;
                 const rows = getActiveLayoutRows();
@@ -2177,7 +2848,6 @@
                 const newW = parseFloat(editKeyWidthSelect.value) || 1;
                 const newGap = parseFloat(editKeyGapSelect.value) || 0;
 
-                // preserve switch assignment when key code is renamed
                 if (newCode !== item.code && keyStates.has(item.code)) {
                     const prev = keyStates.get(item.code);
                     keyStates.delete(item.code);
@@ -2190,13 +2860,11 @@
                 if (newGap > 0) item.gap = newGap;
                 else delete item.gap;
 
-                saveToStorage();
+                syncEmbeddedStateTag();
                 buildVisualKeyboard();
-                drawChart();
                 editInspectorStatus.textContent = `saved key "${newLabel}" (${newCode.toLowerCase()}, ${newW}u)`;
             });
 
-            // bind physical key button
             bindPhysicalKeyBtn.addEventListener('click', () => {
                 isBindingKeyCode = !isBindingKeyCode;
                 if (isBindingKeyCode) {
@@ -2207,7 +2875,6 @@
                 }
             });
 
-            // swap key mode button
             swapKeyModeBtn.addEventListener('click', () => {
                 if (!selectedKeyPos) {
                     editInspectorStatus.textContent = 'click a key on the keyboard first, then click swap';
@@ -2221,7 +2888,6 @@
                 highlightSelectedEditKey();
             });
 
-            // insert key after selected key
             insertKeyAfterBtn.addEventListener('click', () => {
                 if (!selectedKeyPos) return;
                 const rows = getActiveLayoutRows();
@@ -2233,13 +2899,11 @@
                 row.splice(selectedKeyPos.keyIdx + 1, 0, newKey);
                 selectedKeyPos = { rowIdx: selectedKeyPos.rowIdx, keyIdx: selectedKeyPos.keyIdx + 1 };
 
-                saveToStorage();
+                syncEmbeddedStateTag();
                 buildVisualKeyboard();
                 populateInspectorForSelectedKey();
-                drawChart();
             });
 
-            // delete selected key
             deleteSelectedKeyBtn.addEventListener('click', () => {
                 if (!selectedKeyPos) return;
                 const rows = getActiveLayoutRows();
@@ -2254,42 +2918,126 @@
                 }
                 selectedKeyPos.keyIdx = Math.max(0, selectedKeyPos.keyIdx - 1);
 
-                saveToStorage();
+                syncEmbeddedStateTag();
                 buildVisualKeyboard();
                 populateInspectorForSelectedKey();
-                drawChart();
                 editInspectorStatus.textContent = `removed key "${removed.label}"`;
             });
 
-            // reset current layout to preset default
             resetLayoutDefaultBtn.addEventListener('click', () => {
                 const id = appConfig.layoutId || '75_custom';
-                appConfig.customLayouts[id] = cloneRows(LAYOUT_PRESETS[id] || LAYOUT_PRESETS['75_custom']);
+                appConfig.customLayouts[id] = cloneObj(LAYOUT_PRESETS[id] || LAYOUT_PRESETS['75_custom']);
                 selectedKeyPos = { rowIdx: 0, keyIdx: 0 };
-                saveToStorage();
+                syncEmbeddedStateTag();
                 buildVisualKeyboard();
                 populateInspectorForSelectedKey();
-                drawChart();
                 editInspectorStatus.textContent = `reset ${id} layout to factory preset default`;
             });
 
             /**
-             * settings modal handlers
+             * dynamic brush list editor inside the settings modal
              */
+            function renderModalBrushList() {
+                brushEditorList.innerHTML = '';
+
+                modalDraftBrushes.forEach((b, idx) => {
+                    const rowEl = document.createElement('div');
+                    rowEl.className = 'flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 p-2.5 rounded-xl bg-zinc-950 border border-zinc-800';
+
+                    const leftWrap = document.createElement('div');
+                    leftWrap.className = 'flex items-center gap-2 flex-1 min-w-[200px]';
+
+                    const idxBadge = document.createElement('span');
+                    idxBadge.className = 'text-[11px] font-mono text-zinc-500 w-5 text-center shrink-0';
+                    idxBadge.textContent = `#${idx + 1}`;
+
+                    const colorInput = document.createElement('input');
+                    colorInput.type = 'color';
+                    colorInput.value = b.color;
+                    colorInput.className = 'w-8 h-8 rounded cursor-pointer bg-transparent shrink-0';
+                    colorInput.addEventListener('input', () => {
+                        b.color = colorInput.value;
+                    });
+
+                    const nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.value = b.name.toLowerCase();
+                    nameInput.placeholder = 'brush name (e.g. tactile, silent, buy)';
+                    nameInput.className = 'w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500 lowercase';
+                    nameInput.addEventListener('input', () => {
+                        b.name = nameInput.value.toLowerCase();
+                    });
+
+                    leftWrap.appendChild(idxBadge);
+                    leftWrap.appendChild(colorInput);
+                    leftWrap.appendChild(nameInput);
+
+                    const rightWrap = document.createElement('div');
+                    rightWrap.className = 'flex items-center gap-3 shrink-0';
+
+                    if (idx === 0) {
+                        const primaryTag = document.createElement('span');
+                        primaryTag.className = 'text-[10px] font-mono px-2 py-1 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300';
+                        primaryTag.textContent = 'primary goal brush';
+                        rightWrap.appendChild(primaryTag);
+                    } else {
+                        const comboLabel = document.createElement('label');
+                        comboLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-mono text-zinc-400';
+
+                        const comboCheck = document.createElement('input');
+                        comboCheck.type = 'checkbox';
+                        comboCheck.checked = Boolean(b.combineIntoPrimary);
+                        comboCheck.className = 'w-3.5 h-3.5 rounded accent-purple-500 cursor-pointer';
+                        comboCheck.addEventListener('change', () => {
+                            b.combineIntoPrimary = comboCheck.checked;
+                        });
+
+                        const comboText = document.createElement('span');
+                        comboText.textContent = 'add to #1 total';
+
+                        comboLabel.appendChild(comboCheck);
+                        comboLabel.appendChild(comboText);
+                        rightWrap.appendChild(comboLabel);
+                    }
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.textContent = 'remove';
+                    removeBtn.disabled = modalDraftBrushes.length <= 1;
+                    removeBtn.className = modalDraftBrushes.length <= 1
+                        ? 'px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-600 cursor-not-allowed'
+                        : 'px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/30 text-[11px] font-mono text-rose-300 hover:bg-rose-500/25 transition-colors';
+                    removeBtn.addEventListener('click', () => {
+                        if (modalDraftBrushes.length <= 1) return;
+                        modalDraftBrushes.splice(idx, 1);
+                        renderModalBrushList();
+                    });
+
+                    rightWrap.appendChild(removeBtn);
+
+                    rowEl.appendChild(leftWrap);
+                    rowEl.appendChild(rightWrap);
+                    brushEditorList.appendChild(rowEl);
+                });
+            }
+
+            addBrushBtn.addEventListener('click', () => {
+                const nextIdx = modalDraftBrushes.length + 1;
+                const nextColor = COLOR_PALETTE[(nextIdx - 1) % COLOR_PALETTE.length];
+                modalDraftBrushes.push({
+                    id: `brush_${Date.now().toString(36)}_${nextIdx}`,
+                    name: `brush ${nextIdx}`,
+                    color: nextColor,
+                    combineIntoPrimary: false
+                });
+                renderModalBrushList();
+            });
+
             function openSettingsModal() {
                 settingsTitleInput.value = appConfig.title.toLowerCase();
                 settingsSubtitleInput.value = appConfig.subtitle.toLowerCase();
-
-                group1NameInput.value = appConfig.groups.group1.name.toLowerCase();
-                group1ColorInput.value = appConfig.groups.group1.color;
-
-                group2NameInput.value = appConfig.groups.group2.name.toLowerCase();
-                group2ColorInput.value = appConfig.groups.group2.color;
-
-                group3NameInput.value = appConfig.groups.group3.name.toLowerCase();
-                group3ColorInput.value = appConfig.groups.group3.color;
-
-                combineGroup3Checkbox.checked = Boolean(appConfig.combineGroup3IntoGroup1);
+                modalDraftBrushes = cloneObj(appConfig.brushes);
+                renderModalBrushList();
                 settingsLayoutSelect.value = appConfig.layoutId || '75_custom';
 
                 settingsModal.classList.remove('hidden');
@@ -2311,45 +3059,38 @@
                     if (preset === 'tactile_upgrade') {
                         settingsTitleInput.value = '75% tactile switch upgrade planner';
                         settingsSubtitleInput.value = 'tactile + buy goal vs linear switches';
-                        group1NameInput.value = 'tactile';
-                        group1ColorInput.value = '#a855f7';
-                        group2NameInput.value = 'linear';
-                        group2ColorInput.value = '#eab308';
-                        group3NameInput.value = 'buy';
-                        group3ColorInput.value = '#10b981';
-                        combineGroup3Checkbox.checked = true;
-                    } else if (preset === 'linear_upgrade') {
-                        settingsTitleInput.value = 'linear switch upgrade planner';
-                        settingsSubtitleInput.value = 'linear + buy goal vs tactile switches';
-                        group1NameInput.value = 'linear';
-                        group1ColorInput.value = '#eab308';
-                        group2NameInput.value = 'tactile';
-                        group2ColorInput.value = '#a855f7';
-                        group3NameInput.value = 'buy';
-                        group3ColorInput.value = '#10b981';
-                        combineGroup3Checkbox.checked = true;
-                    } else if (preset === 'three_way_mix') {
-                        settingsTitleInput.value = 'custom 3-way switch mix studio';
-                        settingsSubtitleInput.value = 'independent switch zoning across the board';
-                        group1NameInput.value = 'tactile';
-                        group1ColorInput.value = '#a855f7';
-                        group2NameInput.value = 'linear';
-                        group2ColorInput.value = '#eab308';
-                        group3NameInput.value = 'silent';
-                        group3ColorInput.value = '#06b6d4';
-                        combineGroup3Checkbox.checked = false;
+                        modalDraftBrushes = [
+                            { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                            { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false },
+                            { id: 'brush_buy', name: 'buy', color: '#10b981', combineIntoPrimary: true }
+                        ];
+                    } else if (preset === 'two_way_split') {
+                        settingsTitleInput.value = '2-way switch split planner';
+                        settingsSubtitleInput.value = 'tactile vs linear across the board';
+                        modalDraftBrushes = [
+                            { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                            { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false }
+                        ];
+                    } else if (preset === 'four_way_mix') {
+                        settingsTitleInput.value = '4-way custom switch mix';
+                        settingsSubtitleInput.value = 'tactile / linear / silent / heavy zoning';
+                        modalDraftBrushes = [
+                            { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                            { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false },
+                            { id: 'brush_silent', name: 'silent', color: '#06b6d4', combineIntoPrimary: false },
+                            { id: 'brush_heavy', name: 'heavy', color: '#f43f5e', combineIntoPrimary: false }
+                        ];
                     } else if (preset === 'pcb_tester') {
                         settingsTitleInput.value = 'mechanical keyboard pcb switch tester';
                         settingsSubtitleInput.value = 'press every key to verify switch registration';
-                        group1NameInput.value = 'working';
-                        group1ColorInput.value = '#10b981';
-                        group2NameInput.value = 'chatter';
-                        group2ColorInput.value = '#eab308';
-                        group3NameInput.value = 'dead';
-                        group3ColorInput.value = '#f43f5e';
-                        combineGroup3Checkbox.checked = false;
+                        modalDraftBrushes = [
+                            { id: 'brush_working', name: 'working', color: '#10b981', combineIntoPrimary: false },
+                            { id: 'brush_chatter', name: 'chatter', color: '#eab308', combineIntoPrimary: false },
+                            { id: 'brush_dead', name: 'dead', color: '#f43f5e', combineIntoPrimary: false }
+                        ];
                     }
-                    jsonConfigStatus.textContent = `applied "${preset.replace('_', ' ')}" preset -> click save & apply settings below`;
+                    renderModalBrushList();
+                    jsonConfigStatus.textContent = `loaded "${preset.replace(/_/g, ' ')}" brushes -> click apply changes below`;
                 });
             });
 
@@ -2359,45 +3100,67 @@
             });
 
             function saveAndApplySettingsFromModal() {
-                appConfig.title = (settingsTitleInput.value || '75% switch planner and tester').trim().toLowerCase();
-                appConfig.subtitle = (settingsSubtitleInput.value || 'custom mechanical switch replacement studio').trim().toLowerCase();
+                appConfig.title = (settingsTitleInput.value || 'switch planner and tester').trim().toLowerCase();
+                appConfig.subtitle = (settingsSubtitleInput.value || 'file-isolated switch studio (zero browser cache)').trim().toLowerCase();
 
-                appConfig.groups.group1.name = (group1NameInput.value || 'tactile').trim().toLowerCase();
-                appConfig.groups.group1.color = group1ColorInput.value || '#a855f7';
+                appConfig.brushes = modalDraftBrushes.map((b, idx) => ({
+                    id: b.id || `brush_${idx + 1}`,
+                    name: (b.name || `brush ${idx + 1}`).trim().toLowerCase(),
+                    color: b.color || COLOR_PALETTE[idx % COLOR_PALETTE.length],
+                    combineIntoPrimary: idx === 0 ? false : Boolean(b.combineIntoPrimary)
+                }));
 
-                appConfig.groups.group2.name = (group2NameInput.value || 'linear').trim().toLowerCase();
-                appConfig.groups.group2.color = group2ColorInput.value || '#eab308';
-
-                appConfig.groups.group3.name = (group3NameInput.value || 'buy').trim().toLowerCase();
-                appConfig.groups.group3.color = group3ColorInput.value || '#10b981';
-
-                appConfig.combineGroup3IntoGroup1 = Boolean(combineGroup3Checkbox.checked);
+                const validIds = new Set(appConfig.brushes.map((b) => b.id));
+                keyStates.forEach((bId, code) => {
+                    if (bId !== 'unchecked' && !validIds.has(bId)) {
+                        keyStates.delete(code);
+                    }
+                });
 
                 const chosenLayout = settingsLayoutSelect.value || '75_custom';
                 if (chosenLayout !== appConfig.layoutId) {
                     appConfig.layoutId = chosenLayout;
                 }
 
-                saveToStorage();
+                syncEmbeddedStateTag();
                 buildVisualKeyboard();
                 syncBrandingAndBrushUI();
-                syncSwitchCountsUI();
+                renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
-                drawChart();
                 closeSettingsModal();
             }
 
             saveSettingsBtn.addEventListener('click', saveAndApplySettingsFromModal);
+            saveFileFromModalBtn.addEventListener('click', () => {
+                saveAndApplySettingsFromModal();
+                openSaveFileModal();
+            });
+            saveFileBtn.addEventListener('click', openSaveFileModal);
+
+            // save file prompt modal actions
+            closeSaveModalBtn.addEventListener('click', closeSaveFileModal);
+            cancelSaveFileBtn.addEventListener('click', closeSaveFileModal);
+            confirmSaveFileBtn.addEventListener('click', () => {
+                const chosenName = saveFileNameInput.value;
+                closeSaveFileModal();
+                downloadSelfContainedHtmlFile(chosenName);
+            });
+            saveFileNameInput.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    const chosenName = saveFileNameInput.value;
+                    closeSaveFileModal();
+                    downloadSelfContainedHtmlFile(chosenName);
+                } else if (ev.key === 'Escape') {
+                    ev.preventDefault();
+                    closeSaveFileModal();
+                }
+            });
 
             // json config export / import inside settings
             exportJsonBtn.addEventListener('click', () => {
-                const serializedStates = {};
-                keyStates.forEach((v, k) => {
-                    if (v && v !== 'unchecked') serializedStates[k] = v;
-                });
-                const payload = { appConfig, keyStates: serializedStates };
-                jsonConfigTextarea.value = JSON.stringify(payload);
-                jsonConfigStatus.textContent = 'exported full setup json to box above';
+                jsonConfigTextarea.value = JSON.stringify(buildSerializedFileState());
+                jsonConfigStatus.textContent = 'exported current file state json to box above';
             });
 
             importJsonBtn.addEventListener('click', () => {
@@ -2414,15 +3177,16 @@
                     buildVisualKeyboard();
                     if (parsed && parsed.keyStates) {
                         keyStates.clear();
-                        Object.entries(parsed.keyStates).forEach(([k, v]) => keyStates.set(k, v));
+                        Object.entries(parsed.keyStates).forEach(([k, v]) => {
+                            if (getBrushById(v)) keyStates.set(k, v);
+                        });
                     }
-                    saveToStorage();
+                    syncEmbeddedStateTag();
                     openSettingsModal();
                     syncBrandingAndBrushUI();
-                    syncSwitchCountsUI();
+                    renderStatCardsAndChart();
                     updateVisualKeyboardStyles();
-                    drawChart();
-                    jsonConfigStatus.textContent = 'imported setup json successfully';
+                    jsonConfigStatus.textContent = 'imported setup json into this file session';
                 } catch (_) {
                     jsonConfigStatus.textContent = 'invalid json format';
                 }
@@ -2463,13 +3227,12 @@
             resetBtn.addEventListener('click', () => {
                 keyStates.clear();
                 activeCodes.clear();
-                saveToStorage();
-                syncSwitchCountsUI();
+                syncEmbeddedStateTag();
                 updateLastInputCard('none', 'waiting', 'cleared all marks');
+                renderStatCardsAndChart();
                 resetBtn.blur();
                 ensurePageFocus();
                 updateVisualKeyboardStyles();
-                drawChart();
             });
 
             // dark / light theme toggle
@@ -2487,7 +3250,6 @@
                         c.className = c.className.replace('bg-white/90 border-zinc-200', 'bg-zinc-900/80 border-zinc-800/90');
                     });
                     if (chassis) chassis.className = 'min-w-[760px] w-full rounded-xl bg-zinc-950/90 border border-zinc-800 p-3 sm:p-3.5 shadow-inner';
-                    uncheckedCountEl.classList.replace('text-zinc-900', 'text-white');
                     document.getElementById('kbdTitle').classList.replace('text-zinc-900', 'text-zinc-100');
                     document.getElementById('chartTitle').classList.replace('text-zinc-900', 'text-zinc-100');
                     sunIcon.classList.add('hidden');
@@ -2499,7 +3261,6 @@
                         c.className = c.className.replace('bg-zinc-900/80 border-zinc-800/90', 'bg-white/90 border-zinc-200');
                     });
                     if (chassis) chassis.className = 'min-w-[760px] w-full rounded-xl bg-zinc-200/80 border border-zinc-300 p-3 sm:p-3.5 shadow-inner';
-                    uncheckedCountEl.classList.replace('text-white', 'text-zinc-900');
                     document.getElementById('kbdTitle').classList.replace('text-zinc-100', 'text-zinc-900');
                     document.getElementById('chartTitle').classList.replace('text-zinc-100', 'text-zinc-900');
                     sunIcon.classList.remove('hidden');
@@ -2508,64 +3269,69 @@
 
                 themeToggleBtn.blur();
                 ensurePageFocus();
+                renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
-                drawChart();
             });
 
-            // fullscreen keyboard lock
-            async function toggleKeyboardLock() {
+            // input lock toggle (actually stops taking keyboard & keycap input)
+            function toggleInputLock() {
+                isInputLocked = !isInputLocked;
+                activeCodes.clear();
+
+                if (isInputLocked) {
+                    lockBtn.textContent = 'lock keyboard: on';
+                    lockBtn.className = 'px-3.5 py-2 rounded-xl bg-rose-500/20 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 transition-all focus:outline-none';
+                } else {
+                    lockBtn.textContent = 'lock keyboard: off';
+                    lockBtn.className = 'px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/30 active:scale-95 transition-all focus:outline-none';
+                }
+
+                updateStatusLine();
+                updateVisualKeyboardStyles();
+                updateFocusIndicator(document.hasFocus());
+                lockBtn.blur();
+                ensurePageFocus();
+            }
+
+            lockBtn.addEventListener('click', toggleInputLock);
+
+            // dedicated fullscreen toggle button (separated from lock keyboard)
+            function syncFullscreenIcon() {
+                const isFs = Boolean(document.fullscreenElement);
+                if (isFs) {
+                    expandIcon.classList.add('hidden');
+                    compressIcon.classList.remove('hidden');
+                } else {
+                    expandIcon.classList.remove('hidden');
+                    compressIcon.classList.add('hidden');
+                }
+            }
+
+            async function toggleFullscreenMode() {
                 try {
                     if (!document.fullscreenElement) {
                         await document.documentElement.requestFullscreen();
                         if (navigator.keyboard && typeof navigator.keyboard.lock === 'function') {
                             await navigator.keyboard.lock();
                         }
-                        isKeyboardLocked = true;
-                        lockBtn.textContent = 'unlock keyboard';
-                        shieldStatusTextEl.textContent = 'fullscreen keyboard lock active (hold esc to exit)';
                     } else {
                         if (navigator.keyboard && typeof navigator.keyboard.unlock === 'function') {
                             navigator.keyboard.unlock();
                         }
                         await document.exitFullscreen();
-                        isKeyboardLocked = false;
-                        lockBtn.textContent = 'lock keyboard';
-                        setActiveBrush(currentBrush);
                     }
                 } catch (_) {
-                    shieldStatusTextEl.textContent = 'fullscreen lock unavailable in embedded preview; capture shield active';
+                    shieldStatusTextEl.textContent = 'fullscreen unavailable in this window';
                 } finally {
-                    lockBtn.blur();
+                    syncFullscreenIcon();
+                    fullscreenBtn.blur();
                     ensurePageFocus();
                 }
             }
 
-            lockBtn.addEventListener('click', toggleKeyboardLock);
+            fullscreenBtn.addEventListener('click', toggleFullscreenMode);
+            document.addEventListener('fullscreenchange', syncFullscreenIcon);
             focusBadgeEl.addEventListener('click', ensurePageFocus);
-
-            // attach brush toggle listeners
-            brushButtons.forEach((btn) => {
-                const selectBrush = (ev) => {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    const mode = btn.dataset.brush;
-                    if (mode) setActiveBrush(mode);
-                    btn.blur();
-                    ensurePageFocus();
-                };
-                btn.addEventListener('pointerdown', selectBrush);
-                btn.addEventListener('click', selectBrush);
-            });
-
-            // stat card click selects corresponding brush
-            document.querySelectorAll('[data-select-brush]').forEach((cardEl) => {
-                cardEl.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    const mode = cardEl.dataset.selectBrush;
-                    if (mode) setActiveBrush(mode);
-                    ensurePageFocus();
-                });
-            });
 
             // attach global keyboard listeners
             [window, document, document.body].forEach((target) => {
@@ -2584,8 +3350,8 @@
             });
             window.addEventListener('resize', drawChart);
 
-            // initialize studio
-            loadFromStorage();
+            // initialize studio strictly from this file's embedded state
+            loadFromEmbeddedFileState();
             ensurePageFocus();
             window.addEventListener('load', () => {
                 ensurePageFocus();
@@ -2593,5 +3359,5 @@
             });
         })();
     </script>
-</body>
-</html>
+
+</body></html>
