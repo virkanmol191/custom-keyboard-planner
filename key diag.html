@@ -16,14 +16,17 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'system-ui', 'sans-serif'],
+                        mono: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Display"', 'system-ui', 'sans-serif'],
                     }
                 }
             }
         }
 </script>
     <style>
+        body, input, textarea, select, button, kbd, code, pre, span, p, h1, h2, h3, h4, label, div, a {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+        }
         body, input, textarea, select, button { text-transform: lowercase; }
         body {
             background-color: #0a0a0c;
@@ -370,12 +373,8 @@
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                        <span id="neomacroLiveDot" class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
                         <h2 class="text-sm font-bold text-cyan-300 font-mono">switch provider & stock watchlist</h2>
-                        <a href="https://neomacro.in/collections/switches" target="_blank" rel="noopener noreferrer"
-                            class="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-cyan-300 hover:border-cyan-500/40">
-                            visit store ↗
-                        </a>
                     </div>
                     <p id="neomacroFeedStatus" class="text-xs text-zinc-400 font-mono mt-1">
                         neomacro.in switch catalog
@@ -384,16 +383,24 @@
 
                 <div class="flex flex-wrap items-center gap-2">
                     
-                    <div class="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-right">
-                        <div id="neomacroTotalCostBadge" class="text-xs font-mono font-bold text-emerald-300">est. total: ₹ 0</div>
-                        <div id="neomacroShippingNote" class="text-[10px] font-mono text-zinc-400">+ ₹ 100 shipping apx</div>
-                    </div>
-
-                    <button id="refreshNeomacroBtn" type="button"
-                        class="px-3.5 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-xs font-mono font-semibold text-cyan-300 hover:bg-cyan-500/30 active:scale-95 transition-all focus:outline-none">
-                        refresh stock
+                    <button id="gotCouponBtn" type="button"
+                        class="px-3.5 py-2 rounded-xl bg-purple-500/15 border border-purple-500/35 text-xs font-mono font-semibold text-purple-300 hover:bg-purple-500/25 active:scale-95 transition-all focus:outline-none">
+                        got a coupon?
                     </button>
 
+                    
+                    <div class="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-right">
+                        <div id="neomacroTotalCostBadge" class="text-base sm:text-lg font-mono font-extrabold tracking-tight text-emerald-300">est. total: ₹ 0</div>
+                        <div id="neomacroShippingNote" class="text-[11px] font-mono text-zinc-400">no shipping charged yet</div>
+                    </div>
+
+                    
+                    <button id="headerWatchlistBtn" type="button"
+                        class="px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/35 text-xs font-mono font-semibold text-amber-300 hover:bg-amber-500/20 active:scale-95 transition-all focus:outline-none">
+                        watchlist (<span id="headerWatchCountSpan">0</span>)
+                    </button>
+
+                    
                     <button id="toggleNeomacroCollapseBtn" type="button"
                         class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-mono font-semibold text-zinc-200 hover:bg-zinc-800 active:scale-95 transition-all focus:outline-none">
                         open section
@@ -402,15 +409,101 @@
             </div>
 
             
-            <div id="neomacroBody" class="hidden pt-4 mt-4 border-t border-zinc-800">
+            <div id="couponDrawer" class="hidden mt-3 p-3 rounded-xl bg-zinc-950/90 border border-purple-500/35 flex flex-wrap items-center justify-between gap-2.5">
+                <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[220px]">
+                    <input id="couponCodeInput" type="text" placeholder="enter coupon code..."
+                        class="rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-purple-400 lowercase">
+                    <button id="applyCouponBtn" type="button"
+                        class="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                        check & apply
+                    </button>
+                    <button id="removeCouponBtn" type="button"
+                        class="px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors">
+                        remove
+                    </button>
+                </div>
+                <span id="couponStatusText" class="text-[11px] font-mono text-zinc-400">
+                    checks website (10s timeout -> default 10% off)
+                </span>
+            </div>
+
+            
+            <div id="neomacroActiveWrap" class="hidden mt-4 pt-3 border-t border-zinc-800/80">
+                <div class="text-[11px] font-mono text-zinc-400 mb-2">linked brush switches & watched items:</div>
+                <div id="neomacroLinkedGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+            </div>
+
+            
+            <div id="neomacroBody" class="hidden pt-4 mt-4 border-t border-zinc-800 space-y-4">
                 
-                <div id="neomacroActiveWrap" class="hidden pb-4 mb-3 border-b border-zinc-800/80">
-                    <div class="text-[11px] font-mono text-zinc-400 mb-2">linked brush switches & watched items:</div>
-                    <div id="neomacroLinkedGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800/80">
+                    <span class="text-[11px] font-mono text-zinc-400">neomacro.in live sync & external store link:</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="refreshNeomacroBtn" type="button"
+                            class="px-3 py-1.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-xs font-mono font-semibold text-cyan-300 hover:bg-cyan-500/30 active:scale-95 transition-all focus:outline-none">
+                            refresh stock
+                        </button>
+                        <a id="neomacroVisitStoreBtn" href="https://neomacro.in/collections/switches" target="_blank" rel="noopener noreferrer"
+                            class="px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs font-mono font-semibold text-zinc-200 hover:text-cyan-300 hover:border-cyan-500/40 transition-colors">
+                            visit store ↗
+                        </a>
+                    </div>
                 </div>
 
                 
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pb-4">
+                <div class="p-3.5 rounded-xl bg-zinc-950/90 border border-zinc-800">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h3 class="text-xs font-mono font-bold text-sky-300">source your own switch</h3>
+                            <p class="text-[11px] text-zinc-400 mt-0.5">assign a custom switch cost per key and shipping fee from another source</p>
+                        </div>
+                        <button id="toggleSyosCollapseBtn" type="button"
+                            class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-mono font-semibold text-zinc-200 hover:bg-zinc-800 active:scale-95 transition-all focus:outline-none">
+                            open syos
+                        </button>
+                    </div>
+
+                    <div id="syosBody" class="hidden pt-3 mt-3 border-t border-zinc-800/80 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 items-end">
+                            <div>
+                                <label for="syosSwitchNameInput" class="block text-[10px] font-mono text-zinc-400 mb-1">switch name (optional)</label>
+                                <input id="syosSwitchNameInput" type="text" placeholder="e.g. custom seller switch"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sky-400 lowercase">
+                            </div>
+                            <div>
+                                <label for="syosPerKeyCostInput" class="block text-[10px] font-mono text-zinc-400 mb-1">per key cost (₹)</label>
+                                <input id="syosPerKeyCostInput" type="number" min="0" step="0.5" placeholder="0"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sky-400">
+                            </div>
+                            <div>
+                                <label for="syosShippingInput" class="block text-[10px] font-mono text-zinc-400 mb-1">shipping (₹)</label>
+                                <input id="syosShippingInput" type="number" min="0" step="1" placeholder="0"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sky-400">
+                            </div>
+                            <div>
+                                <label for="syosBrushSelect" class="block text-[10px] font-mono text-zinc-400 mb-1">brush</label>
+                                <select id="syosBrushSelect"
+                                    class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-sky-400"></select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="saveSyosBtn" type="button"
+                                    class="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-mono font-semibold text-white transition-colors shrink-0">
+                                    save syos
+                                </button>
+                                <button id="clearSyosBtn" type="button"
+                                    class="px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors shrink-0">
+                                    clear
+                                </button>
+                            </div>
+                        </div>
+                        <p id="syosPreviewLine" class="text-[11px] font-mono text-zinc-400">
+                            syos cost: ₹ 0 (0 keys x ₹ 0 + ₹ 0 shipping)
+                        </p>
+                    </div>
+                </div>
+
+                
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
                     <div class="sm:col-span-4">
                         <input id="neomacroSearchInput" type="text" placeholder="search neomacro switches..."
                             class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 lowercase">
@@ -425,25 +518,21 @@
                             <option value="hall effect">hall effect (magnetic)</option>
                         </select>
                     </div>
-                    <div class="sm:col-span-2">
+                    <div class="sm:col-span-3">
                         <select id="neomacroSortSelect" aria-label="sort switches"
                             class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyan-500">
                             <option value="popularity">sort: popularity</option>
                             <option value="price_asc">price: low to high</option>
                             <option value="price_desc">price: high to low</option>
-                            <option value="stock">in stock first</option>
+                            <option value="sale">sort: on sale</option>
+                            <option value="watchlist">sort: watchlist</option>
                         </select>
                     </div>
-                    <div class="sm:col-span-3 flex items-center justify-between sm:justify-end gap-3 px-1">
+                    <div class="sm:col-span-2 flex items-center justify-end px-1">
                         <label class="flex items-center gap-1.5 cursor-pointer select-none text-xs font-mono text-zinc-300">
                             <input id="neomacroInStockOnlyCheckbox" type="checkbox"
                                 class="w-3.5 h-3.5 rounded accent-cyan-500 cursor-pointer">
                             <span>in stock</span>
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-xs font-mono text-amber-300">
-                            <input id="neomacroWatchlistOnlyCheckbox" type="checkbox"
-                                class="w-3.5 h-3.5 rounded accent-amber-500 cursor-pointer">
-                            <span>watchlist (<span id="neomacroWatchCountSpan">0</span>)</span>
                         </label>
                     </div>
                 </div>
@@ -485,16 +574,22 @@ turn it off to continue!</p>
 
         
         <section id="chartCard" class="theme-card rounded-2xl bg-zinc-900/65 border border-zinc-800/70 p-5 sm:p-6 transition-colors">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                     <h2 id="chartTitle" class="text-sm font-semibold tracking-wide text-zinc-100">switch allocation diagram</h2>
                     <p id="chartSubtitle" class="text-xs text-zinc-400 mt-1">live breakdown of your switch speadout plan across the active layout</p>
                 </div>
-                <span id="chartSummary" class="text-xs font-mono text-sky-300 bg-sky-950/40 border border-sky-500/30 px-3.5 py-1.5 rounded-xl self-start sm:self-auto">
-                    assigned: 0 / 84 (0%)
-                </span>
+                <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                    <span id="chartSummary" class="text-xs font-mono text-sky-300 bg-sky-950/40 border border-sky-500/30 px-3.5 py-1.5 rounded-xl">
+                        assigned: 0 / 84 (0%)
+                    </span>
+                    <button id="toggleChartCollapseBtn" type="button"
+                        class="px-3.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-mono font-semibold text-zinc-200 hover:bg-zinc-800 active:scale-95 transition-all focus:outline-none">
+                        open diagram
+                    </button>
+                </div>
             </div>
-            <div class="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-zinc-950/50 border border-zinc-800/50">
+            <div id="chartBody" class="hidden mt-5 relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-zinc-950/50 border border-zinc-800/50">
                 <canvas id="frequencyCanvas" class="w-full h-full block"></canvas>
             </div>
         </section>
@@ -502,6 +597,40 @@ turn it off to continue!</p>
     </main>
 
     
+    <!-- live neomacro.in product window modal -->
+    <div id="neomacroWindowModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+        <div class="w-full max-w-4xl rounded-2xl bg-zinc-900 border border-cyan-500/40 p-4 sm:p-5 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800 shrink-0">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shrink-0"></span>
+                    <h2 id="neomacroWindowTitle" class="text-xs sm:text-sm font-mono font-bold text-cyan-300 truncate">neomacro.in product window</h2>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a id="neomacroWindowExtLink" href="https://neomacro.in/collections/switches" target="_blank" rel="noopener noreferrer"
+                        class="px-3 py-1.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-xs font-mono font-semibold text-cyan-300 hover:bg-cyan-500/30 transition-colors">
+                        open in new tab ↗
+                    </a>
+                    <button id="closeNeomacroWindowBtn" type="button"
+                        class="px-3 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
+                        close window
+                    </button>
+                </div>
+            </div>
+            <div class="mt-3 flex-1 min-h-[420px] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950 relative flex items-center justify-center">
+                <iframe id="neomacroWindowIframe" title="neomacro.in product page" class="w-full h-[65vh] border-0 bg-white"></iframe>
+                <div id="neomacroWindowFallback" class="hidden absolute inset-0 bg-zinc-950/95 flex flex-col items-center justify-center p-6 text-center gap-3 z-10">
+                    <p class="text-xs sm:text-sm font-mono text-zinc-300 max-w-md">
+                        this store page cannot be displayed inside the mini window. open it directly in a new tab instead:
+                    </p>
+                    <a id="neomacroWindowCenterBtn" href="https://neomacro.in/collections/switches" target="_blank" rel="noopener noreferrer"
+                        class="px-5 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400 text-xs sm:text-sm font-mono font-bold text-cyan-200 hover:bg-cyan-500/30 transition-colors">
+                        open in new tab ↗
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="confirmClearModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/40 p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center gap-2.5 pb-3 border-b border-zinc-800">
@@ -736,7 +865,8 @@ turn it off to continue!</p>
                         <option value="popularity">sort: popularity</option>
                         <option value="price_asc">price: low to high</option>
                         <option value="price_desc">price: high to low</option>
-                        <option value="stock">in stock first</option>
+                        <option value="sale">sort: on sale</option>
+                        <option value="watchlist">sort: watchlist</option>
                     </select>
                 </div>
 
@@ -994,8 +1124,10 @@ turn it off to continue!</p>
     ],
     "customLayouts": {},
     "neomacroWatchlist": [],
-    "neomacroSavedCatalog": [],
-    "brushSwitchLinks": {}
+    "brushSwitchLinks": {},
+    "customSwitchSources": {},
+    "couponCode": "",
+    "couponDiscountPct": 0
   },
   "keyStates": {}
 }
@@ -1314,237 +1446,7 @@ turn it off to continue!</p>
                 return JSON.parse(JSON.stringify(obj));
             }
 
-            const NEOMACRO_FALLBACK_CATALOG = [
-                {
-                    handle: 'hmx-snowfall-tactile-switch',
-                    title: 'hmx snowfall tactile switch',
-                    vendor: 'hmx',
-                    type: 'tactile',
-                    price: 340,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 1,
-                    specs: 'tactile | 50g spring | long-pole pom stem | pack of 10',
-                    url: 'https://neomacro.in/products/hmx-snowfall-tactile-switch'
-                },
-                {
-                    handle: 'hmx-bad-sweetheart-switches',
-                    title: 'hmx bad sweetheart deep and silent switches',
-                    vendor: 'hmx / ktt',
-                    type: 'silent',
-                    price: 300,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 2,
-                    specs: 'deep linear / silent linear | 60g bottom-out | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/hmx-bad-sweetheart-switches'
-                },
-                {
-                    handle: 'outemu-lemon-v3-silent-tactile',
-                    title: 'outemu lemon v3 silent tactile',
-                    vendor: 'outemu',
-                    type: 'silent',
-                    price: 160,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 3,
-                    specs: 'silent tactile | 35g | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/outemu-lemon-v3-silent-tactile'
-                },
-                {
-                    handle: 'outemu-peach-v3-silent-linear',
-                    title: 'outemu peach v3 silent linear',
-                    vendor: 'outemu',
-                    type: 'silent',
-                    price: 160,
-                    compareAtPrice: null,
-                    available: false,
-                    popularityIdx: 4,
-                    specs: 'silent linear | 40g | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/outemu-peach-v3-silent-linear'
-                },
-                {
-                    handle: 'bsun-strawberry-cheesecake-r2',
-                    title: 'bsun strawberry cheesecake r2',
-                    vendor: 'bsun',
-                    type: 'tactile',
-                    price: 300,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 5,
-                    specs: 'thocky tactile | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/bsun-strawberry-cheesecake-r2'
-                },
-                {
-                    handle: 'bsun-raw-switches',
-                    title: 'bsun raw switches',
-                    vendor: 'bsun',
-                    type: 'linear',
-                    price: 300,
-                    compareAtPrice: 450,
-                    available: true,
-                    popularityIdx: 6,
-                    specs: 'linear / tactile variants | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/bsun-raw-switches'
-                },
-                {
-                    handle: 'gateron-mars-switch',
-                    title: 'gateron mars switch',
-                    vendor: 'gateron',
-                    type: 'linear',
-                    price: 390,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 7,
-                    specs: 'linear | 45gf | 5-pin | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/gateron-mars-switch'
-                },
-                {
-                    handle: 'gateron-ef-cedar',
-                    title: 'gateron ef cedar',
-                    vendor: 'gateron',
-                    type: 'linear',
-                    price: 180,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 8,
-                    specs: 'linear | 55gf | 5-pin | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/gateron-ef-cedar'
-                },
-                {
-                    handle: 'gateron-raw-linear-switch',
-                    title: 'gateron raw linear switch',
-                    vendor: 'gateron',
-                    type: 'linear',
-                    price: 340,
-                    compareAtPrice: 370,
-                    available: true,
-                    popularityIdx: 9,
-                    specs: 'linear | factory lubed | pack of 10',
-                    url: 'https://neomacro.in/products/gateron-raw-linear-switch'
-                },
-                {
-                    handle: 'gateron-weightlessness-switch',
-                    title: 'gateron weightlessness switch',
-                    vendor: 'gateron',
-                    type: 'linear',
-                    price: 450,
-                    compareAtPrice: null,
-                    available: false,
-                    popularityIdx: 10,
-                    specs: 'linear | pack of 10',
-                    url: 'https://neomacro.in/products/gateron-weightlessness-switch'
-                },
-                {
-                    handle: 'swk-cheddar',
-                    title: 'swk cheddar',
-                    vendor: 'swk',
-                    type: 'linear',
-                    price: 220,
-                    compareAtPrice: 250,
-                    available: true,
-                    popularityIdx: 11,
-                    specs: 'linear | pack of 10',
-                    url: 'https://neomacro.in/products/swk-cheddar'
-                },
-                {
-                    handle: 'swk-coco-blacks',
-                    title: 'swk coco blacks',
-                    vendor: 'swk',
-                    type: 'linear',
-                    price: 250,
-                    compareAtPrice: 300,
-                    available: true,
-                    popularityIdx: 12,
-                    specs: 'linear | pack of 10',
-                    url: 'https://neomacro.in/products/swk-coco-blacks'
-                },
-                {
-                    handle: 'swk-ghost-dragons',
-                    title: 'swk ghost dragons',
-                    vendor: 'swk',
-                    type: 'tactile',
-                    price: 340,
-                    compareAtPrice: 390,
-                    available: false,
-                    popularityIdx: 13,
-                    specs: 'tactile | pack of 10',
-                    url: 'https://neomacro.in/products/swk-ghost-dragons'
-                },
-                {
-                    handle: 'geon-raw-zero-switch',
-                    title: 'geon raw zero switch',
-                    vendor: 'geon',
-                    type: 'linear',
-                    price: 350,
-                    compareAtPrice: 385,
-                    available: true,
-                    popularityIdx: 14,
-                    specs: 'linear | pack of 10',
-                    url: 'https://neomacro.in/products/geon-raw-zero-switch'
-                },
-                {
-                    handle: 'cherry-mx2a-switches',
-                    title: 'cherry mx2a switches (unlubed)',
-                    vendor: 'cherry',
-                    type: 'linear',
-                    price: 330,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 15,
-                    specs: 'mx2a | pack of 10',
-                    url: 'https://neomacro.in/products/cherry-mx2a-switches'
-                },
-                {
-                    handle: 'cherry-mx-switches',
-                    title: 'cherry mx switches',
-                    vendor: 'cherry',
-                    type: 'tactile',
-                    price: 335,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 16,
-                    specs: 'classic mx | pack of 10',
-                    url: 'https://neomacro.in/products/cherry-mx-switches'
-                },
-                {
-                    handle: 'radiant-he-switch',
-                    title: 'radiant he switch',
-                    vendor: 'aiglatson',
-                    type: 'hall effect',
-                    price: 280,
-                    compareAtPrice: 330,
-                    available: true,
-                    popularityIdx: 17,
-                    specs: 'hall effect magnetic | 45g bottom-out | pack of 10',
-                    url: 'https://neomacro.in/products/radiant-he-switch'
-                },
-                {
-                    handle: 'raptor-he-v2-switch',
-                    title: 'raptor he v2 switch',
-                    vendor: 'geon',
-                    type: 'hall effect',
-                    price: 380,
-                    compareAtPrice: null,
-                    available: true,
-                    popularityIdx: 18,
-                    specs: 'hall effect magnetic | 35g actuation / 45g bottom | pack of 10',
-                    url: 'https://neomacro.in/products/raptor-he-v2-switch'
-                },
-                {
-                    handle: 'geon-raw-he',
-                    title: 'geon raw he',
-                    vendor: 'geon',
-                    type: 'hall effect',
-                    price: 350,
-                    compareAtPrice: 400,
-                    available: false,
-                    popularityIdx: 19,
-                    specs: 'hall effect magnetic | pack of 10',
-                    url: 'https://neomacro.in/products/geon-raw-he'
-                }
-            ];
-
+            // online-only catalog (zero catalog items stored in file or browser storage)
             let appConfig = {
                 title: 'switch planner and tester',
                 layoutId: '75_std',
@@ -1555,11 +1457,13 @@ turn it off to continue!</p>
                 ],
                 customLayouts: {},
                 neomacroWatchlist: [],
-                neomacroSavedCatalog: [],
-                brushSwitchLinks: {}
+                brushSwitchLinks: {},
+                customSwitchSources: {},
+                couponCode: '',
+                couponDiscountPct: 0
             };
 
-            let neomacroCatalog = cloneObj(NEOMACRO_FALLBACK_CATALOG);
+            let neomacroCatalog = [];
             let neomacroIsLiveFetched = false;
             let neomacroLastSyncTime = null;
 
@@ -1596,18 +1500,36 @@ turn it off to continue!</p>
             const editLayoutBtn = document.getElementById('editLayoutBtn');
 
             const neomacroSection = document.getElementById('neomacroSection');
+            const neomacroLiveDot = document.getElementById('neomacroLiveDot');
             const neomacroFeedStatus = document.getElementById('neomacroFeedStatus');
             const neomacroTotalCostBadge = document.getElementById('neomacroTotalCostBadge');
+            const gotCouponBtn = document.getElementById('gotCouponBtn');
+            const couponDrawer = document.getElementById('couponDrawer');
+            const couponCodeInput = document.getElementById('couponCodeInput');
+            const applyCouponBtn = document.getElementById('applyCouponBtn');
+            const removeCouponBtn = document.getElementById('removeCouponBtn');
+            const couponStatusText = document.getElementById('couponStatusText');
             const neomacroShippingNote = document.getElementById('neomacroShippingNote');
+            const headerWatchlistBtn = document.getElementById('headerWatchlistBtn');
+            const headerWatchCountSpan = document.getElementById('headerWatchCountSpan');
+            const toggleNeomacroCollapseBtn = document.getElementById('toggleNeomacroCollapseBtn');
+            const neomacroBody = document.getElementById('neomacroBody');
             const refreshNeomacroBtn = document.getElementById('refreshNeomacroBtn');
+            const toggleSyosCollapseBtn = document.getElementById('toggleSyosCollapseBtn');
+            const syosBody = document.getElementById('syosBody');
+            const syosBrushSelect = document.getElementById('syosBrushSelect');
+            const syosSwitchNameInput = document.getElementById('syosSwitchNameInput');
+            const syosPerKeyCostInput = document.getElementById('syosPerKeyCostInput');
+            const syosShippingInput = document.getElementById('syosShippingInput');
+            const saveSyosBtn = document.getElementById('saveSyosBtn');
+            const clearSyosBtn = document.getElementById('clearSyosBtn');
+            const syosPreviewLine = document.getElementById('syosPreviewLine');
             const neomacroActiveWrap = document.getElementById('neomacroActiveWrap');
             const neomacroLinkedGrid = document.getElementById('neomacroLinkedGrid');
             const neomacroSearchInput = document.getElementById('neomacroSearchInput');
             const neomacroTypeFilter = document.getElementById('neomacroTypeFilter');
             const neomacroSortSelect = document.getElementById('neomacroSortSelect');
             const neomacroInStockOnlyCheckbox = document.getElementById('neomacroInStockOnlyCheckbox');
-            const neomacroWatchlistOnlyCheckbox = document.getElementById('neomacroWatchlistOnlyCheckbox');
-            const neomacroWatchCountSpan = document.getElementById('neomacroWatchCountSpan');
             const neomacroCatalogList = document.getElementById('neomacroCatalogList');
 
             const openSettingsBtn = document.getElementById('openSettingsBtn');
@@ -1710,6 +1632,15 @@ turn it off to continue!</p>
             const kbdMainBlock = document.getElementById('kbdMainBlock');
 
             const chartSummaryEl = document.getElementById('chartSummary');
+            const toggleChartCollapseBtn = document.getElementById('toggleChartCollapseBtn');
+            const chartBody = document.getElementById('chartBody');
+            const neomacroWindowModal = document.getElementById('neomacroWindowModal');
+            const neomacroWindowTitle = document.getElementById('neomacroWindowTitle');
+            const neomacroWindowExtLink = document.getElementById('neomacroWindowExtLink');
+            const neomacroWindowIframe = document.getElementById('neomacroWindowIframe');
+            const neomacroWindowFallback = document.getElementById('neomacroWindowFallback');
+            const neomacroWindowCenterBtn = document.getElementById('neomacroWindowCenterBtn');
+            const closeNeomacroWindowBtn = document.getElementById('closeNeomacroWindowBtn');
             const canvas = document.getElementById('frequencyCanvas');
             const ctx = canvas.getContext('2d');
 
@@ -1750,6 +1681,7 @@ turn it off to continue!</p>
             }
 
             function isInteractiveInputActive() {
+                if (!neomacroWindowModal.classList.contains('hidden')) return true;
                 if (!confirmClearModal.classList.contains('hidden')) return true;
                 if (!missingKeysModal.classList.contains('hidden')) return true;
                 if (!introWizardModal.classList.contains('hidden')) return true;
@@ -1790,17 +1722,6 @@ turn it off to continue!</p>
                     }
                 });
 
-                const watchSet = new Set(appConfig.neomacroWatchlist || []);
-                const linkedHandles = new Set(
-                    Object.values(appConfig.brushSwitchLinks || {})
-                        .filter((l) => l && l.handle)
-                        .map((l) => l.handle)
-                );
-
-                const savedCatalogSnapshots = neomacroCatalog.filter(
-                    (item) => watchSet.has(item.handle) || linkedHandles.has(item.handle)
-                );
-
                 return {
                     appConfig: {
                         title: appConfig.title,
@@ -1808,8 +1729,10 @@ turn it off to continue!</p>
                         brushes: cloneObj(appConfig.brushes),
                         customLayouts: cloneObj(appConfig.customLayouts),
                         neomacroWatchlist: cloneObj(appConfig.neomacroWatchlist || []),
-                        neomacroSavedCatalog: cloneObj(savedCatalogSnapshots),
-                        brushSwitchLinks: cloneObj(appConfig.brushSwitchLinks || {})
+                        brushSwitchLinks: cloneObj(appConfig.brushSwitchLinks || {}),
+                        customSwitchSources: cloneObj(appConfig.customSwitchSources || {}),
+                        couponCode: appConfig.couponCode || '',
+                        couponDiscountPct: Number(appConfig.couponDiscountPct) || 0
                     },
                     keyStates: serializedStates
                 };
@@ -1851,12 +1774,17 @@ turn it off to continue!</p>
                             if (Array.isArray(parsed.appConfig.neomacroWatchlist)) {
                                 appConfig.neomacroWatchlist = parsed.appConfig.neomacroWatchlist;
                             }
-                            if (Array.isArray(parsed.appConfig.neomacroSavedCatalog)) {
-                                appConfig.neomacroSavedCatalog = parsed.appConfig.neomacroSavedCatalog;
-                                mergeCatalogItems(appConfig.neomacroSavedCatalog);
-                            }
                             if (parsed.appConfig.brushSwitchLinks && typeof parsed.appConfig.brushSwitchLinks === 'object') {
                                 appConfig.brushSwitchLinks = parsed.appConfig.brushSwitchLinks;
+                            }
+                            if (parsed.appConfig.customSwitchSources && typeof parsed.appConfig.customSwitchSources === 'object') {
+                                appConfig.customSwitchSources = parsed.appConfig.customSwitchSources;
+                            }
+                            if (typeof parsed.appConfig.couponCode === 'string') {
+                                appConfig.couponCode = parsed.appConfig.couponCode;
+                            }
+                            if (parsed.appConfig.couponDiscountPct !== undefined) {
+                                appConfig.couponDiscountPct = Number(parsed.appConfig.couponDiscountPct) || 0;
                             }
                         }
                         if (!getBrushById(currentBrush)) {
@@ -1875,6 +1803,12 @@ turn it off to continue!</p>
                         renderStatCardsAndChart();
                         updateVisualKeyboardStyles();
                         renderNeomacroCatalogList();
+                        populateSyosBrushDropdown();
+                        loadSyosFormForBrush(syosBrushSelect.value);
+                        if (appConfig.couponCode && Number(appConfig.couponDiscountPct) > 0) {
+                            couponCodeInput.value = appConfig.couponCode;
+                            couponStatusText.textContent = `applied ${appConfig.couponCode}: ${appConfig.couponDiscountPct}% off`;
+                        }
                         syncNeomacroAutoOpen();
                         return;
                     }
@@ -2229,7 +2163,7 @@ turn it off to continue!</p>
 
                 const cloneDoc = document.documentElement.cloneNode(true);
 
-                ['#confirmClearModal', '#missingKeysModal', '#introWizardModal', '#layoutMismatchModal', '#saveFileModal', '#settingsModal', '#pasteDrawer', '#layoutEditorBar'].forEach((sel) => {
+                ['#neomacroWindowModal', '#confirmClearModal', '#missingKeysModal', '#introWizardModal', '#layoutMismatchModal', '#saveFileModal', '#settingsModal', '#pasteDrawer', '#layoutEditorBar'].forEach((sel) => {
                     const el = cloneDoc.querySelector(sel);
                     if (el) el.classList.add('hidden');
                 });
@@ -4311,9 +4245,6 @@ turn it off to continue!</p>
                         if (Array.isArray(parsed.appConfig.neomacroWatchlist)) {
                             appConfig.neomacroWatchlist = parsed.appConfig.neomacroWatchlist;
                         }
-                        if (Array.isArray(parsed.appConfig.neomacroSavedCatalog)) {
-                            mergeCatalogItems(parsed.appConfig.neomacroSavedCatalog);
-                        }
                         if (parsed.appConfig.brushSwitchLinks) {
                             appConfig.brushSwitchLinks = parsed.appConfig.brushSwitchLinks;
                         }
@@ -4502,6 +4433,72 @@ turn it off to continue!</p>
             window.addEventListener('resize', drawChart);
 
             
+            toggleChartCollapseBtn.addEventListener('click', () => {
+                const willOpen = chartBody.classList.contains('hidden');
+                chartBody.classList.toggle('hidden', !willOpen);
+                toggleChartCollapseBtn.textContent = willOpen ? 'close diagram' : 'open diagram';
+                toggleChartCollapseBtn.blur();
+                if (willOpen) {
+                    drawChart();
+                }
+            });
+
+            let windowFallbackTimer = null;
+
+            function showStoreWindowFallback(url) {
+                if (windowFallbackTimer) {
+                    clearTimeout(windowFallbackTimer);
+                    windowFallbackTimer = null;
+                }
+                neomacroWindowCenterBtn.href = url || 'https://neomacro.in/collections/switches';
+                neomacroWindowFallback.classList.remove('hidden');
+            }
+
+            function openNeomacroStoreWindow(title, url) {
+                const targetUrl = url || 'https://neomacro.in/collections/switches';
+                neomacroWindowTitle.textContent = (title || 'neomacro.in').toLowerCase();
+                neomacroWindowExtLink.href = targetUrl;
+                neomacroWindowCenterBtn.href = targetUrl;
+                neomacroWindowFallback.classList.add('hidden');
+                neomacroWindowModal.classList.remove('hidden');
+                updateFocusIndicator(false);
+
+                neomacroWindowIframe.onload = () => {
+                    try {
+                        const doc = neomacroWindowIframe.contentDocument;
+                        if (!doc || !doc.body || doc.body.innerText.trim().length === 0) {
+                            showStoreWindowFallback(targetUrl);
+                        } else if (windowFallbackTimer) {
+                            clearTimeout(windowFallbackTimer);
+                            windowFallbackTimer = null;
+                        }
+                    } catch (_) {
+                        showStoreWindowFallback(targetUrl);
+                    }
+                };
+
+                neomacroWindowIframe.onerror = () => showStoreWindowFallback(targetUrl);
+                neomacroWindowIframe.src = targetUrl;
+
+                if (windowFallbackTimer) clearTimeout(windowFallbackTimer);
+                windowFallbackTimer = setTimeout(() => {
+                    showStoreWindowFallback(targetUrl);
+                }, 2500);
+            }
+
+            closeNeomacroWindowBtn.addEventListener('click', () => {
+                if (windowFallbackTimer) {
+                    clearTimeout(windowFallbackTimer);
+                    windowFallbackTimer = null;
+                }
+                neomacroWindowModal.classList.add('hidden');
+                neomacroWindowFallback.classList.add('hidden');
+                neomacroWindowIframe.src = 'about:blank';
+                ensurePageFocus();
+            });
+
+            let neomacroLiveStockAvailable = false;
+
             function inferSwitchCategory(product) {
                 const text = `${product.title || ''} ${(product.tags || []).join(' ')} ${product.product_type || ''}`.toLowerCase();
                 if (text.includes('hall effect') || text.includes('magnetic') || text.includes(' he ') || text.endsWith(' he')) return 'hall effect';
@@ -4515,16 +4512,28 @@ turn it off to continue!</p>
                 return (htmlStr || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
             }
 
+            const expandedCatalogHandles = new Set();
+
             function sortNeomacroItems(items, sortMode) {
                 const copy = [...items];
+                const watchSet = new Set(appConfig.neomacroWatchlist || []);
                 if (sortMode === 'price_asc') {
                     copy.sort((a, b) => (a.price || 0) - (b.price || 0));
                 } else if (sortMode === 'price_desc') {
                     copy.sort((a, b) => (b.price || 0) - (a.price || 0));
-                } else if (sortMode === 'stock') {
+                } else if (sortMode === 'sale') {
                     copy.sort((a, b) => {
-                        if (a.available === b.available) return (a.popularityIdx || 999) - (b.popularityIdx || 999);
-                        return a.available ? -1 : 1;
+                        const aSale = (a.compareAtPrice && a.compareAtPrice > a.price) ? (a.compareAtPrice - a.price) : 0;
+                        const bSale = (b.compareAtPrice && b.compareAtPrice > b.price) ? (b.compareAtPrice - b.price) : 0;
+                        if (aSale !== bSale) return bSale - aSale;
+                        return (a.popularityIdx || 999) - (b.popularityIdx || 999);
+                    });
+                } else if (sortMode === 'watchlist') {
+                    copy.sort((a, b) => {
+                        const aw = watchSet.has(a.handle) ? 0 : 1;
+                        const bw = watchSet.has(b.handle) ? 0 : 1;
+                        if (aw !== bw) return aw - bw;
+                        return (a.popularityIdx || 999) - (b.popularityIdx || 999);
                     });
                 } else {
                     copy.sort((a, b) => (a.popularityIdx || 999) - (b.popularityIdx || 999));
@@ -4532,11 +4541,74 @@ turn it off to continue!</p>
                 return copy;
             }
 
+            function extractAudioSamples(rawHtml, product) {
+                const urls = new Set();
+                if (!rawHtml) return [];
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = rawHtml;
+
+                tempDiv.querySelectorAll('audio, source, a, video').forEach((el) => {
+                    const src = (el.getAttribute('src') || el.getAttribute('href') || '').trim();
+                    if (!src) return;
+                    const lower = src.toLowerCase();
+                    if (
+                        el.tagName === 'AUDIO' ||
+                        lower.includes('.mp3') ||
+                        lower.includes('.wav') ||
+                        lower.includes('.ogg') ||
+                        lower.includes('.m4a') ||
+                        lower.includes('sound') ||
+                        lower.includes('audio')
+                    ) {
+                        const fullUrl = src.startsWith('http') ? src : `https://neomacro.in${src.startsWith('/') ? '' : '/'}${src}`;
+                        urls.add(fullUrl);
+                    }
+                });
+
+                const plainLower = (tempDiv.textContent || '').toLowerCase();
+                const urlMatches = plainLower.match(/https?:\/\/[^\s"'<>]+(?:\.mp3|\.wav|\.ogg|\.m4a)[^\s"'<>]*/g);
+                if (urlMatches) {
+                    urlMatches.forEach((u) => urls.add(u));
+                }
+
+                return Array.from(urls);
+            }
+
+            function formatProductDescriptionBlocks(rawHtml) {
+                if (!rawHtml) return ['no description available.'];
+                const withBreaks = rawHtml
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<\/(p|li|h1|h2|h3|h4|div|tr)>/gi, '\n');
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = withBreaks;
+                const rawLines = (tempDiv.textContent || '')
+                    .split(/\r?\n/)
+                    .map((l) => l.replace(/\s+/g, ' ').trim().toLowerCase())
+                    .filter(Boolean);
+
+                return rawLines.length > 0 ? rawLines : ['no description available.'];
+            }
+
             async function fetchLiveNeomacroCatalog(isManualRefresh = false) {
                 if (isManualRefresh) {
                     refreshNeomacroBtn.textContent = 'syncing...';
                     wizardRefreshNeomacroBtn.textContent = 'syncing...';
-                    neomacroFeedStatus.textContent = 'fetching live stock & pricing from neomacro.in...';
+                    neomacroFeedStatus.textContent = 'fetching live data from neomacro.in...';
+                }
+
+                if (!navigator.onLine) {
+                    neomacroLiveStockAvailable = false;
+                    neomacroCatalog = [];
+                    refreshNeomacroBtn.textContent = 'refresh stock';
+                    wizardRefreshNeomacroBtn.textContent = 'refresh live stock';
+                    neomacroFeedStatus.textContent = 'offline: connect to internet to load live neomacro.in catalog & stock';
+                    if (neomacroLiveDot) neomacroLiveDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-400';
+                    renderNeomacroCatalogList();
+                    renderNeomacroSummaryBar();
+                    if (!introWizardModal.classList.contains('hidden') && wizardStep === 4) {
+                        renderWizardNeomacroList();
+                    }
+                    return;
                 }
 
                 const endpoints = [
@@ -4545,16 +4617,23 @@ turn it off to continue!</p>
                 ];
 
                 let fetchedProducts = null;
+                let lastFetchError = null;
+
                 for (const url of endpoints) {
                     try {
                         const resp = await fetch(url, { cache: 'no-store' });
-                        if (!resp.ok) continue;
+                        if (!resp.ok) {
+                            lastFetchError = `http ${resp.status}`;
+                            continue;
+                        }
                         const data = await resp.json();
                         if (data && Array.isArray(data.products) && data.products.length > 0) {
                             fetchedProducts = data.products;
                             break;
                         }
-                    } catch (_) {}
+                    } catch (err) {
+                        lastFetchError = err && err.message ? err.message.toLowerCase() : 'network error';
+                    }
                 }
 
                 if (fetchedProducts) {
@@ -4584,9 +4663,16 @@ turn it off to continue!</p>
                         const priceVal = Number(parseFloat(primaryVariant.price)) || 0;
                         const compareVal = Number(parseFloat(primaryVariant.compare_at_price)) || null;
 
-                        const variantSummary = variants.length > 1
-                            ? `variants: ${variants.map((v) => `${(v.title || '').toLowerCase()} (${v.available ? 'in stock' : 'sold out'})`).join(', ')}`
-                            : stripHtmlTags(p.body_html).slice(0, 110);
+                        const imagesList = Array.isArray(p.images) ? p.images.map((im) => im.src).filter(Boolean) : [];
+                        const variantList = variants.map((v) => {
+                            const rawVTitle = (v.title || '').trim().toLowerCase();
+                            const cleanVTitle = (!rawVTitle || rawVTitle === 'default title') ? '' : rawVTitle;
+                            return {
+                                title: cleanVTitle,
+                                available: Boolean(v.available),
+                                price: Number(parseFloat(v.price)) || priceVal
+                            };
+                        });
 
                         normalized.push({
                             handle: p.handle,
@@ -4597,7 +4683,10 @@ turn it off to continue!</p>
                             compareAtPrice: (compareVal && compareVal > priceVal) ? compareVal : null,
                             available: anyAvailable,
                             popularityIdx: idx + 1,
-                            specs: variantSummary || 'pack of 10 switches',
+                            imageUrl: imagesList[0] || '',
+                            descriptionBlocks: formatProductDescriptionBlocks(p.body_html),
+                            audioSamples: extractAudioSamples(p.body_html, p),
+                            variants: variantList,
                             url: `https://neomacro.in/products/${p.handle}`
                         });
                     });
@@ -4605,6 +4694,7 @@ turn it off to continue!</p>
                     if (normalized.length > 0) {
                         neomacroCatalog = normalized;
                         neomacroIsLiveFetched = true;
+                        neomacroLiveStockAvailable = true;
                         const now = new Date();
                         neomacroLastSyncTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase();
 
@@ -4619,25 +4709,29 @@ turn it off to continue!</p>
                                         price: fresh.price,
                                         compareAtPrice: fresh.compareAtPrice,
                                         available: fresh.available,
-                                        url: fresh.url,
-                                        lastChecked: neomacroLastSyncTime
+                                        url: fresh.url
                                     };
                                 }
                             });
                         }
                         syncEmbeddedStateTag();
+                        if (neomacroLiveDot) neomacroLiveDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                        neomacroFeedStatus.textContent = `live neomacro.in catalog (${normalized.length} switches)`;
+                    } else {
+                        neomacroLiveStockAvailable = false;
+                        neomacroCatalog = [];
+                        if (neomacroLiveDot) neomacroLiveDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-400';
+                        neomacroFeedStatus.textContent = 'error: could not parse live switch data from neomacro.in (please check internet connection)';
                     }
+                } else {
+                    neomacroLiveStockAvailable = false;
+                    neomacroCatalog = [];
+                    if (neomacroLiveDot) neomacroLiveDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-400';
+                    neomacroFeedStatus.textContent = `error: offline or unable to reach neomacro.in (${lastFetchError || 'no internet'}) - connect to internet for live catalog`;
                 }
 
                 refreshNeomacroBtn.textContent = 'refresh stock';
                 wizardRefreshNeomacroBtn.textContent = 'refresh live stock';
-
-                if (neomacroIsLiveFetched) {
-                    const inStockCount = neomacroCatalog.filter((x) => x.available).length;
-                    neomacroFeedStatus.textContent = `neomacro.in catalog (${inStockCount}/${neomacroCatalog.length} in stock)`;
-                } else {
-                    neomacroFeedStatus.textContent = 'neomacro.in switch catalog';
-                }
 
                 renderNeomacroCatalogList();
                 renderNeomacroSummaryBar();
@@ -4688,6 +4782,7 @@ turn it off to continue!</p>
                 syncEmbeddedStateTag();
                 renderNeomacroCatalogList();
                 renderNeomacroSummaryBar();
+                syncNeomacroAutoOpen();
             }
 
             function unlinkSwitchFromBrush(brushId) {
@@ -4699,29 +4794,120 @@ turn it off to continue!</p>
                 }
             }
 
+            function populateSyosBrushDropdown() {
+                if (!syosBrushSelect) return;
+                const prevVal = syosBrushSelect.value;
+                syosBrushSelect.innerHTML = '';
+                appConfig.brushes.forEach((b) => {
+                    const opt = document.createElement('option');
+                    opt.value = b.id;
+                    opt.textContent = b.name;
+                    syosBrushSelect.appendChild(opt);
+                });
+                if (prevVal && getBrushById(prevVal)) {
+                    syosBrushSelect.value = prevVal;
+                } else if (appConfig.brushes[0]) {
+                    syosBrushSelect.value = appConfig.brushes[0].id;
+                }
+                updateSyosPreviewLine();
+            }
+
+            function loadSyosFormForBrush(brushId) {
+                const sources = appConfig.customSwitchSources || {};
+                const entry = sources[brushId];
+                if (entry) {
+                    syosSwitchNameInput.value = (entry.name || '').toLowerCase();
+                    syosPerKeyCostInput.value = entry.perKeyCost !== undefined ? String(entry.perKeyCost) : '';
+                    syosShippingInput.value = entry.shipping !== undefined ? String(entry.shipping) : '';
+                } else {
+                    // do not wipe out text/numbers the user has already typed unless they clicked clear
+                    if (!syosSwitchNameInput.value && !syosPerKeyCostInput.value && !syosShippingInput.value) {
+                        syosSwitchNameInput.value = '';
+                        syosPerKeyCostInput.value = '';
+                        syosShippingInput.value = '';
+                    }
+                }
+                updateSyosPreviewLine();
+            }
+
+            function updateSyosPreviewLine() {
+                if (!syosPreviewLine) return;
+                const bId = syosBrushSelect.value;
+                const { counts } = getDynamicBreakdown();
+                const keyCount = Number(counts.get(bId)) || 0;
+                const perKey = Math.max(0, Number(parseFloat(syosPerKeyCostInput.value)) || 0);
+                const ship = Math.max(0, Number(parseFloat(syosShippingInput.value)) || 0);
+                const cost = keyCount > 0 ? (keyCount * perKey + ship) : 0;
+                syosPreviewLine.textContent = `syos cost: ₹ ${cost.toLocaleString()} (${keyCount} keys x ₹ ${perKey} + ₹ ${ship} shipping)`;
+            }
+
+            function saveSyosForSelectedBrush() {
+                const bId = syosBrushSelect.value;
+                if (!bId) return;
+                if (!appConfig.customSwitchSources) {
+                    appConfig.customSwitchSources = {};
+                }
+                const perKey = Math.max(0, Number(parseFloat(syosPerKeyCostInput.value)) || 0);
+                const ship = Math.max(0, Number(parseFloat(syosShippingInput.value)) || 0);
+                const swName = (syosSwitchNameInput.value || '').trim().toLowerCase() || 'source your own switch';
+
+                appConfig.customSwitchSources[bId] = {
+                    name: swName,
+                    perKeyCost: perKey,
+                    shipping: ship
+                };
+                syncEmbeddedStateTag();
+                updateSyosPreviewLine();
+                renderNeomacroSummaryBar();
+            }
+
+            function clearSyosForSelectedBrush() {
+                const bId = syosBrushSelect.value;
+                if (!bId || !appConfig.customSwitchSources) return;
+                delete appConfig.customSwitchSources[bId];
+                syosSwitchNameInput.value = '';
+                syosPerKeyCostInput.value = '';
+                syosShippingInput.value = '';
+                syncEmbeddedStateTag();
+                updateSyosPreviewLine();
+                renderNeomacroSummaryBar();
+            }
+
             function renderNeomacroCatalogList() {
                 const query = (neomacroSearchInput.value || '').trim().toLowerCase();
                 const typeFilter = neomacroTypeFilter.value || 'all';
                 const sortBy = neomacroSortSelect.value || 'popularity';
                 const inStockOnly = neomacroInStockOnlyCheckbox.checked;
-                const watchlistOnly = neomacroWatchlistOnlyCheckbox.checked;
                 const watchSet = new Set(appConfig.neomacroWatchlist || []);
 
-                neomacroWatchCountSpan.textContent = String(watchSet.size);
+                if (headerWatchCountSpan) {
+                    headerWatchCountSpan.textContent = String(watchSet.size);
+                }
+
+                neomacroCatalogList.innerHTML = '';
+
+                if (!neomacroLiveStockAvailable || neomacroCatalog.length === 0) {
+                    const offlineEl = document.createElement('div');
+                    offlineEl.className = 'p-6 text-center rounded-xl bg-zinc-950 border border-rose-500/30 text-xs font-mono text-rose-300 space-y-1.5';
+                    offlineEl.innerHTML = `
+                        <div class="font-bold">neomacro.in catalog unavailable offline</div>
+                        <div class="text-[11px] text-zinc-400">connect to the internet and click "refresh stock" to load live switch listings, photos, and stock status.</div>
+                    `;
+                    neomacroCatalogList.appendChild(offlineEl);
+                    return;
+                }
 
                 let filtered = neomacroCatalog.filter((item) => {
                     if (inStockOnly && !item.available) return false;
-                    if (watchlistOnly && !watchSet.has(item.handle)) return false;
                     if (typeFilter !== 'all' && item.type !== typeFilter) return false;
                     if (query) {
-                        const hay = `${item.title} ${item.vendor} ${item.type} ${item.specs}`.toLowerCase();
+                        const hay = `${item.title} ${item.vendor} ${item.type} ${(item.descriptionBlocks || []).join(' ')}`.toLowerCase();
                         if (!hay.includes(query)) return false;
                     }
                     return true;
                 });
 
                 filtered = sortNeomacroItems(filtered, sortBy);
-                neomacroCatalogList.innerHTML = '';
 
                 if (filtered.length === 0) {
                     const emptyEl = document.createElement('div');
@@ -4733,40 +4919,71 @@ turn it off to continue!</p>
 
                 filtered.forEach((item) => {
                     const isWatched = watchSet.has(item.handle);
+                    const isExpanded = expandedCatalogHandles.has(item.handle);
                     const linkedBrushIds = Object.entries(appConfig.brushSwitchLinks || {})
                         .filter(([, link]) => link && link.handle === item.handle)
                         .map(([bId]) => bId);
 
                     const card = document.createElement('div');
                     card.className = isWatched
-                        ? 'p-3.5 rounded-xl bg-zinc-950 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3'
-                        : 'p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                        ? 'p-3.5 rounded-xl bg-zinc-950 border border-amber-500/40 flex flex-col gap-3'
+                        : 'p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col gap-3';
+
+                    const mainRow = document.createElement('div');
+                    mainRow.className = 'flex flex-col sm:flex-row sm:items-center justify-between gap-3';
 
                     const infoCol = document.createElement('div');
-                    infoCol.className = 'space-y-1 flex-1 min-w-0';
+                    infoCol.className = 'flex items-center gap-3 flex-1 min-w-0';
+
+                    // thumbnail image from neomacro.in
+                    if (item.imageUrl) {
+                        const thumbImg = document.createElement('img');
+                        thumbImg.src = item.imageUrl;
+                        thumbImg.alt = item.title;
+                        thumbImg.loading = 'lazy';
+                        thumbImg.className = 'w-12 h-12 rounded-lg object-cover border border-zinc-800 bg-zinc-900 shrink-0 cursor-pointer';
+                        thumbImg.addEventListener('click', () => openNeomacroStoreWindow(item.title, item.url));
+                        infoCol.appendChild(thumbImg);
+                    }
+
+                    const textCol = document.createElement('div');
+                    textCol.className = 'space-y-1.5 flex-1 min-w-0';
 
                     const topRow = document.createElement('div');
                     topRow.className = 'flex flex-wrap items-center gap-2';
 
-                    const titleLink = document.createElement('a');
-                    titleLink.href = item.url;
-                    titleLink.target = '_blank';
-                    titleLink.rel = 'noopener noreferrer';
-                    titleLink.className = 'text-xs font-mono font-bold text-zinc-100 hover:text-cyan-300 transition-colors';
-                    titleLink.textContent = item.title;
+                    const titleBtn = document.createElement('button');
+                    titleBtn.type = 'button';
+                    titleBtn.className = 'text-left text-xs font-mono font-bold text-zinc-100 hover:text-cyan-300 transition-colors';
+                    titleBtn.textContent = item.title;
+                    titleBtn.addEventListener('click', () => {
+                        if (expandedCatalogHandles.has(item.handle)) {
+                            expandedCatalogHandles.delete(item.handle);
+                        } else {
+                            expandedCatalogHandles.add(item.handle);
+                        }
+                        renderNeomacroCatalogList();
+                    });
+
+                    topRow.appendChild(titleBtn);
 
                     const stockBadge = document.createElement('span');
                     stockBadge.className = item.available
                         ? 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
                         : 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/35 text-rose-300';
                     stockBadge.textContent = item.available ? 'in stock' : 'sold out';
+                    topRow.appendChild(stockBadge);
+
+                    if (item.compareAtPrice && item.compareAtPrice > item.price) {
+                        const saleBadge = document.createElement('span');
+                        saleBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/35 text-amber-300 font-semibold';
+                        saleBadge.textContent = 'on sale';
+                        topRow.appendChild(saleBadge);
+                    }
 
                     const typeBadge = document.createElement('span');
                     typeBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400';
                     typeBadge.textContent = item.type;
-
-                    topRow.appendChild(titleLink);
-                    topRow.appendChild(stockBadge);
                     topRow.appendChild(typeBadge);
 
                     if (linkedBrushIds.length > 0) {
@@ -4784,12 +5001,35 @@ turn it off to continue!</p>
                         });
                     }
 
-                    const specsP = document.createElement('p');
-                    specsP.className = 'text-[11px] font-mono text-zinc-500 truncate';
-                    specsP.textContent = item.specs;
+                    // click-to-expand description & website window buttons
+                    const subActionRow = document.createElement('div');
+                    subActionRow.className = 'flex flex-wrap items-center gap-2';
 
-                    infoCol.appendChild(topRow);
-                    infoCol.appendChild(specsP);
+                    const expandDescBtn = document.createElement('button');
+                    expandDescBtn.type = 'button';
+                    expandDescBtn.className = 'text-[11px] font-mono text-cyan-300/90 hover:text-cyan-200 underline decoration-cyan-500/40 underline-offset-2';
+                    expandDescBtn.textContent = isExpanded ? 'hide description ▲' : 'read description & photo ▼';
+                    expandDescBtn.addEventListener('click', () => {
+                        if (expandedCatalogHandles.has(item.handle)) {
+                            expandedCatalogHandles.delete(item.handle);
+                        } else {
+                            expandedCatalogHandles.add(item.handle);
+                        }
+                        renderNeomacroCatalogList();
+                    });
+
+                    const openWindowBtn = document.createElement('button');
+                    openWindowBtn.type = 'button';
+                    openWindowBtn.className = 'text-[11px] font-mono text-zinc-400 hover:text-zinc-200';
+                    openWindowBtn.textContent = '[open site window]';
+                    openWindowBtn.addEventListener('click', () => openNeomacroStoreWindow(item.title, item.url));
+
+                    subActionRow.appendChild(expandDescBtn);
+                    subActionRow.appendChild(openWindowBtn);
+
+                    textCol.appendChild(topRow);
+                    textCol.appendChild(subActionRow);
+                    infoCol.appendChild(textCol);
 
                     const actionCol = document.createElement('div');
                     actionCol.className = 'flex flex-wrap items-center gap-2 shrink-0';
@@ -4847,16 +5087,96 @@ turn it off to continue!</p>
                     actionCol.appendChild(watchBtn);
                     actionCol.appendChild(assignSelect);
 
-                    card.appendChild(infoCol);
-                    card.appendChild(actionCol);
+                    mainRow.appendChild(infoCol);
+                    mainRow.appendChild(actionCol);
+                    card.appendChild(mainRow);
+
+                    // expandable spacious formatted description & image preview panel
+                    if (isExpanded) {
+                        const detailsPanel = document.createElement('div');
+                        detailsPanel.className = 'pt-3 mt-1 border-t border-zinc-800/90 grid grid-cols-1 md:grid-cols-12 gap-4 items-start';
+
+                        if (item.imageUrl) {
+                            const imgWrap = document.createElement('div');
+                            imgWrap.className = 'md:col-span-4 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900';
+                            imgWrap.innerHTML = `<img src="${item.imageUrl}" alt="${item.title}" class="w-full h-44 object-cover">`;
+                            detailsPanel.appendChild(imgWrap);
+                        }
+
+                        const descWrap = document.createElement('div');
+                        descWrap.className = item.imageUrl ? 'md:col-span-8 space-y-2.5' : 'md:col-span-12 space-y-2.5';
+
+                        const descHeader = document.createElement('div');
+                        descHeader.className = 'flex flex-wrap items-center justify-between gap-2';
+                        descHeader.innerHTML = `
+                            <span class="text-[11px] font-mono font-bold text-cyan-300">product details & specs</span>
+                            <button type="button" class="open-live-win-btn px-2.5 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/35 text-[11px] font-mono text-cyan-200 hover:bg-cyan-500/25">
+                                view live page window ↗
+                            </button>
+                        `;
+                        descHeader.querySelector('.open-live-win-btn').addEventListener('click', () => {
+                            openNeomacroStoreWindow(item.title, item.url);
+                        });
+                        descWrap.appendChild(descHeader);
+
+                        const formattedBox = document.createElement('div');
+                        formattedBox.className = 'bg-zinc-900/70 border border-zinc-800/70 rounded-lg px-3.5 py-2.5 space-y-1 text-xs text-zinc-300 leading-relaxed whitespace-pre-line';
+                        formattedBox.textContent = (item.descriptionBlocks || []).join('\n');
+                        descWrap.appendChild(formattedBox);
+
+                        if (Array.isArray(item.audioSamples) && item.audioSamples.length > 0) {
+                            const audioWrap = document.createElement('div');
+                            audioWrap.className = 'space-y-2 pt-1';
+                            item.audioSamples.forEach((aUrl, aIdx) => {
+                                const aRow = document.createElement('div');
+                                aRow.className = 'p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+                                const aLabel = document.createElement('span');
+                                aLabel.className = 'text-[11px] font-mono text-cyan-300';
+                                aLabel.textContent = `audio sample ${aIdx + 1}`;
+                                const aPlayer = document.createElement('audio');
+                                aPlayer.controls = true;
+                                aPlayer.preload = 'none';
+                                aPlayer.src = aUrl;
+                                aPlayer.className = 'h-8 max-w-full';
+                                aRow.appendChild(aLabel);
+                                aRow.appendChild(aPlayer);
+                                audioWrap.appendChild(aRow);
+                            });
+                            descWrap.appendChild(audioWrap);
+                        }
+
+                        if (Array.isArray(item.variants) && item.variants.length > 0) {
+                            const varRow = document.createElement('div');
+                            varRow.className = 'flex flex-wrap items-center gap-1.5 pt-1';
+                            item.variants.forEach((v) => {
+                                const vChip = document.createElement('span');
+                                vChip.className = v.available
+                                    ? 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
+                                    : 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/30 text-rose-300';
+                                const prefix = v.title ? `${v.title}: ` : '';
+                                vChip.textContent = `${prefix}₹ ${v.price} (${v.available ? 'in stock' : 'sold out'})`;
+                                varRow.appendChild(vChip);
+                            });
+                            descWrap.appendChild(varRow);
+                        }
+
+                        detailsPanel.appendChild(descWrap);
+                        card.appendChild(detailsPanel);
+                    }
+
                     neomacroCatalogList.appendChild(card);
                 });
             }
 
             function renderNeomacroSummaryBar() {
+                populateSyosBrushDropdown();
+
                 const links = appConfig.brushSwitchLinks || {};
+                const syosMap = appConfig.customSwitchSources || {};
                 const watchList = appConfig.neomacroWatchlist || [];
+
                 const activeLinkEntries = Object.entries(links).filter(([bId, l]) => getBrushById(bId) && l && l.handle);
+                const activeSyosEntries = Object.entries(syosMap).filter(([bId, s]) => getBrushById(bId) && s);
 
                 const linkedHandles = new Set(activeLinkEntries.map(([, l]) => l.handle));
                 const extraWatchedHandles = watchList.filter((h) => !linkedHandles.has(h));
@@ -4864,19 +5184,21 @@ turn it off to continue!</p>
                 const { counts } = getDynamicBreakdown();
 
                 let subtotalRs = 0;
-                let totalPacks = 0;
-                let anySoldOut = false;
+                let neomacroPacksTotal = 0;
+                let shippingRsTotal = 0;
+                let hasAnyCostSelected = false;
 
-                if (activeLinkEntries.length === 0 && extraWatchedHandles.length === 0) {
+                if (activeLinkEntries.length === 0 && activeSyosEntries.length === 0 && extraWatchedHandles.length === 0) {
                     neomacroActiveWrap.classList.add('hidden');
                     neomacroTotalCostBadge.textContent = 'est. total: ₹ 0';
-                    neomacroShippingNote.textContent = '+ ₹ 100 shipping apx';
+                    neomacroShippingNote.textContent = 'no shipping charged yet';
                     return;
                 }
 
                 neomacroActiveWrap.classList.remove('hidden');
                 neomacroLinkedGrid.innerHTML = '';
 
+                // 1. neomacro catalog linked brush switches (adds ₹ 100 shipping ONLY when catalog packs > 0)
                 activeLinkEntries.forEach(([bId, link]) => {
                     const brush = getBrushById(bId);
                     if (!brush) return;
@@ -4891,12 +5213,17 @@ turn it off to continue!</p>
                     const packsNeeded = keyCount > 0 ? Math.ceil(keyCount / 10) : 0;
                     const lineCost = packsNeeded * unitPackPrice;
                     subtotalRs += lineCost;
-                    totalPacks += packsNeeded;
-
-                    if (!liveItem.available) anySoldOut = true;
+                    neomacroPacksTotal += packsNeeded;
+                    if (packsNeeded > 0) hasAnyCostSelected = true;
 
                     const card = document.createElement('div');
                     card.className = 'p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col justify-between gap-2';
+
+                    const stockChipHtml = neomacroLiveStockAvailable
+                        ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${liveItem.available
+                            ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                            : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">${liveItem.available ? 'in stock' : 'sold out'}</span>`
+                        : '';
 
                     const top = document.createElement('div');
                     top.className = 'flex items-start justify-between gap-2';
@@ -4911,11 +5238,7 @@ turn it off to continue!</p>
                                 ${liveItem.title} ↗
                             </a>
                         </div>
-                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${liveItem.available
-                            ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
-                            : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">
-                            ${liveItem.available ? 'in stock' : 'sold out'}
-                        </span>
+                        ${stockChipHtml}
                     `;
 
                     const bottom = document.createElement('div');
@@ -4940,10 +5263,88 @@ turn it off to continue!</p>
                     neomacroLinkedGrid.appendChild(card);
                 });
 
+                if (neomacroPacksTotal > 0) {
+                    shippingRsTotal += NEOMACRO_SHIPPING_RS;
+                }
+
+                // 2. "source your own switch" (syos) custom per-key cost & shipping
+                activeSyosEntries.forEach(([bId, syos]) => {
+                    const brush = getBrushById(bId);
+                    if (!brush) return;
+
+                    const keyCount = Number(counts.get(bId)) || 0;
+                    const perKeyCost = Math.max(0, Number(syos.perKeyCost) || 0);
+                    const syosShip = Math.max(0, Number(syos.shipping) || 0);
+                    const switchCost = keyCount * perKeyCost;
+                    const activeShip = keyCount > 0 ? syosShip : 0;
+
+                    subtotalRs += switchCost;
+                    shippingRsTotal += activeShip;
+                    if (keyCount > 0 && (perKeyCost > 0 || syosShip > 0)) {
+                        hasAnyCostSelected = true;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-xl bg-zinc-950 border border-sky-500/35 flex flex-col justify-between gap-2';
+
+                    const top = document.createElement('div');
+                    top.className = 'flex items-start justify-between gap-2';
+                    top.innerHTML = `
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-sm shrink-0" style="background-color: ${brush.color}"></span>
+                                <span class="text-[11px] font-mono font-bold" style="color: ${brush.color}">${brush.name}</span>
+                            </div>
+                            <div class="text-xs font-mono font-semibold text-zinc-100 truncate mt-0.5">
+                                ${syos.name || 'source your own switch'}
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 bg-sky-500/15 border border-sky-500/35 text-sky-300">
+                            custom syos
+                        </span>
+                    `;
+
+                    const bottom = document.createElement('div');
+                    bottom.className = 'flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono';
+                    bottom.innerHTML = `
+                        <span class="text-zinc-400">${keyCount} x ₹ ${perKeyCost} + ₹ ${activeShip} ship</span>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="font-bold text-emerald-300">₹ ${(switchCost + activeShip).toLocaleString()}</span>
+                            <button type="button" data-remove-syos="${bId}"
+                                class="px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/40 text-[10px] font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors">
+                                unlink
+                            </button>
+                        </div>
+                    `;
+                    const remSyosBtn = bottom.querySelector('[data-remove-syos]');
+                    if (remSyosBtn) {
+                        remSyosBtn.addEventListener('click', () => {
+                            delete appConfig.customSwitchSources[bId];
+                            syncEmbeddedStateTag();
+                            renderNeomacroSummaryBar();
+                        });
+                    }
+
+                    card.appendChild(top);
+                    card.appendChild(bottom);
+                    neomacroLinkedGrid.appendChild(card);
+                });
+
+                // 3. watched-only switches (online-only live lookup)
                 extraWatchedHandles.forEach((handle) => {
-                    const item = neomacroCatalog.find((x) => x.handle === handle);
-                    if (!item) return;
-                    if (!item.available) anySoldOut = true;
+                    const item = neomacroCatalog.find((x) => x.handle === handle) || {
+                        handle,
+                        title: handle.replace(/-/g, ' '),
+                        price: 0,
+                        available: false,
+                        url: `https://neomacro.in/products/${handle}`
+                    };
+
+                    const stockChipHtml = neomacroLiveStockAvailable
+                        ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${item.available
+                            ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                            : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">${item.available ? 'in stock' : 'sold out'}</span>`
+                        : '';
 
                     const card = document.createElement('div');
                     card.className = 'p-3 rounded-xl bg-zinc-950 border border-amber-500/30 flex flex-col justify-between gap-2';
@@ -4956,11 +5357,7 @@ turn it off to continue!</p>
                                     ${item.title} ↗
                                 </a>
                             </div>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${item.available
-                                ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
-                                : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">
-                                ${item.available ? 'in stock' : 'sold out'}
-                            </span>
+                            ${stockChipHtml}
                         </div>
                         <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono">
                             <span class="text-zinc-400">₹ ${item.price} / 10 switches</span>
@@ -4977,20 +5374,31 @@ turn it off to continue!</p>
                     neomacroLinkedGrid.appendChild(card);
                 });
 
-                if (totalPacks > 0) {
-                    const grandTotal = subtotalRs + NEOMACRO_SHIPPING_RS;
+                if (hasAnyCostSelected || subtotalRs > 0 || shippingRsTotal > 0) {
+                    const discPct = Math.max(0, Math.min(90, Number(appConfig.couponDiscountPct) || 0));
+                    const discAmount = discPct > 0 ? Math.round((subtotalRs * discPct) / 100) : 0;
+                    const discountedSubtotal = Math.max(0, subtotalRs - discAmount);
+                    const grandTotal = discountedSubtotal + shippingRsTotal;
                     neomacroTotalCostBadge.textContent = `est. total: ₹ ${grandTotal.toLocaleString()}`;
-                    neomacroShippingNote.textContent = `₹ ${subtotalRs.toLocaleString()} + ₹ ${NEOMACRO_SHIPPING_RS} shipping apx`;
+                    if (discPct > 0 && appConfig.couponCode) {
+                        neomacroShippingNote.textContent = `(₹ ${subtotalRs.toLocaleString()} - ${discPct}% ${appConfig.couponCode}) + ₹ ${shippingRsTotal.toLocaleString()} ship`;
+                    } else if (shippingRsTotal > 0) {
+                        neomacroShippingNote.textContent = `₹ ${subtotalRs.toLocaleString()} + ₹ ${shippingRsTotal.toLocaleString()} shipping`;
+                    } else {
+                        neomacroShippingNote.textContent = 'no shipping charged yet';
+                    }
                 } else {
                     neomacroTotalCostBadge.textContent = 'est. total: ₹ 0';
-                    neomacroShippingNote.textContent = '+ ₹ 100 shipping apx';
+                    neomacroShippingNote.textContent = 'no shipping charged yet';
                 }
-
             }
 
             function hasLinkedNeomacroSwitches() {
                 const links = appConfig.brushSwitchLinks || {};
-                return Object.entries(links).some(([bId, l]) => Boolean(getBrushById(bId) && l && l.handle));
+                const syosMap = appConfig.customSwitchSources || {};
+                const hasLink = Object.entries(links).some(([bId, l]) => Boolean(getBrushById(bId) && l && l.handle));
+                const hasSyos = Object.entries(syosMap).some(([bId, s]) => Boolean(getBrushById(bId) && s));
+                return hasLink || hasSyos;
             }
 
             function syncNeomacroAutoOpen() {
@@ -5011,14 +5419,134 @@ turn it off to continue!</p>
                 toggleNeomacroCollapseBtn.blur();
             }
 
+            async function checkCouponDiscountWithWebsite(code) {
+                const cleanCode = (code || '').trim().toLowerCase();
+                if (!cleanCode) return null;
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                try {
+                    const resp = await fetch('https://neomacro.in/', {
+                        cache: 'no-store',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    if (!resp.ok) {
+                        return { pct: 10, source: 'fallback (website status)' };
+                    }
+                    const pageHtml = (await resp.text()).toLowerCase();
+                    const pctMatch = pageHtml.match(/(\d{1,2})\s*%\s*off/);
+                    if (pctMatch && pctMatch[1]) {
+                        const parsedPct = parseInt(pctMatch[1], 10);
+                        if (parsedPct > 0 && parsedPct <= 80) {
+                            return { pct: parsedPct, source: 'neomacro.in' };
+                        }
+                    }
+                    return { pct: 10, source: 'neomacro.in (default 10%)' };
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    if (err && err.name === 'AbortError') {
+                        return { pct: 10, source: 'timeout >10s (default 10% off)' };
+                    }
+                    return { pct: 10, source: 'fallback (default 10% off)' };
+                }
+            }
+
+            gotCouponBtn.addEventListener('click', () => {
+                couponDrawer.classList.toggle('hidden');
+                if (!couponDrawer.classList.contains('hidden')) {
+                    if (appConfig.couponCode) {
+                        couponCodeInput.value = appConfig.couponCode;
+                    }
+                    couponCodeInput.focus();
+                }
+                gotCouponBtn.blur();
+            });
+
+            applyCouponBtn.addEventListener('click', async () => {
+                const code = (couponCodeInput.value || '').trim().toLowerCase();
+                if (!code) {
+                    couponStatusText.textContent = 'enter a coupon code first';
+                    return;
+                }
+                applyCouponBtn.disabled = true;
+                applyCouponBtn.textContent = 'checking...';
+                couponStatusText.textContent = 'checking coupon with neomacro.in (up to 10s)...';
+
+                const result = await checkCouponDiscountWithWebsite(code);
+                applyCouponBtn.disabled = false;
+                applyCouponBtn.textContent = 'check & apply';
+
+                if (result) {
+                    appConfig.couponCode = code;
+                    appConfig.couponDiscountPct = result.pct;
+                    syncEmbeddedStateTag();
+                    renderNeomacroSummaryBar();
+                    couponStatusText.textContent = `applied ${code}: ${result.pct}% off via ${result.source}`;
+                }
+            });
+
+            removeCouponBtn.addEventListener('click', () => {
+                appConfig.couponCode = '';
+                appConfig.couponDiscountPct = 0;
+                couponCodeInput.value = '';
+                syncEmbeddedStateTag();
+                renderNeomacroSummaryBar();
+                couponStatusText.textContent = 'coupon removed';
+            });
+
+            couponCodeInput.addEventListener('keydown', (ev) => {
+                ev.stopPropagation();
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    applyCouponBtn.click();
+                }
+            });
+
             toggleNeomacroCollapseBtn.addEventListener('click', () => toggleNeomacroSection());
+
+            // dedicated watchlist button right left of open/close section button
+            headerWatchlistBtn.addEventListener('click', () => {
+                headerWatchlistBtn.blur();
+                toggleNeomacroSection(true);
+                neomacroSortSelect.value = 'watchlist';
+                renderNeomacroCatalogList();
+                neomacroSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+
+            toggleSyosCollapseBtn.addEventListener('click', () => {
+                const willOpen = syosBody.classList.contains('hidden');
+                syosBody.classList.toggle('hidden', !willOpen);
+                toggleSyosCollapseBtn.textContent = willOpen ? 'close syos' : 'open syos';
+                toggleSyosCollapseBtn.blur();
+            });
+            syosBrushSelect.addEventListener('change', () => loadSyosFormForBrush(syosBrushSelect.value));
+            syosBrushSelect.addEventListener('keydown', (ev) => {
+                ev.stopPropagation();
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    saveSyosForSelectedBrush();
+                }
+            });
+            [syosSwitchNameInput, syosPerKeyCostInput, syosShippingInput].forEach((inp) => {
+                inp.addEventListener('input', updateSyosPreviewLine);
+                inp.addEventListener('keydown', (ev) => {
+                    ev.stopPropagation();
+                    if (ev.key === 'Enter') {
+                        ev.preventDefault();
+                        saveSyosForSelectedBrush();
+                    }
+                });
+            });
+            saveSyosBtn.addEventListener('click', saveSyosForSelectedBrush);
+            clearSyosBtn.addEventListener('click', clearSyosForSelectedBrush);
 
             refreshNeomacroBtn.addEventListener('click', () => fetchLiveNeomacroCatalog(true));
             neomacroSearchInput.addEventListener('input', renderNeomacroCatalogList);
             neomacroTypeFilter.addEventListener('change', renderNeomacroCatalogList);
             neomacroSortSelect.addEventListener('change', renderNeomacroCatalogList);
             neomacroInStockOnlyCheckbox.addEventListener('change', renderNeomacroCatalogList);
-            neomacroWatchlistOnlyCheckbox.addEventListener('change', renderNeomacroCatalogList);
 
             loadFromEmbeddedFileState();
             updateFocusIndicator(document.hasFocus());
