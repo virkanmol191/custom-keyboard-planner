@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>switch planner and tester</title>
-    <!-- load tailwind css -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- load inter and jetbrains mono fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -22,81 +22,138 @@
                 }
             }
         }
-    </script>
+</script>
     <style>
-        body, input, textarea, select, button {
-            text-transform: lowercase;
+        body, input, textarea, select, button { text-transform: lowercase; }
+        body {
+            background-color: #0a0a0c;
+            transition: background-color 250ms ease, color 250ms ease;
         }
-        /* smooth tactile keycap depression and glow transitions */
+        html:not(.dark) body {
+            background-color: #f2f2f7;
+            color: #1c1c1e;
+        }
         .keycap {
-            transition: transform 60ms cubic-bezier(0.2, 0, 0, 1),
-                        background-color 120ms ease,
-                        border-color 120ms ease,
-                        box-shadow 120ms ease,
-                        color 120ms ease;
-            user-select: none;
-            -webkit-user-select: none;
+            position: relative;
+            transition: transform 50ms cubic-bezier(0.2,0.85,0.25,1), background-color 130ms ease, border-color 130ms ease, box-shadow 130ms ease, color 130ms ease, filter 130ms ease;
+            user-select: none; -webkit-user-select: none;
+            box-shadow: 0 3px 0 0 rgba(0,0,0,0.45), 0 6px 12px -2px rgba(0,0,0,0.35);
+            border-bottom-width: 2px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
+        .keycap::after {
+            content: ''; position: absolute; inset: 1px; border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 42%);
+            pointer-events: none; opacity: 0.7; transition: opacity 120ms ease;
+        }
+        html:not(.dark) .keycap::after {
+            background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, transparent 50%);
+            opacity: 0.9;
+        }
+        .keycap:hover:not(.is-pressed) { filter: brightness(1.1); transform: translateY(-1.5px); }
         .keycap.is-pressed {
-            transform: translateY(3px) scale(0.97);
+            transform: translateY(3px) scale(0.965);
+            box-shadow: 0 1px 0 0 rgba(0,0,0,0.4), 0 2px 5px -1px rgba(0,0,0,0.3);
         }
-        .keycap.selected-for-edit {
-            outline: 2px solid #38bdf8;
-            outline-offset: 2px;
-            z-index: 20;
+        .keycap.is-pressed::after { opacity: 0.2; }
+        .keycap.selected-for-edit, .kbd-spacer.selected-for-edit {
+            outline: 2px solid #38bdf8; outline-offset: 3px; z-index: 20;
+            box-shadow: 0 0 0 5px rgba(56,189,248,0.2), 0 3px 0 0 rgba(0,0,0,0.4);
         }
         .keycap.swap-source {
-            outline: 2px dashed #f43f5e;
-            outline-offset: 2px;
-            z-index: 20;
+            outline: 2px dashed #f43f5e; outline-offset: 3px; z-index: 20;
+            box-shadow: 0 0 0 5px rgba(244,63,94,0.18), 0 3px 0 0 rgba(0,0,0,0.4);
         }
-        /* custom subtle scrollbar for compact screens */
-        .kbd-scroll::-webkit-scrollbar {
-            height: 6px;
-            width: 6px;
+        .theme-card, .glass {
+            background: rgba(24, 24, 27, 0.55) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            backdrop-filter: blur(24px) saturate(1.4);
+            -webkit-backdrop-filter: blur(24px) saturate(1.4);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+            transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
         }
-        .kbd-scroll::-webkit-scrollbar-track {
-            background: transparent;
+        html:not(.dark) .theme-card, html:not(.dark) .glass {
+            background: rgba(255,255,255,0.62) !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
         }
-        .kbd-scroll::-webkit-scrollbar-thumb {
-            background: rgba(113, 113, 122, 0.35);
-            border-radius: 9999px;
+        .glass-btn {
+            background: rgba(39, 39, 42, 0.55);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px) saturate(1.3);
+            -webkit-backdrop-filter: blur(16px) saturate(1.3);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+            transition: all 160ms cubic-bezier(0.2,0.85,0.25,1);
         }
-        input[type="color"] {
-            -webkit-appearance: none;
-            border: none;
-            padding: 0;
+        html:not(.dark) .glass-btn {
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.05);
+            color: #3f3f46;
         }
-        input[type="color"]::-webkit-color-swatch-wrapper {
-            padding: 0;
+        .glass-btn:hover { background: rgba(63,63,70,0.7); border-color: rgba(255,255,255,0.16); }
+        html:not(.dark) .glass-btn:hover { background: rgba(255,255,255,0.9); border-color: rgba(0,0,0,0.14); }
+        .glass-btn:active { transform: scale(0.97); }
+        .kbd-scroll::-webkit-scrollbar { height: 5px; width: 5px; }
+        .kbd-scroll::-webkit-scrollbar-track { background: transparent; }
+        .kbd-scroll::-webkit-scrollbar-thumb { background: rgba(113,113,122,0.4); border-radius: 9999px; }
+        .kbd-scroll::-webkit-scrollbar-thumb:hover { background: rgba(161,161,170,0.55); }
+        input[type="color"] { -webkit-appearance: none; border: none; padding: 0; cursor: pointer; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+        @keyframes soft-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.88)} }
+        .animate-soft-pulse { animation: soft-pulse 2.4s ease-in-out infinite; }
+        #brushToggleGroup button { transition: all 150ms cubic-bezier(0.2,0.85,0.25,1); }
+        .ui-btn { transition: all 160ms cubic-bezier(0.2,0.85,0.25,1); }
+        .ui-btn:active { transform: scale(0.96); }
+        #keyboardChassis {
+            background: rgba(9,9,11,0.75) !important;
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: inset 0 2px 16px rgba(0,0,0,0.4);
         }
-        input[type="color"]::-webkit-color-swatch {
-            border: none;
-            border-radius: 6px;
+        html:not(.dark) #keyboardChassis {
+            background: rgba(255,255,255,0.55) !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            box-shadow: inset 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .modal-glass {
+            background: rgba(24,24,27,0.82) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            backdrop-filter: blur(40px) saturate(1.5);
+            -webkit-backdrop-filter: blur(40px) saturate(1.5);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        html:not(.dark) .modal-glass {
+            background: rgba(255,255,255,0.85) !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,1);
         }
     </style>
 </head>
-<body tabindex="0" class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between antialiased selection:bg-purple-500 selection:text-white lowercase outline-none">
+<body tabindex="0" class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between antialiased selection:bg-sky-500/80 selection:text-white lowercase outline-none">
 
-    <!-- top header -->
-    <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-5 pb-2 flex flex-wrap items-center justify-between gap-3">
+    
+    <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-3 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2.5">
-                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
+            <div class="flex items-center gap-3">
+                <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.65)]"></div>
                 <div>
-                    <h1 id="workspaceTitleEl" class="text-sm font-semibold tracking-wider text-zinc-200">switch planner and tester</h1>
-                    <p id="workspaceSubtitleEl" class="text-[11px] text-zinc-500 font-mono">switch studio by xnmoll</p>
+                    <h1 id="workspaceTitleEl" class="text-sm font-bold tracking-wide text-zinc-100">switch planner and tester</h1>
+                    <p id="workspaceSubtitleEl" class="text-[11px] text-zinc-500 font-mono tracking-tight">switch studio by xnmoll</p>
                 </div>
             </div>
             <button id="focusBadge" type="button"
-                class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 transition-colors cursor-pointer">
+                class="text-[11px] font-mono px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 transition-all duration-200 cursor-pointer hover:bg-rose-500/20">
                 locked: ignoring input
             </button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-            <!-- quick layout preset selector -->
-            <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-xl px-2.5 py-1.5">
+        <div class="flex flex-wrap items-center justify-end gap-2 ml-auto max-w-full">
+            
+            <div class="flex items-center gap-1.5 glass-btn rounded-xl px-3 py-1.5">
                 <span class="text-[11px] font-mono text-zinc-500">layout:</span>
                 <select id="quickLayoutSelect" aria-label="select keyboard layout"
                     class="bg-transparent text-xs font-mono font-semibold text-zinc-200 focus:outline-none cursor-pointer">
@@ -108,55 +165,54 @@
                 </select>
             </div>
 
-            <!-- on-board per-key layout editor toggle -->
+            
             <button id="editLayoutBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none">
+                class="ui-btn glass-btn px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-zinc-300 hover:text-sky-300 focus:outline-none">
                 edit layout: off
             </button>
 
-            <!-- settings modal button -->
+            
             <button id="openSettingsBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-purple-600/20 border border-purple-500/40 text-xs font-mono font-semibold text-purple-300 hover:bg-purple-600/30 hover:border-purple-400 active:scale-95 transition-all focus:outline-none">
+                class="ui-btn glass-btn px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-sky-300 border-sky-500/40 focus:outline-none">
                 brushes & settings
             </button>
 
-            <!-- save self-contained html file button -->
+            
             <button id="saveFileBtn" type="button" title="save all edits directly inside a standalone html file"
-                class="px-3.5 py-2 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-xs font-mono font-semibold text-emerald-300 hover:bg-emerald-600/30 hover:border-emerald-400 active:scale-95 transition-all focus:outline-none">
+                class="ui-btn glass-btn px-3.5 py-2 rounded-xl text-xs font-mono font-semibold text-emerald-300 border-emerald-500/40 focus:outline-none">
                 save file
             </button>
 
-            <!-- paste switch list button -->
+            
             <button id="pasteListBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30 active:scale-95 transition-all focus:outline-none">
+                class="ui-btn glass-btn px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-zinc-300 hover:text-sky-300 focus:outline-none">
                 paste list
             </button>
 
-            <!-- copy switch list button -->
+            
             <button id="copyListBtn" type="button"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 active:scale-95 transition-all focus:outline-none">
+                class="ui-btn px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-zinc-800/90 text-xs font-mono font-medium text-zinc-300 hover:bg-emerald-500/15 hover:text-emerald-300 hover:border-emerald-500/40 focus:outline-none">
                 copy list
             </button>
 
-            <!-- download switch list as .txt file button -->
+            
             <button id="downloadTxtListBtn" type="button" title="download the switch list text as a .txt file"
-                class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-300 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none">
+                class="ui-btn glass-btn px-3.5 py-2 rounded-xl text-xs font-mono font-medium text-zinc-300 hover:text-sky-300 focus:outline-none">
                 export .txt
             </button>
 
-            <!-- right-aligned icon group in exact order: help -> theme -> fullscreen -->
-            <div class="flex items-center gap-1.5 pl-0.5">
-                <!-- 1. help / setup guide icon -->
+            <div class="flex items-center gap-1.5 ml-2 border-l border-zinc-700/60 pl-3 shrink-0">
+                
                 <button id="reopenWizardBtn" type="button" aria-label="help and setup guide" title="help & setup guide"
-                    class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-purple-300 hover:border-purple-500/40 transition-colors focus:outline-none">
+                    class="ui-btn glass-btn p-2 rounded-xl text-zinc-400 hover:text-sky-300 focus:outline-none shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </button>
 
-                <!-- 2. theme toggle icon -->
+                
                 <button id="themeToggle" type="button" aria-label="toggle color theme" title="toggle dark/light theme"
-                    class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors focus:outline-none">
+                    class="ui-btn glass-btn p-2 rounded-xl text-zinc-400 hover:text-zinc-100 focus:outline-none shrink-0">
                     <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
@@ -165,9 +221,9 @@
                     </svg>
                 </button>
 
-                <!-- 3. fullscreen icon -->
+                
                 <button id="fullscreenBtn" type="button" aria-label="toggle fullscreen" title="toggle fullscreen"
-                    class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors focus:outline-none">
+                    class="ui-btn glass-btn p-2 rounded-xl text-zinc-400 hover:text-zinc-100 focus:outline-none shrink-0">
                     <svg id="expandIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"></path>
                     </svg>
@@ -179,39 +235,39 @@
         </div>
     </header>
 
-    <!-- inline collapsible paste switch list drawer -->
+    
     <div id="pasteDrawer" class="hidden w-full max-w-6xl mx-auto px-4 sm:px-6 pt-2">
-        <div class="theme-card rounded-2xl bg-zinc-900/95 border border-purple-500/40 p-4 shadow-2xl">
+        <div class="theme-card rounded-2xl bg-zinc-900/95 border border-blue-500/40 p-4 shadow-2xl">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div>
-                    <h2 class="text-xs font-mono font-semibold text-purple-400">paste exported switch list</h2>
+                    <h2 class="text-xs font-mono font-semibold text-blue-400">paste exported switch list</h2>
                     <p class="text-[11px] text-zinc-400">automatically detects brushes (even new ones like "silent"), restores brush colors, and checks layout or missing keys</p>
                 </div>
                 <span id="pasteFeedback" class="text-[11px] font-mono text-zinc-400">waiting for text</span>
             </div>
             <textarea id="pasteTextarea" rows="5"
-                placeholder="paste copied switch plan here (e.g. layout: 75_std ... tactile [#a855f7]: ... linear [#eab308]: ... silent [#06b6d4]: ...)"
-                class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
+                placeholder="paste copied switch plan here (e.g. layout: 75_std ... tactile [#3b82f6]: ... linear [#eab308]: ... silent [#06b6d4]: ...)"
+                class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
             <div class="flex flex-wrap items-center justify-end gap-2 mt-2.5">
                 <button id="cancelPasteBtn" type="button"
                     class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 transition-colors">
                     close
                 </button>
                 <button id="applyPasteBtn" type="button"
-                    class="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                    class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-mono font-semibold text-white transition-colors">
                     apply switch list
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- inline per-key layout editor inspector bar (visible when edit layout mode is active) -->
+    
     <div id="layoutEditorBar" class="hidden w-full max-w-6xl mx-auto px-4 sm:px-6 pt-2">
         <div class="theme-card rounded-2xl bg-sky-950/30 border border-sky-500/40 p-4 shadow-2xl">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
-                    <h2 class="text-xs font-mono font-bold text-sky-300">per-key layout editor active: click any keycap below to customize or swap it</h2>
+                    <h2 class="text-xs font-mono font-bold text-sky-300">per-key & spacer layout editor active: click any keycap or spacer below to customize</h2>
                 </div>
                 <div class="flex items-center gap-2">
                     <button id="resetLayoutDefaultBtn" type="button"
@@ -225,14 +281,14 @@
                 </div>
             </div>
 
-            <!-- selected key controls -->
+            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 items-end">
-                <div>
+                <div id="editKeyLabelWrap">
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">keycap label (shown on key)</label>
                     <input id="editKeyLabelInput" type="text" placeholder="e.g. del, home, fn"
                         class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
                 </div>
-                <div>
+                <div id="editKeyCodeWrap">
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">physical key code</label>
                     <div class="flex gap-1">
                         <input id="editKeyCodeInput" type="text" placeholder="e.g. delete, home"
@@ -244,21 +300,26 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-mono text-zinc-400 mb-1">key width (u)</label>
+                    <label id="editWidthLabel" class="block text-[10px] font-mono text-zinc-400 mb-1">width (u)</label>
                     <select id="editKeyWidthSelect"
                         class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
-                        <option value="1">1u (standard)</option>
+                        <option value="0.25">0.25u (micro gap)</option>
+                        <option value="0.5">0.5u (half blocker)</option>
+                        <option value="0.75">0.75u</option>
+                        <option value="1" selected>1u (standard)</option>
                         <option value="1.25">1.25u (modifier)</option>
                         <option value="1.5">1.5u (tab / backslash)</option>
                         <option value="1.75">1.75u (caps / r-shift)</option>
                         <option value="2">2u (backspace / num 0)</option>
                         <option value="2.25">2.25u (enter / l-shift)</option>
                         <option value="2.75">2.75u (full r-shift)</option>
+                        <option value="3">3u (split bar)</option>
+                        <option value="4">4u (numpad spacer)</option>
                         <option value="6.25">6.25u (spacebar)</option>
                         <option value="7">7u (tsangan spacebar)</option>
                     </select>
                 </div>
-                <div>
+                <div id="editKeyGapWrap">
                     <label class="block text-[10px] font-mono text-zinc-400 mb-1">left blocker gap (u)</label>
                     <select id="editKeyGapSelect"
                         class="w-full rounded-lg bg-zinc-950 border border-zinc-800 px-2.5 py-1.5 font-mono text-xs text-zinc-100 focus:outline-none focus:border-sky-400">
@@ -271,93 +332,177 @@
                 <div class="lg:col-span-2 flex flex-wrap items-center gap-1.5">
                     <button id="applyKeyEditBtn" type="button"
                         class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-mono font-semibold text-white transition-colors">
-                        save key
+                        save
                     </button>
                     <button id="swapKeyModeBtn" type="button"
-                        class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-amber-300 hover:bg-zinc-700 transition-colors">
-                        swap with next clicked key
+                        class="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-amber-300 hover:bg-zinc-700 transition-colors">
+                        swap
                     </button>
                     <button id="insertKeyAfterBtn" type="button"
                         class="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700 transition-colors">
-                        + add key after
+                        + key
+                    </button>
+                    <button id="insertSpacerAfterBtn" type="button" title="insert an empty spacer block after selected item"
+                        class="px-2.5 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/40 text-xs font-mono text-indigo-300 hover:bg-indigo-500/30 transition-colors">
+                        + spacer
                     </button>
                     <button id="deleteSelectedKeyBtn" type="button"
                         class="px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-xs font-mono text-rose-300 hover:bg-rose-500/25 transition-colors">
-                        remove key
+                        remove
                     </button>
                 </div>
             </div>
             <p id="editInspectorStatus" class="text-[11px] font-mono text-sky-300/80 mt-2">
-                selected key: none (click any keycap on the keyboard below to inspect, rename, resize, swap, or delete it)
+                selected item: none (click any keycap or spacer on the keyboard below to inspect, resize, add spacers, swap, or remove)
             </p>
         </div>
     </div>
 
-    <!-- main dashboard container -->
+    
     <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 flex-1 flex flex-col justify-center gap-5">
         
-        <!-- dynamic switch planner stat cards grid -->
+        
         <section id="statCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"></section>
 
-        <!-- interactive visual mechanical keyboard card -->
-        <section id="keyboardCard" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-4 sm:p-6 shadow-xl transition-colors">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
+        
+        <section id="neomacroSection" class="theme-card rounded-2xl bg-zinc-900/65 border border-cyan-500/30 p-5 sm:p-6 transition-colors">
+            
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                 <div>
-                    <h2 id="kbdTitle" class="text-sm font-semibold text-zinc-100">live mechanical keyboard layout</h2>
-                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-0.5">keyboard locked: all physical keypresses and keycap clicks are blocked (click "lock keyboard: on" to resume)</p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                        <h2 class="text-sm font-bold text-cyan-300 font-mono">switch provider & stock watchlist</h2>
+                        <a href="https://neomacro.in/collections/switches" target="_blank" rel="noopener noreferrer"
+                            class="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-cyan-300 hover:border-cyan-500/40">
+                            visit store ↗
+                        </a>
+                    </div>
+                    <p id="neomacroFeedStatus" class="text-xs text-zinc-400 font-mono mt-1">
+                        neomacro.in switch catalog
+                    </p>
                 </div>
 
-                <!-- brush selector + lock keyboard + clear marks bar -->
                 <div class="flex flex-wrap items-center gap-2">
-                    <div id="brushToggleGroup" role="group" aria-label="active keypress colour toggle"
-                        class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-zinc-950/90 border border-zinc-800"></div>
+                    
+                    <div class="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-right">
+                        <div id="neomacroTotalCostBadge" class="text-xs font-mono font-bold text-emerald-300">est. total: ₹ 0</div>
+                        <div id="neomacroShippingNote" class="text-[10px] font-mono text-zinc-400">+ ₹ 100 shipping apx</div>
+                    </div>
 
-                    <div class="flex items-center gap-1.5 p-1.5 rounded-xl bg-zinc-950/90 border border-zinc-800">
-                        <!-- lock keyboard button placed right next to brush selector -->
+                    <button id="refreshNeomacroBtn" type="button"
+                        class="px-3.5 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-xs font-mono font-semibold text-cyan-300 hover:bg-cyan-500/30 active:scale-95 transition-all focus:outline-none">
+                        refresh stock
+                    </button>
+
+                    <button id="toggleNeomacroCollapseBtn" type="button"
+                        class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-mono font-semibold text-zinc-200 hover:bg-zinc-800 active:scale-95 transition-all focus:outline-none">
+                        open section
+                    </button>
+                </div>
+            </div>
+
+            
+            <div id="neomacroBody" class="hidden pt-4 mt-4 border-t border-zinc-800">
+                
+                <div id="neomacroActiveWrap" class="hidden pb-4 mb-3 border-b border-zinc-800/80">
+                    <div class="text-[11px] font-mono text-zinc-400 mb-2">linked brush switches & watched items:</div>
+                    <div id="neomacroLinkedGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+                </div>
+
+                
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pb-4">
+                    <div class="sm:col-span-4">
+                        <input id="neomacroSearchInput" type="text" placeholder="search neomacro switches..."
+                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 lowercase">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <select id="neomacroTypeFilter" aria-label="filter by switch type"
+                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyan-500">
+                            <option value="all">all switch types</option>
+                            <option value="linear">linear</option>
+                            <option value="tactile">tactile</option>
+                            <option value="silent">silent</option>
+                            <option value="hall effect">hall effect (magnetic)</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <select id="neomacroSortSelect" aria-label="sort switches"
+                            class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyan-500">
+                            <option value="popularity">sort: popularity</option>
+                            <option value="price_asc">price: low to high</option>
+                            <option value="price_desc">price: high to low</option>
+                            <option value="stock">in stock first</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-3 flex items-center justify-between sm:justify-end gap-3 px-1">
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-xs font-mono text-zinc-300">
+                            <input id="neomacroInStockOnlyCheckbox" type="checkbox"
+                                class="w-3.5 h-3.5 rounded accent-cyan-500 cursor-pointer">
+                            <span>in stock</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-xs font-mono text-amber-300">
+                            <input id="neomacroWatchlistOnlyCheckbox" type="checkbox"
+                                class="w-3.5 h-3.5 rounded accent-amber-500 cursor-pointer">
+                            <span>watchlist (<span id="neomacroWatchCountSpan">0</span>)</span>
+                        </label>
+                    </div>
+                </div>
+
+                
+                <div id="neomacroCatalogList" class="max-h-96 overflow-y-auto kbd-scroll space-y-2.5 pr-1"></div>
+            </div>
+        </section>
+
+        
+        <section id="keyboardCard" class="theme-card rounded-2xl bg-zinc-900/65 border border-zinc-800/70 p-4 sm:p-6 transition-colors">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
+                <div class="min-w-0">
+                    <h2 id="kbdTitle" class="text-sm font-semibold tracking-wide text-zinc-100">live mechanical keyboard layout</h2>
+                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-1 leading-relaxed whitespace-pre-line">keyboard locked: all physical keypresses are blocked.
+turn it off to continue!</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 justify-end ml-auto shrink-0">
+                    <div id="brushToggleGroup" role="group" aria-label="active keypress colour toggle"
+                        class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl glass-btn shadow-inner"></div>
+                    <div class="flex items-center gap-1.5 p-1.5 rounded-xl glass-btn shadow-inner">
                         <button id="lockBtn" type="button" title="freeze keyboard and keycap input so accidental presses do not alter marks"
-                            class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 transition-all focus:outline-none">
+                            class="ui-btn px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 focus:outline-none">
                             lock keyboard: on
                         </button>
-
-                        <!-- clear marks button placed right next to brush selector (opens confirmation popup) -->
                         <button id="resetBtn" type="button" title="clear all switch marks on the board"
-                            class="px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:bg-rose-500/15 hover:text-rose-300 hover:border-rose-500/40 active:scale-95 transition-all focus:outline-none">
+                            class="ui-btn px-3 py-1.5 rounded-lg bg-zinc-900/90 border border-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:bg-rose-500/15 hover:text-rose-300 hover:border-rose-500/40 focus:outline-none">
                             clear marks
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- responsive keyboard chassis -->
             <div class="w-full overflow-x-auto kbd-scroll pb-1">
-                <div id="keyboardChassis" class="min-w-[760px] w-full rounded-xl bg-zinc-950/90 border border-zinc-800 p-3 sm:p-3.5 shadow-inner">
+                <div id="keyboardChassis" class="min-w-[760px] w-full rounded-xl bg-zinc-950/95 border border-zinc-800/90 p-3.5 sm:p-4 shadow-[inset_0_2px_14px_rgba(0,0,0,0.45)]">
                     <div id="kbdMainBlock" class="flex flex-col gap-1.5"></div>
                 </div>
             </div>
         </section>
 
-        <!-- dynamic switch breakdown diagram card -->
-        <section id="chartCard" class="theme-card rounded-2xl bg-zinc-900/80 border border-zinc-800/90 p-5 sm:p-6 shadow-xl transition-colors">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        
+        <section id="chartCard" class="theme-card rounded-2xl bg-zinc-900/65 border border-zinc-800/70 p-5 sm:p-6 transition-colors">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
                 <div>
-                    <h2 id="chartTitle" class="text-sm font-semibold text-zinc-100">switch allocation diagram</h2>
-                    <p id="chartSubtitle" class="text-xs text-zinc-400 mt-0.5">live breakdown of your switch replacement plan across the active layout</p>
+                    <h2 id="chartTitle" class="text-sm font-semibold tracking-wide text-zinc-100">switch allocation diagram</h2>
+                    <p id="chartSubtitle" class="text-xs text-zinc-400 mt-1">live breakdown of your switch speadout plan across the active layout</p>
                 </div>
-                <span id="chartSummary" class="text-xs font-mono text-purple-300 bg-purple-950/50 border border-purple-500/30 px-3 py-1 rounded-lg self-start sm:self-auto">
+                <span id="chartSummary" class="text-xs font-mono text-sky-300 bg-sky-950/40 border border-sky-500/30 px-3.5 py-1.5 rounded-xl self-start sm:self-auto">
                     assigned: 0 / 84 (0%)
                 </span>
             </div>
-
-            <!-- responsive html5 canvas wrapper -->
-            <div class="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden">
+            <div class="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-zinc-950/50 border border-zinc-800/50">
                 <canvas id="frequencyCanvas" class="w-full h-full block"></canvas>
             </div>
         </section>
 
     </main>
 
-    <!-- confirm clear marks modal -->
-    <div id="confirmClearModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    
+    <div id="confirmClearModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/40 p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center gap-2.5 pb-3 border-b border-zinc-800">
                 <span class="w-2.5 h-2.5 rounded-full bg-rose-400 animate-pulse"></span>
@@ -383,8 +528,8 @@
         </div>
     </div>
 
-    <!-- missing keys in pasted list modal (asks to remove unmentioned layout keys) -->
-    <div id="missingKeysModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    
+    <div id="missingKeysModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="w-full max-w-lg rounded-2xl bg-zinc-900 border border-sky-500/50 p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center gap-2.5 pb-3 border-b border-zinc-800">
                 <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
@@ -416,17 +561,17 @@
         </div>
     </div>
 
-    <!-- 3-page onboarding & setup wizard modal -->
-    <div id="introWizardModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+    
+    <div id="introWizardModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto">
         <div class="w-full max-w-3xl rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 shadow-2xl my-8 max-h-[92vh] overflow-y-auto kbd-scroll">
-            <!-- wizard step header -->
+            
             <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-zinc-800">
                 <div class="flex items-center gap-2.5">
-                    <span id="wizardStepPill" class="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-[11px] font-mono font-bold text-purple-300">
-                        step 1 of 3
+                    <span id="wizardStepPill" class="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-blue-500/40 text-[11px] font-mono font-bold text-zinc-200">
+                        step 1 of 4
                     </span>
                     <h2 id="wizardStepHeading" class="text-sm sm:text-base font-bold text-zinc-100 font-mono">
-                        welcome to switch planner and tester
+                        welcome to switch planner and tester -xnmoll
                     </h2>
                 </div>
                 <button id="skipWizardBtn" type="button"
@@ -435,64 +580,64 @@
                 </button>
             </div>
 
-            <!-- page 1: explanation of all functions & paste exported list box -->
+            
             <div id="wizardPage1" class="space-y-4 py-4">
                 <p class="text-xs text-zinc-300 leading-relaxed">
-                    plan custom mechanical switch mixes, test physical pcb key registration, and save standalone copies of this file with your exact board layout and marks baked inside.
+                    made in desperation by xnmoll <3 v2.9 includes ability to plan custom keyboard with a keyboard diagram to visualise stuff with colour coded brushes and bring your imagination into simpler to look at picture and with intergration of neomacro.in you can track live stock and add them to watchlist or get an estimated budget for your selection of switches. 
                 </p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                        <div class="font-mono font-bold text-purple-300 mb-1">custom switch brushes</div>
-                        <p class="text-[11px] text-zinc-400">create any number of color-coded brushes (tactile, linear, buy, silent, or working/chatter/dead) and optionally combine extra brushes into your primary goal.</p>
+                        <div class="font-mono font-bold text-zinc-200 mb-1">use colours to plan</div>
+                        <p class="text-[11px] text-zinc-400">create any color-coded brushes to categorize every key on your keyboard.</p>
                     </div>
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                        <div class="font-mono font-bold text-sky-300 mb-1">live keycap & layout studio</div>
-                        <p class="text-[11px] text-zinc-400">unlock the keyboard to paint switches via physical keys or clicks. toggle "edit layout" anytime to rename, rebind, resize, swap, add, or remove keys.</p>
+                        <div class="font-mono font-bold text-zinc-200 mb-1">neomacro.in integration</div>
+                        <p class="text-[11px] text-zinc-400">directly see prices from the best and infact only website in india selling switches. (even has a watchlist btw).</p>
                     </div>
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                        <div class="font-mono font-bold text-emerald-300 mb-1">file-isolated saves</div>
-                        <p class="text-[11px] text-zinc-400">zero browser cache is used for your plans. click "save file" to pick a folder in windows explorer and save an independent html copy.</p>
+                        <div class="font-mono font-bold text-zinc-200 mb-1">layout editor</div>
+                        <p class="text-[11px] text-zinc-400">use "edit layout" anytime to rename, resize, add keys, or insert empty spacers on the keyboard.</p>
                     </div>
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
-                        <div class="font-mono font-bold text-amber-300 mb-1">starts locked for safety</div>
-                        <p class="text-[11px] text-zinc-400">the keyboard starts locked so accidental keystrokes never alter saved marks. click "lock keyboard: on" beside the brush selector whenever you are ready to paint.</p>
+                        <div class="font-mono font-bold text-zinc-200 mb-1">open source and local</div>
+                        <p class="text-[11px] text-zinc-400">this vibed coded ah webapp takes zero browser cache for your plans. click "save file" to pick a folder in windows explorer and save an independent html copy of this session.</p>
                     </div>
                 </div>
 
-                <div class="p-3.5 rounded-xl bg-zinc-950 border border-purple-500/30">
+                <div class="p-3.5 rounded-xl bg-zinc-950 border border-blue-500/30">
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                        <label for="wizardPasteInput" class="text-xs font-mono font-semibold text-purple-300">
+                        <label for="wizardPasteInput" class="text-xs font-mono font-semibold text-zinc-200">
                             already have an exported switch list? paste it here to jump right in:
                         </label>
                         <span id="wizardPasteStatus" class="text-[11px] font-mono text-zinc-500">optional</span>
                     </div>
                     <textarea id="wizardPasteInput" rows="4"
                         placeholder="paste exported switch list here (e.g. tactile: ... linear: ... silent: ...)"
-                        class="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-2.5 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
+                        class="w-full rounded-lg bg-zinc-900 border border-zinc-800 p-2.5 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
                     <div class="flex justify-end mt-2">
                         <button id="wizardApplyPasteBtn" type="button"
-                            class="px-3.5 py-1.5 rounded-lg bg-purple-600/25 border border-purple-500/40 hover:bg-purple-600/40 text-xs font-mono font-semibold text-purple-200 transition-colors">
+                            class="px-3.5 py-1.5 rounded-lg bg-blue-600/25 border border-blue-500/40 hover:bg-blue-600/40 text-xs font-mono font-semibold text-zinc-200 transition-colors">
                             load pasted list & open studio
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- page 2: blank brush & purpose setup with gray ghost placeholders -->
+            
             <div id="wizardPage2" class="hidden space-y-4 py-4">
                 <div>
-                    <h3 class="text-xs font-mono font-semibold text-purple-400">name what you are planning or testing</h3>
+                    <h3 class="text-xs font-mono font-semibold text-zinc-200">name your brushes (switches)</h3>
                     <p class="text-[11px] text-zinc-400 mt-0.5">
-                        start typing in the blank fields below to replace the gray ghost examples, or click a quick-fill chip to populate them automatically.
+                        start typing in the bruhes below to rename them or click a suggestion to populate them.
                     </p>
                 </div>
 
-                <!-- ghost quick-fill suggestion chips -->
+                
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-[11px] font-mono text-zinc-500">ghost examples (click to fill):</span>
                     <button type="button" id="fillGhostSwitchMixBtn"
-                        class="px-2.5 py-1 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-purple-500/50 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 transition-colors">
+                        class="px-2.5 py-1 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-blue-500/50 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 transition-colors">
                         linear | tactile | buy
                     </button>
                     <button type="button" id="fillGhostPcbTesterBtn"
@@ -501,12 +646,12 @@
                     </button>
                 </div>
 
-                <!-- blank brush rows with gray ghost placeholders -->
+                
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono text-zinc-400">your switch / test brushes:</span>
                         <button id="wizardAddBrushBtn" type="button"
-                            class="px-3 py-1 rounded-lg bg-purple-600/20 border border-purple-500/40 text-xs font-mono text-purple-300 hover:bg-purple-600/30">
+                            class="px-3 py-1 rounded-lg bg-blue-600/20 border border-blue-500/40 text-xs font-mono text-zinc-200 hover:bg-blue-600/30">
                             + add brush
                         </button>
                     </div>
@@ -514,12 +659,12 @@
                 </div>
             </div>
 
-            <!-- page 3: choose keyboard layout & prompt per-key edit if needed -->
+            
             <div id="wizardPage3" class="hidden space-y-4 py-4">
                 <div>
-                    <h3 class="text-xs font-mono font-semibold text-sky-400">choose your keyboard layout</h3>
+                    <h3 class="text-xs font-mono font-semibold text-zinc-200">choose your keyboard layout</h3>
                     <p class="text-[11px] text-zinc-400 mt-0.5">
-                        select the base form factor that matches your board. if your keyboard has custom bottom-row blockers, split keys, or moved nav keys, you can open the per-key editor immediately after finishing.
+                        select the base form factor that matches your board. you can also insert custom spacers or edit keys right after setup.
                     </p>
                 </div>
 
@@ -527,16 +672,16 @@
                     <button type="button" data-wiz-layout="60"
                         class="wiz-layout-card text-left p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 transition-all">
                         <div class="text-xs font-mono font-bold text-zinc-100">60% compact (61 keys)</div>
-                        <div class="text-[11px] text-zinc-400 mt-0.5">standard poker layout without dedicated arrows or f-row</div>
+                        <div class="text-[11px] text-zinc-400 mt-0.5">standard coder layout without dedicated arrows or f-row</div>
                     </button>
                     <button type="button" data-wiz-layout="65"
                         class="wiz-layout-card text-left p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 transition-all">
                         <div class="text-xs font-mono font-bold text-zinc-100">65% compact (68 keys)</div>
-                        <div class="text-[11px] text-zinc-400 mt-0.5">compact layout with dedicated arrow cluster and right nav column</div>
+                        <div class="text-[11px] text-zinc-400 mt-0.5">compact layout with dedicated arrow cluster for sanity</div>
                     </button>
                     <button type="button" data-wiz-layout="75_std"
                         class="wiz-layout-card text-left p-3.5 rounded-xl bg-zinc-950 border border-sky-500 transition-all">
-                        <div class="text-xs font-mono font-bold text-sky-300">75% standard (84 keys)</div>
+                        <div class="text-xs font-mono font-bold text-zinc-200">75% standard (84 keys)</div>
                         <div class="text-[11px] text-zinc-400 mt-0.5">compact 75% with full function row, nav column, and arrows</div>
                     </button>
                     <button type="button" data-wiz-layout="tkl"
@@ -554,19 +699,57 @@
                 <label class="flex items-center gap-2.5 p-3 rounded-xl bg-sky-950/25 border border-sky-500/30 cursor-pointer select-none">
                     <input id="wizardOpenEditorCheckbox" type="checkbox"
                         class="w-4 h-4 rounded accent-sky-500 cursor-pointer">
-                    <span class="text-xs font-mono text-sky-200">
-                        my board has custom key positions or sizes -> open per-key layout editor right away
+                    <span class="text-xs font-mono text-zinc-200">
+                        my board has custom key positions or spacers -> open per-key layout editor right away
                     </span>
                 </label>
             </div>
 
-            <!-- wizard footer: don't show again checkbox (ONLY item saved in browser memory) + navigation -->
+            
+            <div id="wizardPage4" class="hidden space-y-4 py-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xs font-mono font-semibold text-zinc-200">pick neomacro.in switches & build watchlist (optional)</h3>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">
+                            or link switches from neomacro.in to your brushes to get estimated budget.
+                        </p>
+                    </div>
+                    <button id="wizardRefreshNeomacroBtn" type="button"
+                        class="px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-xs font-mono text-zinc-200 hover:bg-cyan-500/30">
+                        refresh live stock
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input id="wizardNeomacroSearch" type="text" placeholder="search switches..."
+                        class="rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 lowercase">
+                    <select id="wizardNeomacroType"
+                        class="rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyan-500">
+                        <option value="all">all switch types</option>
+                        <option value="linear">linear</option>
+                        <option value="tactile">tactile</option>
+                        <option value="silent">silent</option>
+                        <option value="hall effect">hall effect (magnetic)</option>
+                    </select>
+                    <select id="wizardNeomacroSort"
+                        class="rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-200 focus:outline-none focus:border-cyan-500">
+                        <option value="popularity">sort: popularity</option>
+                        <option value="price_asc">price: low to high</option>
+                        <option value="price_desc">price: high to low</option>
+                        <option value="stock">in stock first</option>
+                    </select>
+                </div>
+
+                <div id="wizardNeomacroList" class="max-h-60 overflow-y-auto kbd-scroll space-y-2 pr-1"></div>
+            </div>
+
+            
             <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-zinc-800">
                 <label class="flex items-center gap-2 cursor-pointer select-none">
                     <input id="dontShowIntroCheckbox" type="checkbox"
-                        class="w-4 h-4 rounded accent-purple-500 cursor-pointer">
+                        class="w-4 h-4 rounded accent-blue-500 cursor-pointer">
                     <span class="text-xs font-mono text-zinc-400">
-                        don't show this intro guide again on this computer
+                        don't show this intro guide again
                     </span>
                 </label>
 
@@ -576,7 +759,7 @@
                         back
                     </button>
                     <button id="wizardNextBtn" type="button"
-                        class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                        class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-mono font-semibold text-zinc-200 transition-colors">
                         next: configure brushes
                     </button>
                 </div>
@@ -584,8 +767,8 @@
         </div>
     </div>
 
-    <!-- layout mismatch warning modal when pasting a list from a different preset layout (e.g. 68 keys vs 75%) -->
-    <div id="layoutMismatchModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    
+    <div id="layoutMismatchModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-amber-500/50 p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center gap-2.5 pb-3 border-b border-zinc-800">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
@@ -618,8 +801,8 @@
         </div>
     </div>
 
-    <!-- save file prompt modal (fallback if native windows explorer picker is unavailable) -->
-    <div id="saveFileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    
+    <div id="saveFileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center justify-between gap-2 pb-3 border-b border-zinc-800">
                 <div>
@@ -655,13 +838,13 @@
         </div>
     </div>
 
-    <!-- settings & customization modal -->
-    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 overflow-y-auto">
         <div class="w-full max-w-3xl rounded-2xl bg-zinc-900 border border-zinc-800 p-5 sm:p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto kbd-scroll">
             <div class="flex items-center justify-between gap-2 pb-4 border-b border-zinc-800">
                 <div>
-                    <h2 class="text-base font-bold text-zinc-100 font-mono">brushes, presets & file state settings</h2>
-                    <p class="text-xs text-zinc-400 mt-0.5">add or remove any number of brushes, configure goal math, and save directly into this html file</p>
+                    <h2 class="text-base font-bold text-zinc-100 font-mono">settings</h2>
+                    <p class="text-xs text-zinc-400 mt-0.5">hopefully nothing breaks T_T</p>
                 </div>
                 <button id="closeSettingsModalBtn" type="button"
                     class="px-3 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700">
@@ -670,49 +853,49 @@
             </div>
 
             <div class="space-y-6 py-4">
-                <!-- 1. one-click use-case presets -->
+                
                 <div>
-                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">1. quick use-case presets (one-click configure)</h3>
+                    <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-2">quick use-case presets?</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <button type="button" data-usecase="tactile_upgrade"
-                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-purple-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-purple-300">tactile upgrade planner (3 brushes)</div>
-                            <div class="text-[11px] text-zinc-400 mt-0.5">tactile (purple) + buy (green) combined goal vs linear (yellow)</div>
+                            class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-blue-500/50 transition-all">
+                            <div class="text-xs font-mono font-bold text-zinc-200">dual switch upgrade (3 brushes)</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">eg: tac + buy combined goal. vs lin</div>
                         </button>
                         <button type="button" data-usecase="two_way_split"
                             class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-amber-300">simple 2-brush split</div>
-                            <div class="text-[11px] text-zinc-400 mt-0.5">only 2 brushes: tactile (purple) vs linear (yellow)</div>
+                            <div class="text-xs font-mono font-bold text-zinc-200">simple 2-brush split</div>
+                            <div class="text-[11px] text-zinc-400 mt-0.5">only 2 brushes. eg: tactile (purple) vs linear (yellow)</div>
                         </button>
                         <button type="button" data-usecase="four_way_mix"
                             class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-sky-300">4-brush custom zoning</div>
+                            <div class="text-xs font-mono font-bold text-zinc-200">a 4-switch respect mod</div>
                             <div class="text-[11px] text-zinc-400 mt-0.5">tactile (purple) / linear (yellow) / silent (cyan) / heavy (rose)</div>
                         </button>
                         <button type="button" data-usecase="pcb_tester"
                             class="usecase-preset-btn text-left p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 transition-all">
-                            <div class="text-xs font-mono font-bold text-emerald-300">pcb switch tester mode (3 brushes)</div>
+                            <div class="text-xs font-mono font-bold text-zinc-200">pcb switch tester mode (to diag)</div>
                             <div class="text-[11px] text-zinc-400 mt-0.5">working (green) / chatter (yellow) / dead switch (rose)</div>
                         </button>
                     </div>
                 </div>
 
-                <!-- 2. workspace title (subtitle fixed to "switch studio by xnmoll") -->
+                
                 <div class="pt-2 border-t border-zinc-800/80">
                     <label class="block text-xs font-mono text-zinc-400 mb-1">workspace title</label>
                     <input id="settingsTitleInput" type="text"
-                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500">
+                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-blue-500">
                 </div>
 
-                <!-- 3. dynamic brush list manager (add or remove brushes more or less than 3) -->
+                
                 <div class="pt-2 border-t border-zinc-800/80">
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
                         <div>
-                            <h3 class="text-xs font-mono font-semibold text-purple-400">2. switch brushes (add or remove any number of brushes)</h3>
-                            <p class="text-[11px] text-zinc-400">customize brush names, colors, and optionally combine extra brushes into your primary goal</p>
+                            <h3 class="text-xs font-mono font-semibold text-zinc-200">switch brushes (add or remove any of the brushes)</h3>
+                            <p class="text-[11px] text-zinc-400">customize brush names, colors, and optionally combine extra brushes into brush #1 if it's a buy</p>
                         </div>
                         <button id="addBrushBtn" type="button"
-                            class="px-3 py-1.5 rounded-xl bg-purple-600/25 border border-purple-500/40 text-xs font-mono font-semibold text-purple-200 hover:bg-purple-600/40 transition-colors">
+                            class="px-3 py-1.5 rounded-xl bg-blue-600/25 border border-blue-500/40 text-xs font-mono font-semibold text-zinc-200 hover:bg-blue-600/40 transition-colors">
                             + add new brush
                         </button>
                     </div>
@@ -720,9 +903,9 @@
                     <div id="brushEditorList" class="space-y-2"></div>
                 </div>
 
-                <!-- 4. layout preset & per-key customization launcher -->
+                
                 <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">3. keyboard layout preset & per-key customization</h3>
+                    <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-2">keyboard layout preset & per-key customization</h3>
                     <div class="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-zinc-950 border border-zinc-800">
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-mono text-zinc-400">base layout:</span>
@@ -736,19 +919,19 @@
                             </select>
                         </div>
                         <button id="launchPerKeyEditorFromSettingsBtn" type="button"
-                            class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-xs font-mono font-semibold text-sky-300 hover:bg-sky-500/30 transition-colors">
+                            class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-xs font-mono font-semibold text-zinc-200 hover:bg-sky-500/30 transition-colors">
                             open on-board per-key editor
                         </button>
                     </div>
                 </div>
 
-                <!-- 5. portable json config export / import -->
+                
                 <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-purple-400 mb-2">4. file-isolated state & portable json backup</h3>
+                    <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-2">4. file-isolated state & portable json backup</h3>
                     <p class="text-[11px] text-zinc-400 mb-2">every copy of this html file keeps its own independent state. click "save file" to choose where to save via windows explorer.</p>
                     <textarea id="jsonConfigTextarea" rows="3"
                         placeholder="click export json to view current file state, or paste json here to import"
-                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-purple-500 lowercase"></textarea>
+                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
                     <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
                         <span id="jsonConfigStatus" class="text-[11px] font-mono text-zinc-500">100% self-contained in this file</span>
                         <div class="flex items-center gap-2">
@@ -757,7 +940,7 @@
                                 export json to box
                             </button>
                             <button id="importJsonBtn" type="button"
-                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-emerald-300 hover:bg-zinc-700">
+                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-200 hover:bg-zinc-700">
                                 import json from box
                             </button>
                         </div>
@@ -767,23 +950,23 @@
 
             <div class="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-zinc-800">
                 <button id="saveFileFromModalBtn" type="button"
-                    class="px-4 py-2 rounded-xl bg-emerald-600/25 border border-emerald-500/40 hover:bg-emerald-600/35 text-xs font-mono font-semibold text-emerald-300 transition-colors">
+                    class="px-4 py-2 rounded-xl bg-emerald-600/25 border border-emerald-500/40 hover:bg-emerald-600/35 text-xs font-mono font-semibold text-zinc-200 transition-colors">
                     apply & save html file...
                 </button>
                 <button id="saveSettingsBtn" type="button"
-                    class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-mono font-semibold text-white transition-colors">
+                    class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-mono font-semibold text-zinc-200 transition-colors">
                     apply changes to session
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- subtle footer -->
+    
     <footer class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-4 text-center">
         <p class="text-xs text-zinc-500">switch studio by xnmoll. each copy of this html file keeps its own isolated state. click "save file" to choose where to save your updated copy.</p>
     </footer>
 
-    <!-- embedded file-isolated state block (cleared selection default) -->
+    
     <script id="embedded-file-state" type="application/json">
 {
   "appConfig": {
@@ -793,7 +976,7 @@
       {
         "id": "brush_tactile",
         "name": "tactile",
-        "color": "#a855f7",
+        "color": "#3b82f6",
         "combineIntoPrimary": false
       },
       {
@@ -809,31 +992,30 @@
         "combineIntoPrimary": true
       }
     ],
-    "customLayouts": {}
+    "customLayouts": {},
+    "neomacroWatchlist": [],
+    "neomacroSavedCatalog": [],
+    "brushSwitchLinks": {}
   },
   "keyStates": {}
 }
     </script>
 
     <script>
-        /**
-         * switch planner and tester - switch studio by xnmoll
-         * starts with keyboard locked by default
-         * auto-detects preset layout mismatches (e.g. 68 keys vs 75%) and missing layout keys (e.g. 2 keys missing from 75%)
-         * strictly lowercase text, zero em-dashes
-         */
+
         (() => {
             const INTRO_PREF_KEY = 'switch_studio_xnmoll_hide_intro_v1';
             const FIXED_SUBTITLE = 'switch studio by xnmoll';
+            const NEOMACRO_SHIPPING_RS = 100;
 
             const COLOR_PALETTE = [
-                '#a855f7', '#eab308', '#10b981', '#06b6d4',
+                '#3b82f6', '#eab308', '#10b981', '#06b6d4',
                 '#f43f5e', '#f97316', '#3b82f6', '#ec4899',
                 '#84cc16', '#8b5cf6', '#14b8a6', '#f59e0b'
             ];
 
             const SEMANTIC_BRUSH_COLORS = {
-                tactile: '#a855f7',
+                tactile: '#3b82f6',
                 linear: '#eab308',
                 buy: '#10b981',
                 silent: '#06b6d4',
@@ -853,15 +1035,6 @@
                 '100': '100% full (104 keys)'
             };
 
-            const PRESET_KEY_COUNTS = {
-                '60': 61,
-                '65': 68,
-                '75_std': 84,
-                'tkl': 87,
-                '100': 104
-            };
-
-            // built-in base layout preset factories
             const LAYOUT_PRESETS = {
                 '60': [
                     [
@@ -1141,54 +1314,302 @@
                 return JSON.parse(JSON.stringify(obj));
             }
 
-            // default cleared state
+            const NEOMACRO_FALLBACK_CATALOG = [
+                {
+                    handle: 'hmx-snowfall-tactile-switch',
+                    title: 'hmx snowfall tactile switch',
+                    vendor: 'hmx',
+                    type: 'tactile',
+                    price: 340,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 1,
+                    specs: 'tactile | 50g spring | long-pole pom stem | pack of 10',
+                    url: 'https://neomacro.in/products/hmx-snowfall-tactile-switch'
+                },
+                {
+                    handle: 'hmx-bad-sweetheart-switches',
+                    title: 'hmx bad sweetheart deep and silent switches',
+                    vendor: 'hmx / ktt',
+                    type: 'silent',
+                    price: 300,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 2,
+                    specs: 'deep linear / silent linear | 60g bottom-out | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/hmx-bad-sweetheart-switches'
+                },
+                {
+                    handle: 'outemu-lemon-v3-silent-tactile',
+                    title: 'outemu lemon v3 silent tactile',
+                    vendor: 'outemu',
+                    type: 'silent',
+                    price: 160,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 3,
+                    specs: 'silent tactile | 35g | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/outemu-lemon-v3-silent-tactile'
+                },
+                {
+                    handle: 'outemu-peach-v3-silent-linear',
+                    title: 'outemu peach v3 silent linear',
+                    vendor: 'outemu',
+                    type: 'silent',
+                    price: 160,
+                    compareAtPrice: null,
+                    available: false,
+                    popularityIdx: 4,
+                    specs: 'silent linear | 40g | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/outemu-peach-v3-silent-linear'
+                },
+                {
+                    handle: 'bsun-strawberry-cheesecake-r2',
+                    title: 'bsun strawberry cheesecake r2',
+                    vendor: 'bsun',
+                    type: 'tactile',
+                    price: 300,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 5,
+                    specs: 'thocky tactile | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/bsun-strawberry-cheesecake-r2'
+                },
+                {
+                    handle: 'bsun-raw-switches',
+                    title: 'bsun raw switches',
+                    vendor: 'bsun',
+                    type: 'linear',
+                    price: 300,
+                    compareAtPrice: 450,
+                    available: true,
+                    popularityIdx: 6,
+                    specs: 'linear / tactile variants | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/bsun-raw-switches'
+                },
+                {
+                    handle: 'gateron-mars-switch',
+                    title: 'gateron mars switch',
+                    vendor: 'gateron',
+                    type: 'linear',
+                    price: 390,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 7,
+                    specs: 'linear | 45gf | 5-pin | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/gateron-mars-switch'
+                },
+                {
+                    handle: 'gateron-ef-cedar',
+                    title: 'gateron ef cedar',
+                    vendor: 'gateron',
+                    type: 'linear',
+                    price: 180,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 8,
+                    specs: 'linear | 55gf | 5-pin | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/gateron-ef-cedar'
+                },
+                {
+                    handle: 'gateron-raw-linear-switch',
+                    title: 'gateron raw linear switch',
+                    vendor: 'gateron',
+                    type: 'linear',
+                    price: 340,
+                    compareAtPrice: 370,
+                    available: true,
+                    popularityIdx: 9,
+                    specs: 'linear | factory lubed | pack of 10',
+                    url: 'https://neomacro.in/products/gateron-raw-linear-switch'
+                },
+                {
+                    handle: 'gateron-weightlessness-switch',
+                    title: 'gateron weightlessness switch',
+                    vendor: 'gateron',
+                    type: 'linear',
+                    price: 450,
+                    compareAtPrice: null,
+                    available: false,
+                    popularityIdx: 10,
+                    specs: 'linear | pack of 10',
+                    url: 'https://neomacro.in/products/gateron-weightlessness-switch'
+                },
+                {
+                    handle: 'swk-cheddar',
+                    title: 'swk cheddar',
+                    vendor: 'swk',
+                    type: 'linear',
+                    price: 220,
+                    compareAtPrice: 250,
+                    available: true,
+                    popularityIdx: 11,
+                    specs: 'linear | pack of 10',
+                    url: 'https://neomacro.in/products/swk-cheddar'
+                },
+                {
+                    handle: 'swk-coco-blacks',
+                    title: 'swk coco blacks',
+                    vendor: 'swk',
+                    type: 'linear',
+                    price: 250,
+                    compareAtPrice: 300,
+                    available: true,
+                    popularityIdx: 12,
+                    specs: 'linear | pack of 10',
+                    url: 'https://neomacro.in/products/swk-coco-blacks'
+                },
+                {
+                    handle: 'swk-ghost-dragons',
+                    title: 'swk ghost dragons',
+                    vendor: 'swk',
+                    type: 'tactile',
+                    price: 340,
+                    compareAtPrice: 390,
+                    available: false,
+                    popularityIdx: 13,
+                    specs: 'tactile | pack of 10',
+                    url: 'https://neomacro.in/products/swk-ghost-dragons'
+                },
+                {
+                    handle: 'geon-raw-zero-switch',
+                    title: 'geon raw zero switch',
+                    vendor: 'geon',
+                    type: 'linear',
+                    price: 350,
+                    compareAtPrice: 385,
+                    available: true,
+                    popularityIdx: 14,
+                    specs: 'linear | pack of 10',
+                    url: 'https://neomacro.in/products/geon-raw-zero-switch'
+                },
+                {
+                    handle: 'cherry-mx2a-switches',
+                    title: 'cherry mx2a switches (unlubed)',
+                    vendor: 'cherry',
+                    type: 'linear',
+                    price: 330,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 15,
+                    specs: 'mx2a | pack of 10',
+                    url: 'https://neomacro.in/products/cherry-mx2a-switches'
+                },
+                {
+                    handle: 'cherry-mx-switches',
+                    title: 'cherry mx switches',
+                    vendor: 'cherry',
+                    type: 'tactile',
+                    price: 335,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 16,
+                    specs: 'classic mx | pack of 10',
+                    url: 'https://neomacro.in/products/cherry-mx-switches'
+                },
+                {
+                    handle: 'radiant-he-switch',
+                    title: 'radiant he switch',
+                    vendor: 'aiglatson',
+                    type: 'hall effect',
+                    price: 280,
+                    compareAtPrice: 330,
+                    available: true,
+                    popularityIdx: 17,
+                    specs: 'hall effect magnetic | 45g bottom-out | pack of 10',
+                    url: 'https://neomacro.in/products/radiant-he-switch'
+                },
+                {
+                    handle: 'raptor-he-v2-switch',
+                    title: 'raptor he v2 switch',
+                    vendor: 'geon',
+                    type: 'hall effect',
+                    price: 380,
+                    compareAtPrice: null,
+                    available: true,
+                    popularityIdx: 18,
+                    specs: 'hall effect magnetic | 35g actuation / 45g bottom | pack of 10',
+                    url: 'https://neomacro.in/products/raptor-he-v2-switch'
+                },
+                {
+                    handle: 'geon-raw-he',
+                    title: 'geon raw he',
+                    vendor: 'geon',
+                    type: 'hall effect',
+                    price: 350,
+                    compareAtPrice: 400,
+                    available: false,
+                    popularityIdx: 19,
+                    specs: 'hall effect magnetic | pack of 10',
+                    url: 'https://neomacro.in/products/geon-raw-he'
+                }
+            ];
+
             let appConfig = {
                 title: 'switch planner and tester',
                 layoutId: '75_std',
                 brushes: [
-                    { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                    { id: 'brush_tactile', name: 'tactile', color: '#3b82f6', combineIntoPrimary: false },
                     { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false },
                     { id: 'brush_buy', name: 'buy', color: '#10b981', combineIntoPrimary: true }
                 ],
-                customLayouts: {}
+                customLayouts: {},
+                neomacroWatchlist: [],
+                neomacroSavedCatalog: [],
+                brushSwitchLinks: {}
             };
 
-            const keyStates = new Map();      // physical code -> brushId | 'unchecked'
-            const activeCodes = new Set();    // currently held physical codes
-            const keycapElements = new Map(); // physical code -> { el, badgeEl, label, rowIdx, keyIdx }
+            let neomacroCatalog = cloneObj(NEOMACRO_FALLBACK_CATALOG);
+            let neomacroIsLiveFetched = false;
+            let neomacroLastSyncTime = null;
+
+            const keyStates = new Map();
+            const activeCodes = new Set();
+            const keycapElements = new Map();
+            const spacerElements = [];
             const seenEvents = new WeakSet();
             let currentBrush = 'brush_tactile';
             let isDark = true;
-            let isInputLocked = true;         // starts with keyboard locked by default
+            let isInputLocked = true;
 
-            // layout editor state
             let isEditLayoutMode = false;
-            let selectedKeyPos = null;        // { rowIdx, keyIdx }
+            let selectedKeyPos = null;
             let isSwapPending = false;
             let isBindingKeyCode = false;
 
-            // temporary draft brushes list inside settings modal
             let modalDraftBrushes = [];
 
-            // wizard state
             let wizardStep = 1;
             let wizardDraftBrushes = [];
             let wizardSelectedLayout = '75_std';
 
-            // pending paste mismatch / missing keys state
             let pendingMismatchPasteText = '';
             let pendingMismatchDetectedLayout = null;
             let pendingMismatchOnSuccess = null;
-            let pendingMissingKeysList = [];  // array of { code, label }
+            let pendingMissingKeysList = [];
 
-            // save modal mode: 'html' | 'txt'
             let saveModalMode = 'html';
 
-            // dom elements
             const workspaceTitleEl = document.getElementById('workspaceTitleEl');
             const workspaceSubtitleEl = document.getElementById('workspaceSubtitleEl');
             const quickLayoutSelect = document.getElementById('quickLayoutSelect');
             const editLayoutBtn = document.getElementById('editLayoutBtn');
+
+            const neomacroSection = document.getElementById('neomacroSection');
+            const neomacroFeedStatus = document.getElementById('neomacroFeedStatus');
+            const neomacroTotalCostBadge = document.getElementById('neomacroTotalCostBadge');
+            const neomacroShippingNote = document.getElementById('neomacroShippingNote');
+            const refreshNeomacroBtn = document.getElementById('refreshNeomacroBtn');
+            const neomacroActiveWrap = document.getElementById('neomacroActiveWrap');
+            const neomacroLinkedGrid = document.getElementById('neomacroLinkedGrid');
+            const neomacroSearchInput = document.getElementById('neomacroSearchInput');
+            const neomacroTypeFilter = document.getElementById('neomacroTypeFilter');
+            const neomacroSortSelect = document.getElementById('neomacroSortSelect');
+            const neomacroInStockOnlyCheckbox = document.getElementById('neomacroInStockOnlyCheckbox');
+            const neomacroWatchlistOnlyCheckbox = document.getElementById('neomacroWatchlistOnlyCheckbox');
+            const neomacroWatchCountSpan = document.getElementById('neomacroWatchCountSpan');
+            const neomacroCatalogList = document.getElementById('neomacroCatalogList');
+
             const openSettingsBtn = document.getElementById('openSettingsBtn');
             const saveFileBtn = document.getElementById('saveFileBtn');
             const pasteListBtn = document.getElementById('pasteListBtn');
@@ -1206,13 +1627,11 @@
             const focusBadgeEl = document.getElementById('focusBadge');
             const statusDotEl = document.getElementById('statusDot');
 
-            // confirm clear marks modal dom
             const confirmClearModal = document.getElementById('confirmClearModal');
             const confirmClearBodyText = document.getElementById('confirmClearBodyText');
             const cancelClearMarksBtn = document.getElementById('cancelClearMarksBtn');
             const confirmClearMarksBtn = document.getElementById('confirmClearMarksBtn');
 
-            // missing keys modal dom
             const missingKeysModal = document.getElementById('missingKeysModal');
             const missingKeysHeading = document.getElementById('missingKeysHeading');
             const missingKeysDescription = document.getElementById('missingKeysDescription');
@@ -1220,7 +1639,6 @@
             const keepMissingKeysBtn = document.getElementById('keepMissingKeysBtn');
             const removeMissingKeysBtn = document.getElementById('removeMissingKeysBtn');
 
-            // 3-page intro wizard dom
             const introWizardModal = document.getElementById('introWizardModal');
             const wizardStepPill = document.getElementById('wizardStepPill');
             const wizardStepHeading = document.getElementById('wizardStepHeading');
@@ -1228,6 +1646,7 @@
             const wizardPage1 = document.getElementById('wizardPage1');
             const wizardPage2 = document.getElementById('wizardPage2');
             const wizardPage3 = document.getElementById('wizardPage3');
+            const wizardPage4 = document.getElementById('wizardPage4');
             const wizardPasteInput = document.getElementById('wizardPasteInput');
             const wizardPasteStatus = document.getElementById('wizardPasteStatus');
             const wizardApplyPasteBtn = document.getElementById('wizardApplyPasteBtn');
@@ -1236,18 +1655,21 @@
             const wizardAddBrushBtn = document.getElementById('wizardAddBrushBtn');
             const wizardBrushList = document.getElementById('wizardBrushList');
             const wizardOpenEditorCheckbox = document.getElementById('wizardOpenEditorCheckbox');
+            const wizardRefreshNeomacroBtn = document.getElementById('wizardRefreshNeomacroBtn');
+            const wizardNeomacroSearch = document.getElementById('wizardNeomacroSearch');
+            const wizardNeomacroType = document.getElementById('wizardNeomacroType');
+            const wizardNeomacroSort = document.getElementById('wizardNeomacroSort');
+            const wizardNeomacroList = document.getElementById('wizardNeomacroList');
             const dontShowIntroCheckbox = document.getElementById('dontShowIntroCheckbox');
             const wizardBackBtn = document.getElementById('wizardBackBtn');
             const wizardNextBtn = document.getElementById('wizardNextBtn');
 
-            // layout mismatch modal dom
             const layoutMismatchModal = document.getElementById('layoutMismatchModal');
             const mismatchWarningText = document.getElementById('mismatchWarningText');
             const cancelMismatchBtn = document.getElementById('cancelMismatchBtn');
             const keepCurrentLayoutPasteBtn = document.getElementById('keepCurrentLayoutPasteBtn');
             const switchAndApplyPasteBtn = document.getElementById('switchAndApplyPasteBtn');
 
-            // save file prompt modal dom
             const saveFileModal = document.getElementById('saveFileModal');
             const saveModalHeading = document.getElementById('saveModalHeading');
             const saveModalSubtext = document.getElementById('saveModalSubtext');
@@ -1257,17 +1679,19 @@
             const cancelSaveFileBtn = document.getElementById('cancelSaveFileBtn');
             const confirmSaveFileBtn = document.getElementById('confirmSaveFileBtn');
 
-            // paste drawer dom
             const pasteDrawer = document.getElementById('pasteDrawer');
             const pasteTextarea = document.getElementById('pasteTextarea');
             const pasteFeedback = document.getElementById('pasteFeedback');
             const applyPasteBtn = document.getElementById('applyPasteBtn');
             const cancelPasteBtn = document.getElementById('cancelPasteBtn');
 
-            // per-key layout editor dom
             const layoutEditorBar = document.getElementById('layoutEditorBar');
             const resetLayoutDefaultBtn = document.getElementById('resetLayoutDefaultBtn');
             const closeEditLayoutBtn = document.getElementById('closeEditLayoutBtn');
+            const editKeyLabelWrap = document.getElementById('editKeyLabelWrap');
+            const editKeyCodeWrap = document.getElementById('editKeyCodeWrap');
+            const editKeyGapWrap = document.getElementById('editKeyGapWrap');
+            const editWidthLabel = document.getElementById('editWidthLabel');
             const editKeyLabelInput = document.getElementById('editKeyLabelInput');
             const editKeyCodeInput = document.getElementById('editKeyCodeInput');
             const bindPhysicalKeyBtn = document.getElementById('bindPhysicalKeyBtn');
@@ -1276,21 +1700,19 @@
             const applyKeyEditBtn = document.getElementById('applyKeyEditBtn');
             const swapKeyModeBtn = document.getElementById('swapKeyModeBtn');
             const insertKeyAfterBtn = document.getElementById('insertKeyAfterBtn');
+            const insertSpacerAfterBtn = document.getElementById('insertSpacerAfterBtn');
             const deleteSelectedKeyBtn = document.getElementById('deleteSelectedKeyBtn');
             const editInspectorStatus = document.getElementById('editInspectorStatus');
 
-            // dynamic stat cards & brush bar dom
             const statCardsGrid = document.getElementById('statCardsGrid');
             const shieldStatusTextEl = document.getElementById('shieldStatusText');
             const brushToggleGroup = document.getElementById('brushToggleGroup');
             const kbdMainBlock = document.getElementById('kbdMainBlock');
 
-            // chart dom
             const chartSummaryEl = document.getElementById('chartSummary');
             const canvas = document.getElementById('frequencyCanvas');
             const ctx = canvas.getContext('2d');
 
-            // settings modal dom
             const settingsModal = document.getElementById('settingsModal');
             const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
             const settingsTitleInput = document.getElementById('settingsTitleInput');
@@ -1305,11 +1727,8 @@
             const saveSettingsBtn = document.getElementById('saveSettingsBtn');
             const saveFileFromModalBtn = document.getElementById('saveFileFromModalBtn');
 
-            /**
-             * helper: converts hex color (#rrggbb) to rgba(r, g, b, alpha)
-             */
             function hexToRgba(hex, alpha) {
-                const clean = (hex || '#a855f7').replace('#', '');
+                const clean = (hex || '#3b82f6').replace('#', '');
                 const num = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
                 const r = (num >> 16) & 255;
                 const g = (num >> 8) & 255;
@@ -1317,16 +1736,10 @@
                 return `rgba(${r}, ${g}, ${b}, ${alpha})`;
             }
 
-            /**
-             * helper: finds a brush object by its id
-             */
             function getBrushById(id) {
                 return appConfig.brushes.find((b) => b.id === id) || null;
             }
 
-            /**
-             * returns the active rows array for the current layoutId
-             */
             function getActiveLayoutRows() {
                 const id = LAYOUT_PRESETS[appConfig.layoutId] ? appConfig.layoutId : '75_std';
                 appConfig.layoutId = id;
@@ -1336,9 +1749,6 @@
                 return appConfig.customLayouts[id];
             }
 
-            /**
-             * checks if an input, textarea, select, or modal is currently active
-             */
             function isInteractiveInputActive() {
                 if (!confirmClearModal.classList.contains('hidden')) return true;
                 if (!missingKeysModal.classList.contains('hidden')) return true;
@@ -1354,9 +1764,6 @@
                 return false;
             }
 
-            /**
-             * only browser memory read/write: "don't show intro again" checkbox preference
-             */
             function getDontShowIntroPref() {
                 try {
                     return localStorage.getItem(INTRO_PREF_KEY) === '1';
@@ -1375,9 +1782,6 @@
                 } catch (_) {}
             }
 
-            /**
-             * builds the serialized state object for this file copy
-             */
             function buildSerializedFileState() {
                 const serializedStates = {};
                 keyStates.forEach((v, k) => {
@@ -1385,20 +1789,32 @@
                         serializedStates[k] = v;
                     }
                 });
+
+                const watchSet = new Set(appConfig.neomacroWatchlist || []);
+                const linkedHandles = new Set(
+                    Object.values(appConfig.brushSwitchLinks || {})
+                        .filter((l) => l && l.handle)
+                        .map((l) => l.handle)
+                );
+
+                const savedCatalogSnapshots = neomacroCatalog.filter(
+                    (item) => watchSet.has(item.handle) || linkedHandles.has(item.handle)
+                );
+
                 return {
                     appConfig: {
                         title: appConfig.title,
                         layoutId: appConfig.layoutId,
                         brushes: cloneObj(appConfig.brushes),
-                        customLayouts: cloneObj(appConfig.customLayouts)
+                        customLayouts: cloneObj(appConfig.customLayouts),
+                        neomacroWatchlist: cloneObj(appConfig.neomacroWatchlist || []),
+                        neomacroSavedCatalog: cloneObj(savedCatalogSnapshots),
+                        brushSwitchLinks: cloneObj(appConfig.brushSwitchLinks || {})
                     },
                     keyStates: serializedStates
                 };
             }
 
-            /**
-             * updates the in-memory embedded state tag inside the current document
-             */
             function syncEmbeddedStateTag() {
                 const embeddedTag = document.getElementById('embedded-file-state');
                 if (embeddedTag) {
@@ -1406,9 +1822,18 @@
                 }
             }
 
-            /**
-             * loads state strictly from the embedded <script id="embedded-file-state"> inside THIS html file
-             */
+            function mergeCatalogItems(itemsToMerge) {
+                if (!Array.isArray(itemsToMerge)) return;
+                const byHandle = new Map(neomacroCatalog.map((item) => [item.handle, item]));
+                itemsToMerge.forEach((savedItem) => {
+                    if (savedItem && savedItem.handle && !byHandle.has(savedItem.handle)) {
+                        byHandle.set(savedItem.handle, savedItem);
+                    }
+                });
+                neomacroCatalog = Array.from(byHandle.values());
+            }
+
+            
             function loadFromEmbeddedFileState() {
                 try {
                     const embeddedTag = document.getElementById('embedded-file-state');
@@ -1422,6 +1847,16 @@
                             }
                             if (parsed.appConfig.customLayouts) {
                                 appConfig.customLayouts = parsed.appConfig.customLayouts;
+                            }
+                            if (Array.isArray(parsed.appConfig.neomacroWatchlist)) {
+                                appConfig.neomacroWatchlist = parsed.appConfig.neomacroWatchlist;
+                            }
+                            if (Array.isArray(parsed.appConfig.neomacroSavedCatalog)) {
+                                appConfig.neomacroSavedCatalog = parsed.appConfig.neomacroSavedCatalog;
+                                mergeCatalogItems(appConfig.neomacroSavedCatalog);
+                            }
+                            if (parsed.appConfig.brushSwitchLinks && typeof parsed.appConfig.brushSwitchLinks === 'object') {
+                                appConfig.brushSwitchLinks = parsed.appConfig.brushSwitchLinks;
                             }
                         }
                         if (!getBrushById(currentBrush)) {
@@ -1439,6 +1874,8 @@
                         syncBrandingAndBrushUI();
                         renderStatCardsAndChart();
                         updateVisualKeyboardStyles();
+                        renderNeomacroCatalogList();
+                        syncNeomacroAutoOpen();
                         return;
                     }
                 } catch (_) {}
@@ -1447,16 +1884,17 @@
                 syncBrandingAndBrushUI();
                 renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
+                syncNeomacroAutoOpen();
+                fetchLiveNeomacroCatalog(false);
+                renderNeomacroCatalogList();
             }
 
-            /**
-             * 3-page intro wizard controller
-             */
+            
             function initWizardBlankBrushes() {
                 wizardDraftBrushes = [
-                    { id: 'brush_1', name: '', ghost: 'linear', color: '#eab308', combineIntoPrimary: false },
-                    { id: 'brush_2', name: '', ghost: 'tactile', color: '#a855f7', combineIntoPrimary: false },
-                    { id: 'brush_3', name: '', ghost: 'buy', color: '#10b981', combineIntoPrimary: true }
+                    { id: 'brush_1', name: '', ghost: 'linear', color: '#eab308' },
+                    { id: 'brush_2', name: '', ghost: 'tactile', color: '#3b82f6' },
+                    { id: 'brush_3', name: '', ghost: 'buy', color: '#10b981' }
                 ];
             }
 
@@ -1486,7 +1924,7 @@
                     nameInput.type = 'text';
                     nameInput.value = b.name;
                     nameInput.placeholder = b.ghost || `brush ${idx + 1}`;
-                    nameInput.className = 'w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-purple-500 lowercase';
+                    nameInput.className = 'w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 lowercase';
                     nameInput.addEventListener('input', () => {
                         b.name = nameInput.value.toLowerCase();
                     });
@@ -1496,32 +1934,7 @@
                     leftWrap.appendChild(nameInput);
 
                     const rightWrap = document.createElement('div');
-                    rightWrap.className = 'flex items-center gap-3 shrink-0';
-
-                    if (idx === 0) {
-                        const primaryTag = document.createElement('span');
-                        primaryTag.className = 'text-[10px] font-mono px-2 py-1 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300';
-                        primaryTag.textContent = 'primary goal';
-                        rightWrap.appendChild(primaryTag);
-                    } else {
-                        const comboLabel = document.createElement('label');
-                        comboLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-mono text-zinc-400';
-
-                        const comboCheck = document.createElement('input');
-                        comboCheck.type = 'checkbox';
-                        comboCheck.checked = Boolean(b.combineIntoPrimary);
-                        comboCheck.className = 'w-3.5 h-3.5 rounded accent-purple-500 cursor-pointer';
-                        comboCheck.addEventListener('change', () => {
-                            b.combineIntoPrimary = comboCheck.checked;
-                        });
-
-                        const comboText = document.createElement('span');
-                        comboText.textContent = 'add to #1 total';
-
-                        comboLabel.appendChild(comboCheck);
-                        comboLabel.appendChild(comboText);
-                        rightWrap.appendChild(comboLabel);
-                    }
+                    rightWrap.className = 'flex items-center gap-2 shrink-0';
 
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
@@ -1541,6 +1954,110 @@
                     rowEl.appendChild(leftWrap);
                     rowEl.appendChild(rightWrap);
                     wizardBrushList.appendChild(rowEl);
+                });
+            }
+
+            function getWizardResolvedBrushes() {
+                const hasCustomWizardBrushes = wizardDraftBrushes.some((b) => (b.name || '').trim().length > 0);
+                if (hasCustomWizardBrushes) {
+                    return wizardDraftBrushes.map((b, idx) => ({
+                        id: b.id || `brush_${idx + 1}`,
+                        name: (b.name || b.ghost || `brush ${idx + 1}`).trim().toLowerCase(),
+                        color: b.color || COLOR_PALETTE[idx % COLOR_PALETTE.length],
+                        combineIntoPrimary: false
+                    }));
+                }
+                return appConfig.brushes;
+            }
+
+            function renderWizardNeomacroList() {
+                const query = (wizardNeomacroSearch.value || '').trim().toLowerCase();
+                const typeFilter = wizardNeomacroType.value || 'all';
+                const sortBy = wizardNeomacroSort.value || 'popularity';
+                const watchSet = new Set(appConfig.neomacroWatchlist || []);
+                const activeWizardBrushes = getWizardResolvedBrushes();
+
+                let items = neomacroCatalog.filter((item) => {
+                    if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+                    if (query) {
+                        const hay = `${item.title} ${item.vendor} ${item.type} ${item.specs}`.toLowerCase();
+                        if (!hay.includes(query)) return false;
+                    }
+                    return true;
+                });
+
+                items = sortNeomacroItems(items, sortBy);
+                wizardNeomacroList.innerHTML = '';
+
+                items.forEach((item) => {
+                    const isWatched = watchSet.has(item.handle);
+                    const linkedBrushIds = Object.entries(appConfig.brushSwitchLinks || {})
+                        .filter(([, link]) => link && link.handle === item.handle)
+                        .map(([bId]) => bId);
+
+                    const row = document.createElement('div');
+                    row.className = 'p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2';
+
+                    const left = document.createElement('div');
+                    left.className = 'min-w-0 flex-1';
+                    left.innerHTML = `
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="text-xs font-mono font-bold text-zinc-100 truncate">${item.title}</span>
+                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full ${item.available
+                                ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                                : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">${item.available ? 'in stock' : 'sold out'}</span>
+                            <span class="text-[10px] font-mono text-zinc-400">₹ ${item.price}/10</span>
+                        </div>
+                    `;
+
+                    const right = document.createElement('div');
+                    right.className = 'flex items-center gap-1.5 shrink-0';
+
+                    const watchBtn = document.createElement('button');
+                    watchBtn.type = 'button';
+                    watchBtn.className = isWatched
+                        ? 'px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/40 text-[11px] font-mono font-semibold text-rose-300 hover:bg-rose-500/25'
+                        : 'px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-300 hover:border-amber-500/40 hover:text-amber-300';
+                    watchBtn.textContent = isWatched ? 'unwatch' : 'watch';
+                    watchBtn.addEventListener('click', () => {
+                        toggleNeomacroWatch(item.handle);
+                        renderWizardNeomacroList();
+                    });
+
+                    const assignSel = document.createElement('select');
+                    assignSel.className = 'rounded-lg bg-zinc-900 border border-zinc-700 px-2 py-1 text-[11px] font-mono text-cyan-200 focus:outline-none';
+                    const defOpt = document.createElement('option');
+                    defOpt.value = '';
+                    defOpt.textContent = 'assign brush...';
+                    assignSel.appendChild(defOpt);
+
+                    activeWizardBrushes.forEach((b) => {
+                        const opt = document.createElement('option');
+                        opt.value = b.id;
+                        opt.textContent = b.name;
+                        if (linkedBrushIds.includes(b.id)) opt.selected = true;
+                        assignSel.appendChild(opt);
+                    });
+
+                    assignSel.addEventListener('change', () => {
+                        if (assignSel.value) {
+                            const hasTyped = wizardDraftBrushes.some((b) => (b.name || '').trim().length > 0);
+                            if (hasTyped) {
+                                appConfig.brushes = getWizardResolvedBrushes();
+                            }
+                            linkSwitchToBrush(assignSel.value, item);
+                        } else {
+                            linkedBrushIds.forEach((bId) => unlinkSwitchFromBrush(bId));
+                        }
+                        renderWizardNeomacroList();
+                    });
+
+                    right.appendChild(watchBtn);
+                    right.appendChild(assignSel);
+
+                    row.appendChild(left);
+                    row.appendChild(right);
+                    wizardNeomacroList.appendChild(row);
                 });
             }
 
@@ -1566,21 +2083,30 @@
                 wizardPage1.classList.toggle('hidden', step !== 1);
                 wizardPage2.classList.toggle('hidden', step !== 2);
                 wizardPage3.classList.toggle('hidden', step !== 3);
+                wizardPage4.classList.toggle('hidden', step !== 4);
 
                 wizardBackBtn.classList.toggle('hidden', step === 1);
 
                 if (step === 1) {
-                    wizardStepPill.textContent = 'step 1 of 3';
+                    wizardStepPill.textContent = 'step 1 of 4';
                     wizardStepHeading.textContent = 'welcome to switch planner and tester';
-                    wizardNextBtn.textContent = 'next: configure brushes';
+                    wizardNextBtn.textContent = 'next: name brushes';
                 } else if (step === 2) {
-                    wizardStepPill.textContent = 'step 2 of 3';
-                    wizardStepHeading.textContent = 'choose what you are planning or testing';
+                    wizardStepPill.textContent = 'step 2 of 4';
+                    wizardStepHeading.textContent = 'name your switch brushes';
                     wizardNextBtn.textContent = 'next: choose keyboard layout';
                 } else if (step === 3) {
-                    wizardStepPill.textContent = 'step 3 of 3';
+                    wizardStepPill.textContent = 'step 3 of 4';
                     wizardStepHeading.textContent = 'select keyboard layout';
+                    wizardNextBtn.textContent = 'next: neomacro.in switches';
+                } else if (step === 4) {
+                    wizardStepPill.textContent = 'step 4 of 4';
+                    wizardStepHeading.textContent = 'neomacro.in integration';
                     wizardNextBtn.textContent = 'finish & launch studio';
+                    renderWizardNeomacroList();
+                    if (!neomacroIsLiveFetched) {
+                        fetchLiveNeomacroCatalog(false);
+                    }
                 }
             }
 
@@ -1605,18 +2131,18 @@
 
             fillGhostSwitchMixBtn.addEventListener('click', () => {
                 wizardDraftBrushes = [
-                    { id: 'brush_linear', name: 'linear', ghost: 'linear', color: '#eab308', combineIntoPrimary: false },
-                    { id: 'brush_tactile', name: 'tactile', ghost: 'tactile', color: '#a855f7', combineIntoPrimary: false },
-                    { id: 'brush_buy', name: 'buy', ghost: 'buy', color: '#10b981', combineIntoPrimary: true }
+                    { id: 'brush_linear', name: 'linear', ghost: 'linear', color: '#eab308' },
+                    { id: 'brush_tactile', name: 'tactile', ghost: 'tactile', color: '#3b82f6' },
+                    { id: 'brush_buy', name: 'buy', ghost: 'buy', color: '#10b981' }
                 ];
                 renderWizardBrushList();
             });
 
             fillGhostPcbTesterBtn.addEventListener('click', () => {
                 wizardDraftBrushes = [
-                    { id: 'brush_working', name: 'working', ghost: 'working', color: '#10b981', combineIntoPrimary: false },
-                    { id: 'brush_chatter', name: 'chatter', ghost: 'chatter', color: '#eab308', combineIntoPrimary: false },
-                    { id: 'brush_dead', name: 'dead switch', ghost: 'dead switch', color: '#f43f5e', combineIntoPrimary: false }
+                    { id: 'brush_working', name: 'working', ghost: 'working', color: '#10b981' },
+                    { id: 'brush_chatter', name: 'chatter', ghost: 'chatter', color: '#eab308' },
+                    { id: 'brush_dead', name: 'dead switch', ghost: 'dead switch', color: '#f43f5e' }
                 ];
                 renderWizardBrushList();
             });
@@ -1628,8 +2154,7 @@
                     id: `brush_${Date.now().toString(36)}_${nextIdx}`,
                     name: '',
                     ghost: `brush ${nextIdx}`,
-                    color: nextColor,
-                    combineIntoPrimary: false
+                    color: nextColor
                 });
                 renderWizardBrushList();
             });
@@ -1640,6 +2165,11 @@
                     syncWizardLayoutCards();
                 });
             });
+
+            wizardRefreshNeomacroBtn.addEventListener('click', () => fetchLiveNeomacroCatalog(true));
+            wizardNeomacroSearch.addEventListener('input', renderWizardNeomacroList);
+            wizardNeomacroType.addEventListener('change', renderWizardNeomacroList);
+            wizardNeomacroSort.addEventListener('change', renderWizardNeomacroList);
 
             wizardApplyPasteBtn.addEventListener('click', () => {
                 const raw = wizardPasteInput.value;
@@ -1655,20 +2185,19 @@
             });
 
             wizardNextBtn.addEventListener('click', () => {
-                if (wizardStep < 3) {
-                    setWizardPage(wizardStep + 1);
+                if (wizardStep === 2) {
+                    const hasCustomWizardBrushes = wizardDraftBrushes.some((b) => (b.name || '').trim().length > 0);
+                    if (hasCustomWizardBrushes) {
+                        appConfig.brushes = getWizardResolvedBrushes();
+                        currentBrush = appConfig.brushes[0].id;
+                    }
+                    setWizardPage(3);
                     return;
                 }
 
-                const hasCustomWizardBrushes = wizardDraftBrushes.some((b) => (b.name || '').trim().length > 0);
-                if (hasCustomWizardBrushes) {
-                    appConfig.brushes = wizardDraftBrushes.map((b, idx) => ({
-                        id: b.id || `brush_${idx + 1}`,
-                        name: (b.name || b.ghost || `brush ${idx + 1}`).trim().toLowerCase(),
-                        color: b.color || COLOR_PALETTE[idx % COLOR_PALETTE.length],
-                        combineIntoPrimary: idx === 0 ? false : Boolean(b.combineIntoPrimary)
-                    }));
-                    currentBrush = appConfig.brushes[0].id;
+                if (wizardStep < 4) {
+                    setWizardPage(wizardStep + 1);
+                    return;
                 }
 
                 appConfig.layoutId = wizardSelectedLayout || '75_std';
@@ -1679,6 +2208,8 @@
                 syncBrandingAndBrushUI();
                 renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
+                syncNeomacroAutoOpen();
+                fetchLiveNeomacroCatalog(false);
                 closeIntroWizard();
 
                 if (shouldOpenEditor) {
@@ -1692,15 +2223,12 @@
                 reopenWizardBtn.blur();
             });
 
-            /**
-             * builds the serialized self-contained html string with embedded state
-             */
+            
             function buildSelfContainedHtmlOutput() {
                 syncEmbeddedStateTag();
 
                 const cloneDoc = document.documentElement.cloneNode(true);
 
-                // ensure all modals/drawers are closed in the saved copy
                 ['#confirmClearModal', '#missingKeysModal', '#introWizardModal', '#layoutMismatchModal', '#saveFileModal', '#settingsModal', '#pasteDrawer', '#layoutEditorBar'].forEach((sel) => {
                     const el = cloneDoc.querySelector(sel);
                     if (el) el.classList.add('hidden');
@@ -1712,8 +2240,11 @@
                 if (cardsGrid) cardsGrid.innerHTML = '';
                 const brushBar = cloneDoc.querySelector('#brushToggleGroup');
                 if (brushBar) brushBar.innerHTML = '';
+                const neoList = cloneDoc.querySelector('#neomacroCatalogList');
+                if (neoList) neoList.innerHTML = '';
+                const neoLinked = cloneDoc.querySelector('#neomacroLinkedGrid');
+                if (neoLinked) neoLinked.innerHTML = '';
 
-                // keep locked state as the default when saved file is opened later
                 const clonedLockBtn = cloneDoc.querySelector('#lockBtn');
                 if (clonedLockBtn) {
                     clonedLockBtn.textContent = 'lock keyboard: on';
@@ -1744,10 +2275,7 @@
                 return '<!DOCTYPE html>\n' + cloneDoc.outerHTML;
             }
 
-            /**
-             * hands over to native windows explorer / os file picker to choose folder and file name
-             * falls back to in-app filename modal + browser download if showSaveFilePicker is unavailable
-             */
+            
             async function initiateNativeSaveFlow(mode = 'html') {
                 const defaultSlug = (appConfig.title || 'switch-planner-and-tester')
                     .toLowerCase()
@@ -1837,9 +2365,7 @@
                     .replace(/[\\/:*?"<>|]+/g, '-')
                     .replace(/^-+|-+$/g, '');
 
-                if (!cleanName) {
-                    cleanName = 'switch-list';
-                }
+                if (!cleanName) cleanName = 'switch-list';
 
                 const link = document.createElement('a');
                 link.href = url;
@@ -1867,9 +2393,7 @@
                     .replace(/[\\/:*?"<>|]+/g, '-')
                     .replace(/^-+|-+$/g, '');
 
-                if (!cleanName) {
-                    cleanName = 'switch-planner-and-tester';
-                }
+                if (!cleanName) cleanName = 'switch-planner-and-tester';
 
                 const link = document.createElement('a');
                 link.href = url;
@@ -1885,9 +2409,7 @@
                 ensurePageFocus();
             }
 
-            /**
-             * renders the dynamic brush toggle bar
-             */
+            
             function renderBrushBar() {
                 brushToggleGroup.innerHTML = '';
 
@@ -1952,9 +2474,6 @@
                 brushToggleGroup.appendChild(unBtn);
             }
 
-            /**
-             * synchronizes workspace title, fixed subtitle, layout dropdown, and dynamic brush bar
-             */
             function syncBrandingAndBrushUI() {
                 workspaceTitleEl.textContent = (appConfig.title || 'switch planner and tester').toLowerCase();
                 workspaceSubtitleEl.textContent = FIXED_SUBTITLE;
@@ -2002,11 +2521,11 @@
 
             function updateStatusLine() {
                 if (isInputLocked) {
-                    shieldStatusTextEl.textContent = 'keyboard locked: all physical keypresses and keycap clicks are blocked (click "lock keyboard: on" to resume)';
+                    shieldStatusTextEl.textContent = 'keyboard locked: \nall physical keypresses are blocked.\nturn it off to edit!';
                     return;
                 }
                 if (isEditLayoutMode) {
-                    shieldStatusTextEl.textContent = 'edit layout mode: click any keycap to rename, rebind, resize, swap, or delete it';
+                    shieldStatusTextEl.textContent = 'edit layout mode: click any keycap or spacer to customize, resize, add spacers, or swap';
                     return;
                 }
 
@@ -2016,16 +2535,15 @@
                     : (activeBrushObj?.name || currentBrush);
 
                 const lastBrush = appConfig.brushes[appConfig.brushes.length - 1];
-                const middleHint = lastBrush ? `, middle-click for ${lastBrush.name.toLowerCase()}` : '';
+                const middleHint = lastBrush ? `,\nmiddle-click for ${lastBrush.name.toLowerCase()}` : '';
                 shieldStatusTextEl.textContent = `active brush: ${activeBrushName.toLowerCase()} (press any key or left-click keycap to paint${middleHint}, right-click to uncheck)`;
             }
 
-            /**
-             * builds the interactive visual keyboard dom from the active layout rows
-             */
+            
             function buildVisualKeyboard() {
                 kbdMainBlock.innerHTML = '';
                 keycapElements.clear();
+                spacerElements.length = 0;
 
                 const rows = getActiveLayoutRows();
 
@@ -2033,13 +2551,33 @@
                     const rowEl = document.createElement('div');
                     rowEl.className = 'flex items-stretch gap-1.5 h-10 sm:h-11';
 
-                    row.forEach((item, keyIdx) => {
+                    row.forEach((item, itemIdx) => {
+                        if (item.isSpacer) {
+                            const spacerEl = document.createElement('div');
+                            const widthU = parseFloat(item.w) || 1;
+                            spacerEl.style.flex = `${widthU} 1 0%`;
+                            spacerEl.dataset.rowIdx = String(rowIdx);
+                            spacerEl.dataset.itemIdx = String(itemIdx);
+                            spacerEl.className = 'kbd-spacer rounded-lg flex items-center justify-center transition-all';
+
+                            spacerEl.addEventListener('pointerdown', (ev) => {
+                                if (!isEditLayoutMode) return;
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                handleItemClickInEditMode(rowIdx, itemIdx);
+                            });
+
+                            rowEl.appendChild(spacerEl);
+                            spacerElements.push({ el: spacerEl, rowIdx, itemIdx, w: widthU });
+                            return;
+                        }
+
                         const gap = parseFloat(item.gap) || 0;
                         if (gap > 0) {
-                            const spacerEl = document.createElement('div');
-                            spacerEl.style.flex = `${gap} 1 0%`;
-                            spacerEl.setAttribute('aria-hidden', 'true');
-                            rowEl.appendChild(spacerEl);
+                            const blockerEl = document.createElement('div');
+                            blockerEl.style.flex = `${gap} 1 0%`;
+                            blockerEl.setAttribute('aria-hidden', 'true');
+                            rowEl.appendChild(blockerEl);
                         }
 
                         const keyEl = document.createElement('div');
@@ -2047,7 +2585,7 @@
                         keyEl.style.flex = `${widthU} 1 0%`;
                         keyEl.dataset.code = item.code;
                         keyEl.dataset.rowIdx = String(rowIdx);
-                        keyEl.dataset.keyIdx = String(keyIdx);
+                        keyEl.dataset.keyIdx = String(itemIdx);
                         keyEl.className = 'keycap relative rounded-lg border-b-[3px] border border-zinc-800 bg-zinc-900 text-zinc-300 flex flex-col items-center justify-center px-1 overflow-hidden cursor-pointer';
 
                         const labelSpan = document.createElement('span');
@@ -2065,7 +2603,7 @@
                             if (isEditLayoutMode) {
                                 ev.preventDefault();
                                 ev.stopPropagation();
-                                handleKeyClickInEditMode(rowIdx, keyIdx);
+                                handleItemClickInEditMode(rowIdx, itemIdx);
                                 return;
                             }
 
@@ -2102,9 +2640,10 @@
                         keycapElements.set(item.code, {
                             el: keyEl,
                             badgeEl: badgeSpan,
+                            widthU: widthU,
                             label: (item.label || item.code).toLowerCase(),
                             rowIdx,
-                            keyIdx
+                            keyIdx: itemIdx
                         });
                     });
 
@@ -2116,14 +2655,14 @@
                 updateVisualKeyboardStyles();
             }
 
-            function handleKeyClickInEditMode(rowIdx, keyIdx) {
+            function handleItemClickInEditMode(rowIdx, itemIdx) {
                 const rows = getActiveLayoutRows();
-                if (!rows[rowIdx] || !rows[rowIdx][keyIdx]) return;
+                if (!rows[rowIdx] || !rows[rowIdx][itemIdx]) return;
 
                 if (isSwapPending && selectedKeyPos) {
-                    const src = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
-                    const dst = rows[rowIdx]?.[keyIdx];
-                    if (src && dst) {
+                    const src = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.itemIdx];
+                    const dst = rows[rowIdx]?.[itemIdx];
+                    if (src && dst && !src.isSpacer && !dst.isSpacer) {
                         const tempCode = src.code;
                         const tempLabel = src.label;
                         src.code = dst.code;
@@ -2132,8 +2671,8 @@
                         dst.label = tempLabel;
 
                         isSwapPending = false;
-                        swapKeyModeBtn.textContent = 'swap with next clicked key';
-                        selectedKeyPos = { rowIdx, keyIdx };
+                        swapKeyModeBtn.textContent = 'swap';
+                        selectedKeyPos = { rowIdx, itemIdx };
                         syncEmbeddedStateTag();
                         buildVisualKeyboard();
                         populateInspectorForSelectedKey();
@@ -2142,9 +2681,9 @@
                     }
                 }
 
-                selectedKeyPos = { rowIdx, keyIdx };
+                selectedKeyPos = { rowIdx, itemIdx };
                 isSwapPending = false;
-                swapKeyModeBtn.textContent = 'swap with next clicked key';
+                swapKeyModeBtn.textContent = 'swap';
                 populateInspectorForSelectedKey();
                 highlightSelectedEditKey();
             }
@@ -2152,21 +2691,50 @@
             function populateInspectorForSelectedKey() {
                 if (!selectedKeyPos) return;
                 const rows = getActiveLayoutRows();
-                const item = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
+                const item = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.itemIdx];
                 if (!item) return;
 
-                editKeyLabelInput.value = (item.label || '').toLowerCase();
-                editKeyCodeInput.value = (item.code || '').toLowerCase();
-                editKeyWidthSelect.value = String(item.w || 1);
-                editKeyGapSelect.value = String(item.gap || 0);
-                editInspectorStatus.textContent = `editing row ${selectedKeyPos.rowIdx + 1}, key ${selectedKeyPos.keyIdx + 1}: "${item.label.toLowerCase()}" (code: ${item.code.toLowerCase()}, width: ${item.w || 1}u)`;
+                if (item.isSpacer) {
+                    editKeyLabelWrap.classList.add('opacity-40', 'pointer-events-none');
+                    editKeyCodeWrap.classList.add('opacity-40', 'pointer-events-none');
+                    editKeyGapWrap.classList.add('opacity-40', 'pointer-events-none');
+                    editWidthLabel.textContent = 'spacer width (u)';
+                    editKeyLabelInput.value = 'spacer';
+                    editKeyCodeInput.value = 'empty gap';
+                    editKeyWidthSelect.value = String(item.w || 1);
+                    editInspectorStatus.textContent = `editing row ${selectedKeyPos.rowIdx + 1}, slot ${selectedKeyPos.itemIdx + 1}: empty spacer (${item.w || 1}u)`;
+                } else {
+                    editKeyLabelWrap.classList.remove('opacity-40', 'pointer-events-none');
+                    editKeyCodeWrap.classList.remove('opacity-40', 'pointer-events-none');
+                    editKeyGapWrap.classList.remove('opacity-40', 'pointer-events-none');
+                    editWidthLabel.textContent = 'key width (u)';
+                    editKeyLabelInput.value = (item.label || '').toLowerCase();
+                    editKeyCodeInput.value = (item.code || '').toLowerCase();
+                    editKeyWidthSelect.value = String(item.w || 1);
+                    editKeyGapSelect.value = String(item.gap || 0);
+                    editInspectorStatus.textContent = `editing row ${selectedKeyPos.rowIdx + 1}, slot ${selectedKeyPos.itemIdx + 1}: "${item.label.toLowerCase()}" (code: ${item.code.toLowerCase()}, width: ${item.w || 1}u)`;
+                }
             }
 
             function highlightSelectedEditKey() {
                 keycapElements.forEach(({ el, rowIdx, keyIdx }) => {
                     el.classList.remove('selected-for-edit', 'swap-source');
-                    if (isEditLayoutMode && selectedKeyPos && selectedKeyPos.rowIdx === rowIdx && selectedKeyPos.keyIdx === keyIdx) {
+                    if (isEditLayoutMode && selectedKeyPos && selectedKeyPos.rowIdx === rowIdx && selectedKeyPos.itemIdx === keyIdx) {
                         el.classList.add(isSwapPending ? 'swap-source' : 'selected-for-edit');
+                    }
+                });
+
+                spacerElements.forEach(({ el, rowIdx, itemIdx, w }) => {
+                    el.classList.remove('selected-for-edit');
+                    if (isEditLayoutMode) {
+                        el.className = 'kbd-spacer rounded-lg border border-dashed border-indigo-400/50 bg-indigo-500/10 text-[10px] font-mono text-indigo-300 flex items-center justify-center cursor-pointer transition-all';
+                        el.textContent = `spacer ${w}u`;
+                        if (selectedKeyPos && selectedKeyPos.rowIdx === rowIdx && selectedKeyPos.itemIdx === itemIdx) {
+                            el.classList.add('selected-for-edit');
+                        }
+                    } else {
+                        el.className = 'kbd-spacer rounded-lg flex items-center justify-center transition-all';
+                        el.textContent = '';
                     }
                 });
             }
@@ -2373,7 +2941,7 @@
                     </div>
                     <div class="my-1 flex items-center justify-start min-h-[2.5rem]">
                         <kbd style="${badgeBg}"
-                            class="inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl ${isDark ? 'bg-zinc-800 border-zinc-700 text-purple-400' : 'bg-zinc-100 border-zinc-300 text-purple-600'} border-b-4 font-mono text-lg sm:text-xl font-bold shadow-inner transition-transform duration-75">
+                            class="inline-flex items-center justify-center min-w-[3.25rem] px-3 py-1.5 rounded-xl ${isDark ? 'bg-zinc-800 border-zinc-700 text-blue-400' : 'bg-zinc-100 border-zinc-300 text-blue-600'} border-b-4 font-mono text-lg sm:text-xl font-bold shadow-inner transition-transform duration-75">
                             ${lastInputSnapshot.label}
                         </kbd>
                     </div>
@@ -2381,6 +2949,7 @@
                 `;
                 statCardsGrid.appendChild(lastCard);
 
+                renderNeomacroSummaryBar();
                 drawChart();
             }
 
@@ -2403,7 +2972,9 @@
                     const grp = getBrushById(markState);
 
                     if (grp) {
-                        badgeEl.textContent = grp.name.slice(0, 3).toLowerCase();
+                        const wU = (keycapElements.get(code) && keycapElements.get(code).widthU) || 1;
+                        const maxChars = Math.max(3, Math.min(grp.name.length, Math.floor(wU * 4.2)));
+                        badgeEl.textContent = grp.name.slice(0, maxChars).toLowerCase();
                         badgeEl.classList.remove('opacity-0');
                         badgeEl.classList.add('opacity-90');
                     } else {
@@ -2569,26 +3140,26 @@
 
                 if (isInputLocked) {
                     focusBadgeEl.textContent = 'locked: ignoring input';
-                    focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 transition-colors cursor-pointer';
-                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-400';
+                    focusBadgeEl.className = 'text-[11px] font-mono px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 transition-all duration-200 cursor-pointer hover:bg-rose-500/20';
+                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.65)]';
                     return;
                 }
 
                 if (isInteractiveInputActive()) {
                     focusBadgeEl.textContent = 'input / setup active';
-                    focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 transition-colors cursor-pointer';
-                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse';
+                    focusBadgeEl.className = 'text-[11px] font-mono px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-300 transition-all duration-200 cursor-pointer';
+                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-sky-400 animate-soft-pulse shadow-[0_0_8px_rgba(56,189,248,0.55)]';
                     return;
                 }
 
                 if (hasFocus) {
                     focusBadgeEl.textContent = 'ready: listening for keys';
-                    focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-colors cursor-pointer';
-                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+                    focusBadgeEl.className = 'text-[11px] font-mono px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-all duration-200 cursor-pointer';
+                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-soft-pulse shadow-[0_0_8px_rgba(52,211,153,0.55)]';
                 } else {
                     focusBadgeEl.textContent = 'click anywhere to focus';
-                    focusBadgeEl.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 animate-pulse transition-colors cursor-pointer';
-                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
+                    focusBadgeEl.className = 'text-[11px] font-mono px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 animate-soft-pulse transition-all duration-200 cursor-pointer';
+                    statusDotEl.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-soft-pulse shadow-[0_0_8px_rgba(251,191,36,0.5)]';
                 }
             }
 
@@ -2615,7 +3186,7 @@
                     editKeyCodeInput.value = capturedCode.toLowerCase();
                     isBindingKeyCode = false;
                     bindPhysicalKeyBtn.textContent = 'bind';
-                    editInspectorStatus.textContent = `captured physical key code: ${capturedCode.toLowerCase()} (click save key to apply)`;
+                    editInspectorStatus.textContent = `captured physical key code: ${capturedCode.toLowerCase()} (click save to apply)`;
                     try {
                         e.preventDefault();
                         e.stopPropagation();
@@ -2709,22 +3280,16 @@
                 return lookup;
             }
 
-            /**
-             * detects if the pasted switch list corresponds to a standard preset layout
-             * (e.g. 68 keys -> 65%, 61 keys -> 60%, 84 keys -> 75%, 87 keys -> tkl, 104 keys -> 100%)
-             */
             function detectListPresetLayout(rawText) {
                 const text = (rawText || '').trim().toLowerCase();
                 if (!text) return null;
 
-                // 1. check explicit "layout: <id>" metadata line
                 const explicitMatch = text.match(/^layout:\s*([a-z0-9_]+)/m);
                 if (explicitMatch && explicitMatch[1]) {
                     const code = explicitMatch[1].trim();
                     if (LAYOUT_PRESETS[code]) return code;
                 }
 
-                // 2. check total key count declared in header like "(68 keys total)"
                 const countMatch = text.match(/\((\d+)\s+keys\s+total\)/);
                 if (countMatch && countMatch[1]) {
                     const total = parseInt(countMatch[1], 10);
@@ -2736,7 +3301,6 @@
                     if (total >= 80 && total <= 84) return '75_std';
                 }
 
-                // 3. infer from key tokens in the list
                 const hasNumpad = /\(numpad/.test(text);
                 if (hasNumpad) return '100';
                 const hasScrollLock = /\(scrolllock\)/.test(text);
@@ -2749,11 +3313,6 @@
                 return null;
             }
 
-            /**
-             * parses pasted switch list:
-             * 1) if the pasted list comes from a different preset layout (e.g. 68-key 65% while on 75%), asks to switch to that layout first
-             * 2) after applying, checks if any keys in the current active layout were completely absent from the pasted list (e.g. 2 keys missing from 75% layout) and asks whether to remove them from the layout!
-             */
             function parseAndApplySwitchListWithCheck(rawText, onStatus, onSuccess) {
                 const text = (rawText || '').trim().toLowerCase();
                 if (!text) {
@@ -2820,7 +3379,6 @@
                 const text = (rawText || '').trim().toLowerCase();
                 const lines = text.split(/\r?\n/);
 
-                // detect combined brushes in header like "total tactile coverage (+silent):"
                 const combinedNamesFromHeader = new Set();
                 lines.forEach((line) => {
                     const covMatch = line.trim().match(/^total\s+.+?\s+coverage\s*\(([^)]+)\)\s*:/);
@@ -2834,7 +3392,6 @@
                     }
                 });
 
-                // auto-create missing brushes
                 const activeBrushNamesInPaste = new Set();
                 lines.forEach((line) => {
                     const trimmed = line.trim();
@@ -2952,8 +3509,6 @@
                 if (onStatus) onStatus(`loaded ${matchedCount} keys`);
                 if (onSuccess) onSuccess();
 
-                // check if the active layout has extra keys that were completely missing from the pasted list
-                // (for example: current layout has 84 keys, pasted list only has 82 keys -> 2 keys like prtsc & pause missing!)
                 const missingFromPaste = [];
                 keycapElements.forEach(({ label }, canonicalCode) => {
                     if (!allMentionedCodes.has(canonicalCode)) {
@@ -2976,7 +3531,6 @@
                 }
             }
 
-            // missing keys modal actions
             keepMissingKeysBtn.addEventListener('click', () => {
                 pendingMissingKeysList = [];
                 missingKeysModal.classList.add('hidden');
@@ -2988,9 +3542,8 @@
                     const codesToRemove = new Set(pendingMissingKeysList.map((k) => k.code));
                     const rows = getActiveLayoutRows();
                     for (let r = 0; r < rows.length; r++) {
-                        rows[r] = rows[r].filter((item) => !codesToRemove.has(item.code));
+                        rows[r] = rows[r].filter((item) => item.isSpacer || !codesToRemove.has(item.code));
                     }
-                    // remove any empty rows if all keys in a row were removed
                     appConfig.customLayouts[appConfig.layoutId] = rows.filter((r) => r.length > 0);
                     codesToRemove.forEach((c) => keyStates.delete(c));
 
@@ -3004,7 +3557,6 @@
                 ensurePageFocus();
             });
 
-            // layout mismatch modal button listeners
             cancelMismatchBtn.addEventListener('click', () => {
                 layoutMismatchModal.classList.add('hidden');
                 ensurePageFocus();
@@ -3027,9 +3579,7 @@
                 }, pendingMismatchOnSuccess);
             });
 
-            /**
-             * builds the formatted switch list text including layout, brush colors [#hex], and (+primary) tags
-             */
+            
             function generateSwitchListText() {
                 const {
                     totalKeys,
@@ -3076,6 +3626,56 @@
 
                 summaryLines.push(`unchecked: ${unchecked} keys`);
 
+                const links = appConfig.brushSwitchLinks || {};
+                const activeLinks = Object.entries(links).filter(([bId, l]) => getBrushById(bId) && l && l.handle);
+                const watchList = appConfig.neomacroWatchlist || [];
+
+                if (activeLinks.length > 0 || watchList.length > 0) {
+                    summaryLines.push('');
+                    summaryLines.push('neomacro.in switch order & watchlist (1 pack = 10 switches):');
+
+                    let subtotalRs = 0;
+                    let totalPacks = 0;
+
+                    activeLinks.forEach(([bId, link]) => {
+                        const brush = getBrushById(bId);
+                        if (!brush) return;
+                        const catalogMatch = neomacroCatalog.find((x) => x.handle === link.handle);
+                        const liveItem = Object.assign({}, link, catalogMatch || {});
+                        const unitPackPrice = Number(liveItem.price) > 0
+                            ? Number(liveItem.price)
+                            : (Number(link.price) || 0);
+                        liveItem.price = unitPackPrice;
+                        const keyCount = Number(counts.get(bId)) || 0;
+                        const packs = keyCount > 0 ? Math.ceil(keyCount / 10) : 0;
+                        const lineCost = packs * unitPackPrice;
+                        subtotalRs += lineCost;
+                        totalPacks += packs;
+
+                        summaryLines.push(
+                            `- ${brush.name.toLowerCase()} -> ${liveItem.title.toLowerCase()} (${liveItem.available ? 'in stock' : 'sold out'}): ${packs} ${packs === 1 ? 'pack' : 'packs'} x ₹ ${liveItem.price} = ₹ ${lineCost} (${liveItem.url})`
+                        );
+                    });
+
+                    const linkedHandles = new Set(activeLinks.map(([, l]) => l.handle));
+                    const extraWatched = watchList.filter((h) => !linkedHandles.has(h));
+                    extraWatched.forEach((h) => {
+                        const item = neomacroCatalog.find((x) => x.handle === h);
+                        if (item) {
+                            summaryLines.push(
+                                `- watchlist -> ${item.title.toLowerCase()} (${item.available ? 'in stock' : 'sold out'}): ₹ ${item.price} / 10 switches (${item.url})`
+                            );
+                        }
+                    });
+
+                    if (totalPacks > 0) {
+                        const grandTotalRs = subtotalRs + NEOMACRO_SHIPPING_RS;
+                        summaryLines.push(
+                            `neomacro.in subtotal: ₹ ${subtotalRs} + ₹ ${NEOMACRO_SHIPPING_RS} shipping = ₹ ${grandTotalRs} total`
+                        );
+                    }
+                }
+
                 return summaryLines.join('\n').toLowerCase();
             }
 
@@ -3102,9 +3702,7 @@
                 }
             }
 
-            /**
-             * draws the live dynamic switch breakdown chart on html5 canvas
-             */
+            
             function drawChart() {
                 if (!canvas || !ctx) return;
                 const dpr = window.devicePixelRatio || 1;
@@ -3141,7 +3739,7 @@
                         chartSummaryEl.style.color = primaryBrush.color;
                     } else {
                         chartSummaryEl.textContent = `assigned: ${assignedTotal} / ${totalKeys} (${formatPercent(assignedTotal, totalKeys)})`.toLowerCase();
-                        const topColor = primaryBrush ? primaryBrush.color : '#a855f7';
+                        const topColor = primaryBrush ? primaryBrush.color : '#3b82f6';
                         chartSummaryEl.style.borderColor = hexToRgba(topColor, 0.4);
                         chartSummaryEl.style.color = topColor;
                     }
@@ -3276,9 +3874,6 @@
                 ctx.restore();
             }
 
-            /**
-             * switches active keyboard layout preset
-             */
             function switchLayoutPreset(newLayoutId) {
                 if (!LAYOUT_PRESETS[newLayoutId]) return;
                 appConfig.layoutId = newLayoutId;
@@ -3287,6 +3882,7 @@
                 syncEmbeddedStateTag();
                 buildVisualKeyboard();
                 syncBrandingAndBrushUI();
+                triggerStockRefreshOnLayoutEdit();
                 ensurePageFocus();
             }
 
@@ -3295,9 +3891,7 @@
                 quickLayoutSelect.blur();
             });
 
-            /**
-             * toggles on-board per-key layout editor mode
-             */
+            
             function toggleEditLayoutMode(forceState) {
                 isEditLayoutMode = typeof forceState === 'boolean' ? forceState : !isEditLayoutMode;
                 isSwapPending = false;
@@ -3306,15 +3900,15 @@
                 if (isEditLayoutMode) {
                     layoutEditorBar.classList.remove('hidden');
                     editLayoutBtn.textContent = 'edit layout: on';
-                    editLayoutBtn.className = 'px-3.5 py-2 rounded-xl bg-sky-500/20 border border-sky-400 text-xs font-mono font-semibold text-sky-300 transition-all focus:outline-none';
+                    editLayoutBtn.className = 'ui-btn px-3.5 py-2 rounded-xl bg-sky-500/20 border border-sky-400 text-xs font-mono font-semibold text-sky-300 focus:outline-none';
                     if (!selectedKeyPos) {
-                        selectedKeyPos = { rowIdx: 0, keyIdx: 0 };
+                        selectedKeyPos = { rowIdx: 0, itemIdx: 0 };
                     }
                     populateInspectorForSelectedKey();
                 } else {
                     layoutEditorBar.classList.add('hidden');
                     editLayoutBtn.textContent = 'edit layout: off';
-                    editLayoutBtn.className = 'px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/10 hover:text-sky-400 hover:border-sky-500/30 active:scale-95 transition-all focus:outline-none';
+                    editLayoutBtn.className = 'ui-btn px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-zinc-800/90 text-xs font-mono font-medium text-zinc-300 hover:bg-sky-500/15 hover:text-sky-300 hover:border-sky-500/40 focus:outline-none';
                 }
 
                 updateStatusLine();
@@ -3331,13 +3925,23 @@
             applyKeyEditBtn.addEventListener('click', () => {
                 if (!selectedKeyPos) return;
                 const rows = getActiveLayoutRows();
-                const item = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.keyIdx];
+                const item = rows[selectedKeyPos.rowIdx]?.[selectedKeyPos.itemIdx];
                 if (!item) return;
+
+                const newW = parseFloat(editKeyWidthSelect.value) || 1;
+
+                if (item.isSpacer) {
+                    item.w = newW;
+                    syncEmbeddedStateTag();
+                    buildVisualKeyboard();
+                    populateInspectorForSelectedKey();
+                    editInspectorStatus.textContent = `saved spacer width (${newW}u)`;
+                    return;
+                }
 
                 const newLabel = (editKeyLabelInput.value || '').trim().toLowerCase() || 'key';
                 const rawCode = (editKeyCodeInput.value || '').trim();
                 const newCode = rawCode || item.code;
-                const newW = parseFloat(editKeyWidthSelect.value) || 1;
                 const newGap = parseFloat(editKeyGapSelect.value) || 0;
 
                 if (newCode !== item.code && keyStates.has(item.code)) {
@@ -3354,6 +3958,7 @@
 
                 syncEmbeddedStateTag();
                 buildVisualKeyboard();
+                triggerStockRefreshOnLayoutEdit();
                 editInspectorStatus.textContent = `saved key "${newLabel}" (${newCode.toLowerCase()}, ${newW}u)`;
             });
 
@@ -3373,7 +3978,7 @@
                     return;
                 }
                 isSwapPending = !isSwapPending;
-                swapKeyModeBtn.textContent = isSwapPending ? 'click 2nd key to swap...' : 'swap with next clicked key';
+                swapKeyModeBtn.textContent = isSwapPending ? 'click 2nd key...' : 'swap';
                 editInspectorStatus.textContent = isSwapPending
                     ? 'now click any second key on the keyboard to swap positions with the highlighted key'
                     : 'swap cancelled';
@@ -3388,12 +3993,30 @@
 
                 const customId = `CustomKey${Date.now().toString().slice(-4)}`;
                 const newKey = { code: customId, label: 'custom', w: 1 };
-                row.splice(selectedKeyPos.keyIdx + 1, 0, newKey);
-                selectedKeyPos = { rowIdx: selectedKeyPos.rowIdx, keyIdx: selectedKeyPos.keyIdx + 1 };
+                row.splice(selectedKeyPos.itemIdx + 1, 0, newKey);
+                selectedKeyPos = { rowIdx: selectedKeyPos.rowIdx, itemIdx: selectedKeyPos.itemIdx + 1 };
 
                 syncEmbeddedStateTag();
                 buildVisualKeyboard();
+                triggerStockRefreshOnLayoutEdit();
                 populateInspectorForSelectedKey();
+            });
+
+            insertSpacerAfterBtn.addEventListener('click', () => {
+                if (!selectedKeyPos) return;
+                const rows = getActiveLayoutRows();
+                const row = rows[selectedKeyPos.rowIdx];
+                if (!row) return;
+
+                const newSpacer = { isSpacer: true, w: 0.5 };
+                row.splice(selectedKeyPos.itemIdx + 1, 0, newSpacer);
+                selectedKeyPos = { rowIdx: selectedKeyPos.rowIdx, itemIdx: selectedKeyPos.itemIdx + 1 };
+
+                syncEmbeddedStateTag();
+                buildVisualKeyboard();
+                triggerStockRefreshOnLayoutEdit();
+                populateInspectorForSelectedKey();
+                editInspectorStatus.textContent = 'inserted 0.5u spacer block (adjust width above and click save)';
             });
 
             deleteSelectedKeyBtn.addEventListener('click', () => {
@@ -3401,34 +4024,34 @@
                 const rows = getActiveLayoutRows();
                 const row = rows[selectedKeyPos.rowIdx];
                 if (!row || row.length <= 1) {
-                    editInspectorStatus.textContent = 'cannot remove the last remaining key in a row';
+                    editInspectorStatus.textContent = 'cannot remove the last remaining item in a row';
                     return;
                 }
-                const removed = row.splice(selectedKeyPos.keyIdx, 1)[0];
-                if (removed && removed.code) {
+                const removed = row.splice(selectedKeyPos.itemIdx, 1)[0];
+                if (removed && !removed.isSpacer && removed.code) {
                     keyStates.delete(removed.code);
                 }
-                selectedKeyPos.keyIdx = Math.max(0, selectedKeyPos.keyIdx - 1);
+                selectedKeyPos.itemIdx = Math.max(0, selectedKeyPos.itemIdx - 1);
 
                 syncEmbeddedStateTag();
                 buildVisualKeyboard();
+                triggerStockRefreshOnLayoutEdit();
                 populateInspectorForSelectedKey();
-                editInspectorStatus.textContent = `removed key "${removed.label}"`;
+                editInspectorStatus.textContent = removed.isSpacer ? 'removed spacer' : `removed key "${removed.label}"`;
             });
 
             resetLayoutDefaultBtn.addEventListener('click', () => {
                 const id = appConfig.layoutId || '75_std';
                 appConfig.customLayouts[id] = cloneObj(LAYOUT_PRESETS[id] || LAYOUT_PRESETS['75_std']);
-                selectedKeyPos = { rowIdx: 0, keyIdx: 0 };
+                selectedKeyPos = { rowIdx: 0, itemIdx: 0 };
                 syncEmbeddedStateTag();
                 buildVisualKeyboard();
+                triggerStockRefreshOnLayoutEdit();
                 populateInspectorForSelectedKey();
                 editInspectorStatus.textContent = `reset ${id} layout to factory preset default`;
             });
 
-            /**
-             * dynamic brush list editor inside the settings modal
-             */
+            
             function renderModalBrushList() {
                 brushEditorList.innerHTML = '';
 
@@ -3455,7 +4078,7 @@
                     nameInput.type = 'text';
                     nameInput.value = b.name.toLowerCase();
                     nameInput.placeholder = 'brush name (e.g. tactile, silent, buy)';
-                    nameInput.className = 'w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-purple-500 lowercase';
+                    nameInput.className = 'w-full rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-blue-500 lowercase';
                     nameInput.addEventListener('input', () => {
                         b.name = nameInput.value.toLowerCase();
                     });
@@ -3467,19 +4090,14 @@
                     const rightWrap = document.createElement('div');
                     rightWrap.className = 'flex items-center gap-3 shrink-0';
 
-                    if (idx === 0) {
-                        const primaryTag = document.createElement('span');
-                        primaryTag.className = 'text-[10px] font-mono px-2 py-1 rounded bg-purple-500/15 border border-purple-500/30 text-purple-300';
-                        primaryTag.textContent = 'primary goal brush';
-                        rightWrap.appendChild(primaryTag);
-                    } else {
+                    if (idx > 0) {
                         const comboLabel = document.createElement('label');
                         comboLabel.className = 'flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-mono text-zinc-400';
 
                         const comboCheck = document.createElement('input');
                         comboCheck.type = 'checkbox';
                         comboCheck.checked = Boolean(b.combineIntoPrimary);
-                        comboCheck.className = 'w-3.5 h-3.5 rounded accent-purple-500 cursor-pointer';
+                        comboCheck.className = 'w-3.5 h-3.5 rounded accent-blue-500 cursor-pointer';
                         comboCheck.addEventListener('change', () => {
                             b.combineIntoPrimary = comboCheck.checked;
                         });
@@ -3549,20 +4167,20 @@
                     if (preset === 'tactile_upgrade') {
                         settingsTitleInput.value = 'switch planner and tester';
                         modalDraftBrushes = [
-                            { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                            { id: 'brush_tactile', name: 'tactile', color: '#3b82f6', combineIntoPrimary: false },
                             { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false },
                             { id: 'brush_buy', name: 'buy', color: '#10b981', combineIntoPrimary: true }
                         ];
                     } else if (preset === 'two_way_split') {
                         settingsTitleInput.value = 'switch planner and tester';
                         modalDraftBrushes = [
-                            { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                            { id: 'brush_tactile', name: 'tactile', color: '#3b82f6', combineIntoPrimary: false },
                             { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false }
                         ];
                     } else if (preset === 'four_way_mix') {
                         settingsTitleInput.value = 'switch planner and tester';
                         modalDraftBrushes = [
-                            { id: 'brush_tactile', name: 'tactile', color: '#a855f7', combineIntoPrimary: false },
+                            { id: 'brush_tactile', name: 'tactile', color: '#3b82f6', combineIntoPrimary: false },
                             { id: 'brush_linear', name: 'linear', color: '#eab308', combineIntoPrimary: false },
                             { id: 'brush_silent', name: 'silent', color: '#06b6d4', combineIntoPrimary: false },
                             { id: 'brush_heavy', name: 'heavy', color: '#f43f5e', combineIntoPrimary: false }
@@ -3601,6 +4219,13 @@
                         keyStates.delete(code);
                     }
                 });
+                if (appConfig.brushSwitchLinks) {
+                    Object.keys(appConfig.brushSwitchLinks).forEach((bId) => {
+                        if (!validIds.has(bId)) {
+                            delete appConfig.brushSwitchLinks[bId];
+                        }
+                    });
+                }
 
                 const chosenLayout = settingsLayoutSelect.value || '75_std';
                 if (chosenLayout !== appConfig.layoutId && LAYOUT_PRESETS[chosenLayout]) {
@@ -3612,6 +4237,9 @@
                 syncBrandingAndBrushUI();
                 renderStatCardsAndChart();
                 updateVisualKeyboardStyles();
+                renderNeomacroCatalogList();
+                syncNeomacroAutoOpen();
+                fetchLiveNeomacroCatalog(false);
                 closeSettingsModal();
             }
 
@@ -3629,7 +4257,6 @@
                 initiateNativeSaveFlow('txt');
             });
 
-            // save file prompt modal actions
             closeSaveModalBtn.addEventListener('click', closeSaveFileModal);
             cancelSaveFileBtn.addEventListener('click', closeSaveFileModal);
             confirmSaveFileBtn.addEventListener('click', () => {
@@ -3657,7 +4284,6 @@
                 }
             });
 
-            // json config export / import inside settings
             exportJsonBtn.addEventListener('click', () => {
                 jsonConfigTextarea.value = JSON.stringify(buildSerializedFileState());
                 jsonConfigStatus.textContent = 'exported current file state json to box above';
@@ -3682,6 +4308,15 @@
                         if (parsed.appConfig.customLayouts) {
                             appConfig.customLayouts = parsed.appConfig.customLayouts;
                         }
+                        if (Array.isArray(parsed.appConfig.neomacroWatchlist)) {
+                            appConfig.neomacroWatchlist = parsed.appConfig.neomacroWatchlist;
+                        }
+                        if (Array.isArray(parsed.appConfig.neomacroSavedCatalog)) {
+                            mergeCatalogItems(parsed.appConfig.neomacroSavedCatalog);
+                        }
+                        if (parsed.appConfig.brushSwitchLinks) {
+                            appConfig.brushSwitchLinks = parsed.appConfig.brushSwitchLinks;
+                        }
                     }
                     buildVisualKeyboard();
                     if (parsed && parsed.keyStates) {
@@ -3695,13 +4330,13 @@
                     syncBrandingAndBrushUI();
                     renderStatCardsAndChart();
                     updateVisualKeyboardStyles();
+                    renderNeomacroCatalogList();
                     jsonConfigStatus.textContent = 'imported setup json into this file session';
                 } catch (_) {
                     jsonConfigStatus.textContent = 'invalid json format';
                 }
             });
 
-            // paste drawer controls
             pasteListBtn.addEventListener('click', () => {
                 const willOpen = pasteDrawer.classList.contains('hidden');
                 if (willOpen) {
@@ -3733,7 +4368,6 @@
 
             copyListBtn.addEventListener('click', copySwitchListToClipboard);
 
-            // clear marks button -> opens confirmation popup first
             resetBtn.addEventListener('click', () => {
                 const { assignedTotal } = getDynamicBreakdown();
                 confirmClearBodyText.textContent = assignedTotal > 0
@@ -3760,7 +4394,6 @@
                 ensurePageFocus();
             });
 
-            // dark / light theme toggle
             themeToggleBtn.addEventListener('click', () => {
                 isDark = !isDark;
                 const htmlEl = document.documentElement;
@@ -3770,24 +4403,20 @@
 
                 if (isDark) {
                     htmlEl.classList.add('dark');
-                    bodyEl.className = 'bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between antialiased selection:bg-purple-500 selection:text-white lowercase outline-none';
-                    cards.forEach((c) => {
-                        c.className = c.className.replace('bg-white/90 border-zinc-200', 'bg-zinc-900/80 border-zinc-800/90');
-                    });
-                    if (chassis) chassis.className = 'min-w-[760px] w-full rounded-xl bg-zinc-950/90 border border-zinc-800 p-3 sm:p-3.5 shadow-inner';
-                    document.getElementById('kbdTitle').classList.replace('text-zinc-900', 'text-zinc-100');
-                    document.getElementById('chartTitle').classList.replace('text-zinc-900', 'text-zinc-100');
+                    bodyEl.className = 'bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between antialiased selection:bg-sky-500/80 selection:text-white lowercase outline-none';
+                    const kt = document.getElementById('kbdTitle');
+                    const ct = document.getElementById('chartTitle');
+                    if (kt) { kt.classList.remove('text-zinc-900'); kt.classList.add('text-zinc-100'); }
+                    if (ct) { ct.classList.remove('text-zinc-900'); ct.classList.add('text-zinc-100'); }
                     sunIcon.classList.add('hidden');
                     moonIcon.classList.remove('hidden');
                 } else {
                     htmlEl.classList.remove('dark');
-                    bodyEl.className = 'bg-zinc-100 text-zinc-900 min-h-screen flex flex-col justify-between antialiased selection:bg-purple-500 selection:text-white lowercase outline-none';
-                    cards.forEach((c) => {
-                        c.className = c.className.replace('bg-zinc-900/80 border-zinc-800/90', 'bg-white/90 border-zinc-200');
-                    });
-                    if (chassis) chassis.className = 'min-w-[760px] w-full rounded-xl bg-zinc-200/80 border border-zinc-300 p-3 sm:p-3.5 shadow-inner';
-                    document.getElementById('kbdTitle').classList.replace('text-zinc-100', 'text-zinc-900');
-                    document.getElementById('chartTitle').classList.replace('text-zinc-100', 'text-zinc-900');
+                    bodyEl.className = 'bg-[#f2f2f7] text-zinc-900 min-h-screen flex flex-col justify-between antialiased selection:bg-sky-500/80 selection:text-white lowercase outline-none';
+                    const kt = document.getElementById('kbdTitle');
+                    const ct = document.getElementById('chartTitle');
+                    if (kt) { kt.classList.remove('text-zinc-100'); kt.classList.add('text-zinc-900'); }
+                    if (ct) { ct.classList.remove('text-zinc-100'); ct.classList.add('text-zinc-900'); }
                     sunIcon.classList.remove('hidden');
                     moonIcon.classList.add('hidden');
                 }
@@ -3798,17 +4427,16 @@
                 updateVisualKeyboardStyles();
             });
 
-            // input lock toggle
             function toggleInputLock() {
                 isInputLocked = !isInputLocked;
                 activeCodes.clear();
 
                 if (isInputLocked) {
                     lockBtn.textContent = 'lock keyboard: on';
-                    lockBtn.className = 'px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 transition-all focus:outline-none';
+                    lockBtn.className = 'ui-btn px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-mono font-semibold text-rose-300 focus:outline-none';
                 } else {
                     lockBtn.textContent = 'lock keyboard: off';
-                    lockBtn.className = 'px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/30 active:scale-95 transition-all focus:outline-none';
+                    lockBtn.className = 'ui-btn px-3 py-1.5 rounded-lg bg-zinc-900/90 border border-zinc-800 text-xs font-mono font-semibold text-zinc-300 hover:bg-amber-500/10 hover:text-amber-300 hover:border-amber-500/30 focus:outline-none';
                 }
 
                 updateStatusLine();
@@ -3820,7 +4448,6 @@
 
             lockBtn.addEventListener('click', toggleInputLock);
 
-            // dedicated fullscreen toggle button
             function syncFullscreenIcon() {
                 const isFs = Boolean(document.fullscreenElement);
                 if (isFs) {
@@ -3874,11 +4501,528 @@
             });
             window.addEventListener('resize', drawChart);
 
-            // initialize studio strictly from this file's embedded state (starts with keyboard locked)
+            
+            function inferSwitchCategory(product) {
+                const text = `${product.title || ''} ${(product.tags || []).join(' ')} ${product.product_type || ''}`.toLowerCase();
+                if (text.includes('hall effect') || text.includes('magnetic') || text.includes(' he ') || text.endsWith(' he')) return 'hall effect';
+                if (text.includes('silent')) return 'silent';
+                if (text.includes('tactile')) return 'tactile';
+                if (text.includes('linear')) return 'linear';
+                return 'linear';
+            }
+
+            function stripHtmlTags(htmlStr) {
+                return (htmlStr || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+            }
+
+            function sortNeomacroItems(items, sortMode) {
+                const copy = [...items];
+                if (sortMode === 'price_asc') {
+                    copy.sort((a, b) => (a.price || 0) - (b.price || 0));
+                } else if (sortMode === 'price_desc') {
+                    copy.sort((a, b) => (b.price || 0) - (a.price || 0));
+                } else if (sortMode === 'stock') {
+                    copy.sort((a, b) => {
+                        if (a.available === b.available) return (a.popularityIdx || 999) - (b.popularityIdx || 999);
+                        return a.available ? -1 : 1;
+                    });
+                } else {
+                    copy.sort((a, b) => (a.popularityIdx || 999) - (b.popularityIdx || 999));
+                }
+                return copy;
+            }
+
+            async function fetchLiveNeomacroCatalog(isManualRefresh = false) {
+                if (isManualRefresh) {
+                    refreshNeomacroBtn.textContent = 'syncing...';
+                    wizardRefreshNeomacroBtn.textContent = 'syncing...';
+                    neomacroFeedStatus.textContent = 'fetching live stock & pricing from neomacro.in...';
+                }
+
+                const endpoints = [
+                    'https://neomacro.in/collections/switches/products.json?limit=250',
+                    'https://neomacro.in/products.json?limit=250'
+                ];
+
+                let fetchedProducts = null;
+                for (const url of endpoints) {
+                    try {
+                        const resp = await fetch(url, { cache: 'no-store' });
+                        if (!resp.ok) continue;
+                        const data = await resp.json();
+                        if (data && Array.isArray(data.products) && data.products.length > 0) {
+                            fetchedProducts = data.products;
+                            break;
+                        }
+                    } catch (_) {}
+                }
+
+                if (fetchedProducts) {
+                    const normalized = [];
+                    fetchedProducts.forEach((p, idx) => {
+                        const titleLower = (p.title || '').toLowerCase();
+                        const pTypeLower = (p.product_type || '').toLowerCase();
+                        const tagsLower = Array.isArray(p.tags) ? p.tags.join(' ').toLowerCase() : '';
+
+                        if (titleLower.includes('choc') || tagsLower.includes('choc')) return;
+                        if (titleLower.includes('mouse') || titleLower.includes('opener') || titleLower.includes('puller') || titleLower.includes('spring')) return;
+
+                        const isSwitch = titleLower.includes('switch') || pTypeLower.includes('switch') || tagsLower.includes('switch') ||
+                            titleLower.includes('hmx') || titleLower.includes('bsun') || titleLower.includes('swk') ||
+                            titleLower.includes('gateron') || titleLower.includes('outemu') || titleLower.includes('geon') ||
+                            titleLower.includes('cherry') || titleLower.includes('kailh') || titleLower.includes('radiant he') ||
+                            titleLower.includes('raptor he');
+                        if (!isSwitch) return;
+
+                        const variants = Array.isArray(p.variants) ? p.variants : [];
+                        const anyAvailable = variants.some((v) => Boolean(v.available));
+                        const primaryVariant = variants.find((v) => v.available && (parseFloat(v.price) > 0))
+                            || variants.find((v) => parseFloat(v.price) > 0)
+                            || variants.find((v) => v.available)
+                            || variants[0]
+                            || {};
+                        const priceVal = Number(parseFloat(primaryVariant.price)) || 0;
+                        const compareVal = Number(parseFloat(primaryVariant.compare_at_price)) || null;
+
+                        const variantSummary = variants.length > 1
+                            ? `variants: ${variants.map((v) => `${(v.title || '').toLowerCase()} (${v.available ? 'in stock' : 'sold out'})`).join(', ')}`
+                            : stripHtmlTags(p.body_html).slice(0, 110);
+
+                        normalized.push({
+                            handle: p.handle,
+                            title: titleLower,
+                            vendor: (p.vendor || 'neomacro').toLowerCase(),
+                            type: inferSwitchCategory(p),
+                            price: priceVal,
+                            compareAtPrice: (compareVal && compareVal > priceVal) ? compareVal : null,
+                            available: anyAvailable,
+                            popularityIdx: idx + 1,
+                            specs: variantSummary || 'pack of 10 switches',
+                            url: `https://neomacro.in/products/${p.handle}`
+                        });
+                    });
+
+                    if (normalized.length > 0) {
+                        neomacroCatalog = normalized;
+                        neomacroIsLiveFetched = true;
+                        const now = new Date();
+                        neomacroLastSyncTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }).toLowerCase();
+
+                        if (appConfig.brushSwitchLinks) {
+                            Object.entries(appConfig.brushSwitchLinks).forEach(([bId, linkObj]) => {
+                                if (!linkObj || !linkObj.handle) return;
+                                const fresh = neomacroCatalog.find((item) => item.handle === linkObj.handle);
+                                if (fresh) {
+                                    appConfig.brushSwitchLinks[bId] = {
+                                        handle: fresh.handle,
+                                        title: fresh.title,
+                                        price: fresh.price,
+                                        compareAtPrice: fresh.compareAtPrice,
+                                        available: fresh.available,
+                                        url: fresh.url,
+                                        lastChecked: neomacroLastSyncTime
+                                    };
+                                }
+                            });
+                        }
+                        syncEmbeddedStateTag();
+                    }
+                }
+
+                refreshNeomacroBtn.textContent = 'refresh stock';
+                wizardRefreshNeomacroBtn.textContent = 'refresh live stock';
+
+                if (neomacroIsLiveFetched) {
+                    const inStockCount = neomacroCatalog.filter((x) => x.available).length;
+                    neomacroFeedStatus.textContent = `neomacro.in catalog (${inStockCount}/${neomacroCatalog.length} in stock)`;
+                } else {
+                    neomacroFeedStatus.textContent = 'neomacro.in switch catalog';
+                }
+
+                renderNeomacroCatalogList();
+                renderNeomacroSummaryBar();
+                if (!introWizardModal.classList.contains('hidden') && wizardStep === 4) {
+                    renderWizardNeomacroList();
+                }
+            }
+
+            function toggleNeomacroWatch(handle) {
+                if (!Array.isArray(appConfig.neomacroWatchlist)) {
+                    appConfig.neomacroWatchlist = [];
+                }
+                const idx = appConfig.neomacroWatchlist.indexOf(handle);
+                if (idx === -1) {
+                    appConfig.neomacroWatchlist.push(handle);
+                } else {
+                    appConfig.neomacroWatchlist.splice(idx, 1);
+                }
+                syncEmbeddedStateTag();
+                renderNeomacroCatalogList();
+                renderNeomacroSummaryBar();
+                syncNeomacroAutoOpen();
+            }
+
+            function linkSwitchToBrush(brushId, product) {
+                if (!appConfig.brushSwitchLinks) {
+                    appConfig.brushSwitchLinks = {};
+                }
+                if (!brushId) return;
+
+                appConfig.brushSwitchLinks[brushId] = {
+                    handle: product.handle,
+                    title: product.title,
+                    price: product.price,
+                    compareAtPrice: product.compareAtPrice,
+                    available: product.available,
+                    url: product.url,
+                    lastChecked: neomacroLastSyncTime || 'snapshot'
+                };
+
+                if (!Array.isArray(appConfig.neomacroWatchlist)) {
+                    appConfig.neomacroWatchlist = [];
+                }
+                if (!appConfig.neomacroWatchlist.includes(product.handle)) {
+                    appConfig.neomacroWatchlist.push(product.handle);
+                }
+
+                syncEmbeddedStateTag();
+                renderNeomacroCatalogList();
+                renderNeomacroSummaryBar();
+            }
+
+            function unlinkSwitchFromBrush(brushId) {
+                if (appConfig.brushSwitchLinks && appConfig.brushSwitchLinks[brushId]) {
+                    delete appConfig.brushSwitchLinks[brushId];
+                    syncEmbeddedStateTag();
+                    renderNeomacroCatalogList();
+                    renderNeomacroSummaryBar();
+                }
+            }
+
+            function renderNeomacroCatalogList() {
+                const query = (neomacroSearchInput.value || '').trim().toLowerCase();
+                const typeFilter = neomacroTypeFilter.value || 'all';
+                const sortBy = neomacroSortSelect.value || 'popularity';
+                const inStockOnly = neomacroInStockOnlyCheckbox.checked;
+                const watchlistOnly = neomacroWatchlistOnlyCheckbox.checked;
+                const watchSet = new Set(appConfig.neomacroWatchlist || []);
+
+                neomacroWatchCountSpan.textContent = String(watchSet.size);
+
+                let filtered = neomacroCatalog.filter((item) => {
+                    if (inStockOnly && !item.available) return false;
+                    if (watchlistOnly && !watchSet.has(item.handle)) return false;
+                    if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+                    if (query) {
+                        const hay = `${item.title} ${item.vendor} ${item.type} ${item.specs}`.toLowerCase();
+                        if (!hay.includes(query)) return false;
+                    }
+                    return true;
+                });
+
+                filtered = sortNeomacroItems(filtered, sortBy);
+                neomacroCatalogList.innerHTML = '';
+
+                if (filtered.length === 0) {
+                    const emptyEl = document.createElement('div');
+                    emptyEl.className = 'p-6 text-center rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-mono text-zinc-500';
+                    emptyEl.textContent = 'no switches match your current search or filter.';
+                    neomacroCatalogList.appendChild(emptyEl);
+                    return;
+                }
+
+                filtered.forEach((item) => {
+                    const isWatched = watchSet.has(item.handle);
+                    const linkedBrushIds = Object.entries(appConfig.brushSwitchLinks || {})
+                        .filter(([, link]) => link && link.handle === item.handle)
+                        .map(([bId]) => bId);
+
+                    const card = document.createElement('div');
+                    card.className = isWatched
+                        ? 'p-3.5 rounded-xl bg-zinc-950 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3'
+                        : 'p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+
+                    const infoCol = document.createElement('div');
+                    infoCol.className = 'space-y-1 flex-1 min-w-0';
+
+                    const topRow = document.createElement('div');
+                    topRow.className = 'flex flex-wrap items-center gap-2';
+
+                    const titleLink = document.createElement('a');
+                    titleLink.href = item.url;
+                    titleLink.target = '_blank';
+                    titleLink.rel = 'noopener noreferrer';
+                    titleLink.className = 'text-xs font-mono font-bold text-zinc-100 hover:text-cyan-300 transition-colors';
+                    titleLink.textContent = item.title;
+
+                    const stockBadge = document.createElement('span');
+                    stockBadge.className = item.available
+                        ? 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                        : 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/35 text-rose-300';
+                    stockBadge.textContent = item.available ? 'in stock' : 'sold out';
+
+                    const typeBadge = document.createElement('span');
+                    typeBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400';
+                    typeBadge.textContent = item.type;
+
+                    topRow.appendChild(titleLink);
+                    topRow.appendChild(stockBadge);
+                    topRow.appendChild(typeBadge);
+
+                    if (linkedBrushIds.length > 0) {
+                        linkedBrushIds.forEach((bId) => {
+                            const bObj = getBrushById(bId);
+                            if (bObj) {
+                                const bBadge = document.createElement('span');
+                                bBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-md border font-semibold';
+                                bBadge.style.borderColor = bObj.color;
+                                bBadge.style.backgroundColor = hexToRgba(bObj.color, 0.2);
+                                bBadge.style.color = '#ffffff';
+                                bBadge.textContent = `linked: ${bObj.name}`;
+                                topRow.appendChild(bBadge);
+                            }
+                        });
+                    }
+
+                    const specsP = document.createElement('p');
+                    specsP.className = 'text-[11px] font-mono text-zinc-500 truncate';
+                    specsP.textContent = item.specs;
+
+                    infoCol.appendChild(topRow);
+                    infoCol.appendChild(specsP);
+
+                    const actionCol = document.createElement('div');
+                    actionCol.className = 'flex flex-wrap items-center gap-2 shrink-0';
+
+                    const priceBox = document.createElement('div');
+                    priceBox.className = 'text-right mr-1';
+                    if (item.compareAtPrice) {
+                        priceBox.innerHTML = `
+                            <div class="text-xs font-mono font-bold text-emerald-300">₹ ${item.price} <span class="text-[10px] text-zinc-500 font-normal">/ 10</span></div>
+                            <div class="text-[10px] font-mono text-zinc-500 line-through">₹ ${item.compareAtPrice}</div>
+                        `;
+                    } else {
+                        priceBox.innerHTML = `
+                            <div class="text-xs font-mono font-bold text-zinc-100">₹ ${item.price} <span class="text-[10px] text-zinc-500 font-normal">/ 10</span></div>
+                        `;
+                    }
+
+                    const watchBtn = document.createElement('button');
+                    watchBtn.type = 'button';
+                    watchBtn.className = isWatched
+                        ? 'px-2.5 py-1.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-[11px] font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors'
+                        : 'px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400 hover:text-amber-300 hover:border-amber-500/40 transition-colors';
+                    watchBtn.textContent = isWatched ? 'unwatch' : 'watch';
+                    watchBtn.addEventListener('click', () => toggleNeomacroWatch(item.handle));
+
+                    const assignSelect = document.createElement('select');
+                    assignSelect.ariaLabel = 'assign switch to brush';
+                    assignSelect.className = 'rounded-lg bg-zinc-900 border border-zinc-700 px-2.5 py-1.5 text-[11px] font-mono text-cyan-200 focus:outline-none focus:border-cyan-400 cursor-pointer';
+
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = '';
+                    defaultOpt.textContent = 'assign to brush...';
+                    assignSelect.appendChild(defaultOpt);
+
+                    appConfig.brushes.forEach((b) => {
+                        const opt = document.createElement('option');
+                        opt.value = b.id;
+                        opt.textContent = `use for: ${b.name}`;
+                        if (linkedBrushIds.includes(b.id)) {
+                            opt.selected = true;
+                        }
+                        assignSelect.appendChild(opt);
+                    });
+
+                    assignSelect.addEventListener('change', () => {
+                        const chosenBrushId = assignSelect.value;
+                        if (chosenBrushId) {
+                            linkSwitchToBrush(chosenBrushId, item);
+                        } else {
+                            linkedBrushIds.forEach((bId) => unlinkSwitchFromBrush(bId));
+                        }
+                    });
+
+                    actionCol.appendChild(priceBox);
+                    actionCol.appendChild(watchBtn);
+                    actionCol.appendChild(assignSelect);
+
+                    card.appendChild(infoCol);
+                    card.appendChild(actionCol);
+                    neomacroCatalogList.appendChild(card);
+                });
+            }
+
+            function renderNeomacroSummaryBar() {
+                const links = appConfig.brushSwitchLinks || {};
+                const watchList = appConfig.neomacroWatchlist || [];
+                const activeLinkEntries = Object.entries(links).filter(([bId, l]) => getBrushById(bId) && l && l.handle);
+
+                const linkedHandles = new Set(activeLinkEntries.map(([, l]) => l.handle));
+                const extraWatchedHandles = watchList.filter((h) => !linkedHandles.has(h));
+
+                const { counts } = getDynamicBreakdown();
+
+                let subtotalRs = 0;
+                let totalPacks = 0;
+                let anySoldOut = false;
+
+                if (activeLinkEntries.length === 0 && extraWatchedHandles.length === 0) {
+                    neomacroActiveWrap.classList.add('hidden');
+                    neomacroTotalCostBadge.textContent = 'est. total: ₹ 0';
+                    neomacroShippingNote.textContent = '+ ₹ 100 shipping apx';
+                    return;
+                }
+
+                neomacroActiveWrap.classList.remove('hidden');
+                neomacroLinkedGrid.innerHTML = '';
+
+                activeLinkEntries.forEach(([bId, link]) => {
+                    const brush = getBrushById(bId);
+                    if (!brush) return;
+
+                    const catalogMatch = neomacroCatalog.find((x) => x.handle === link.handle);
+                    const liveItem = Object.assign({}, link, catalogMatch || {});
+                    const unitPackPrice = Number(liveItem.price) > 0
+                        ? Number(liveItem.price)
+                        : (Number(link.price) || 0);
+                    liveItem.price = unitPackPrice;
+                    const keyCount = Number(counts.get(bId)) || 0;
+                    const packsNeeded = keyCount > 0 ? Math.ceil(keyCount / 10) : 0;
+                    const lineCost = packsNeeded * unitPackPrice;
+                    subtotalRs += lineCost;
+                    totalPacks += packsNeeded;
+
+                    if (!liveItem.available) anySoldOut = true;
+
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col justify-between gap-2';
+
+                    const top = document.createElement('div');
+                    top.className = 'flex items-start justify-between gap-2';
+                    top.innerHTML = `
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-sm shrink-0" style="background-color: ${brush.color}"></span>
+                                <span class="text-[11px] font-mono font-bold" style="color: ${brush.color}">${brush.name}</span>
+                            </div>
+                            <a href="${liveItem.url}" target="_blank" rel="noopener noreferrer"
+                                class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-0.5">
+                                ${liveItem.title} ↗
+                            </a>
+                        </div>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${liveItem.available
+                            ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                            : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">
+                            ${liveItem.available ? 'in stock' : 'sold out'}
+                        </span>
+                    `;
+
+                    const bottom = document.createElement('div');
+                    bottom.className = 'flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono';
+                    bottom.innerHTML = `
+                        <span class="text-zinc-400">${keyCount} keys -> <strong class="text-zinc-200">${packsNeeded} ${packsNeeded === 1 ? 'pack' : 'packs'}</strong> (₹ ${liveItem.price}/10)</span>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="font-bold text-emerald-300">₹ ${lineCost.toLocaleString()}</span>
+                            <button type="button" data-unlink-brush="${bId}"
+                                class="px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/40 text-[10px] font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors">
+                                unlink
+                            </button>
+                        </div>
+                    `;
+                    const unlinkBtn = bottom.querySelector('[data-unlink-brush]');
+                    if (unlinkBtn) {
+                        unlinkBtn.addEventListener('click', () => unlinkSwitchFromBrush(bId));
+                    }
+
+                    card.appendChild(top);
+                    card.appendChild(bottom);
+                    neomacroLinkedGrid.appendChild(card);
+                });
+
+                extraWatchedHandles.forEach((handle) => {
+                    const item = neomacroCatalog.find((x) => x.handle === handle);
+                    if (!item) return;
+                    if (!item.available) anySoldOut = true;
+
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-xl bg-zinc-950 border border-amber-500/30 flex flex-col justify-between gap-2';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <span class="text-[10px] font-mono text-amber-300">watchlist item</span>
+                                <a href="${item.url}" target="_blank" rel="noopener noreferrer"
+                                    class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-0.5">
+                                    ${item.title} ↗
+                                </a>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${item.available
+                                ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                                : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">
+                                ${item.available ? 'in stock' : 'sold out'}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono">
+                            <span class="text-zinc-400">₹ ${item.price} / 10 switches</span>
+                            <button type="button" data-unwatch="${item.handle}"
+                                class="px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/40 text-[10px] font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors">
+                                unwatch
+                            </button>
+                        </div>
+                    `;
+                    const unwatchBtn = card.querySelector('[data-unwatch]');
+                    if (unwatchBtn) {
+                        unwatchBtn.addEventListener('click', () => toggleNeomacroWatch(item.handle));
+                    }
+                    neomacroLinkedGrid.appendChild(card);
+                });
+
+                if (totalPacks > 0) {
+                    const grandTotal = subtotalRs + NEOMACRO_SHIPPING_RS;
+                    neomacroTotalCostBadge.textContent = `est. total: ₹ ${grandTotal.toLocaleString()}`;
+                    neomacroShippingNote.textContent = `₹ ${subtotalRs.toLocaleString()} + ₹ ${NEOMACRO_SHIPPING_RS} shipping apx`;
+                } else {
+                    neomacroTotalCostBadge.textContent = 'est. total: ₹ 0';
+                    neomacroShippingNote.textContent = '+ ₹ 100 shipping apx';
+                }
+
+            }
+
+            function hasLinkedNeomacroSwitches() {
+                const links = appConfig.brushSwitchLinks || {};
+                return Object.entries(links).some(([bId, l]) => Boolean(getBrushById(bId) && l && l.handle));
+            }
+
+            function syncNeomacroAutoOpen() {
+                if (hasLinkedNeomacroSwitches()) {
+                    toggleNeomacroSection(true);
+                }
+            }
+
+            function triggerStockRefreshOnLayoutEdit() {
+                renderNeomacroSummaryBar();
+                fetchLiveNeomacroCatalog(false);
+            }
+
+            function toggleNeomacroSection(forceOpen) {
+                const willOpen = typeof forceOpen === 'boolean' ? forceOpen : neomacroBody.classList.contains('hidden');
+                neomacroBody.classList.toggle('hidden', !willOpen);
+                toggleNeomacroCollapseBtn.textContent = willOpen ? 'close section' : 'open section';
+                toggleNeomacroCollapseBtn.blur();
+            }
+
+            toggleNeomacroCollapseBtn.addEventListener('click', () => toggleNeomacroSection());
+
+            refreshNeomacroBtn.addEventListener('click', () => fetchLiveNeomacroCatalog(true));
+            neomacroSearchInput.addEventListener('input', renderNeomacroCatalogList);
+            neomacroTypeFilter.addEventListener('change', renderNeomacroCatalogList);
+            neomacroSortSelect.addEventListener('change', renderNeomacroCatalogList);
+            neomacroInStockOnlyCheckbox.addEventListener('change', renderNeomacroCatalogList);
+            neomacroWatchlistOnlyCheckbox.addEventListener('change', renderNeomacroCatalogList);
+
             loadFromEmbeddedFileState();
             updateFocusIndicator(document.hasFocus());
 
-            // open 3-page intro wizard on startup unless user checked "don't show again"
             if (!getDontShowIntroPref()) {
                 openIntroWizard(1);
             } else {
@@ -3890,6 +5034,10 @@
                     ensurePageFocus();
                 }
                 drawChart();
+                fetchLiveNeomacroCatalog(false);
+                setInterval(() => {
+                    fetchLiveNeomacroCatalog(false);
+                }, 5000);
             });
         })();
     </script>
