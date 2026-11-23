@@ -5113,8 +5113,8 @@ turn it off to continue!</p>
                         const pTypeLower = (p.product_type || '').toLowerCase();
                         const tagsLower = Array.isArray(p.tags) ? p.tags.join(' ').toLowerCase() : '';
 
-                        if (titleLower.includes('choc') || tagsLower.includes('choc')) return;
                         if (titleLower.includes('mouse') || titleLower.includes('opener') || titleLower.includes('puller') || titleLower.includes('spring')) return;
+                        if (titleLower.includes('bundle') || titleLower.includes('assembled') || /^keyboards?$/.test(pTypeLower)) return;
 
                         const isSwitch = titleLower.includes('switch') || pTypeLower.includes('switch') || tagsLower.includes('switch') ||
                             titleLower.includes('hmx') || titleLower.includes('bsun') || titleLower.includes('swk') ||
