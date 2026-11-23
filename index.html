@@ -242,11 +242,14 @@
         #splashHero .neo-logo.flying { animation: none; opacity: 1; }
         @keyframes splashFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
         @keyframes splashLogoIn { 0% { opacity: 0; transform: scale(0.45); filter: blur(16px); } 65% { opacity: 1; transform: scale(1.04); filter: blur(0); } 100% { opacity: 1; transform: none; filter: blur(0); } }
-        #splashLetter { width: min(92vw, 42rem); min-height: min(58vh, 26rem); display: flex; flex-direction: column; gap: 1.4rem; padding: 2rem 2.2rem; border-radius: 1.6rem;
+        #splashLetter {
+            max-height: 88vh; overflow-y: auto; width: min(92vw, 42rem); min-height: min(58vh, 26rem); display: flex; flex-direction: column; gap: 1.4rem; padding: 2rem 2.2rem; border-radius: 1.6rem;
             background: rgba(24,24,27,0.82); border: 1px solid rgba(255,255,255,0.10); box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
         #splashLetterLogoSlot { display: flex; justify-content: center; min-height: 40px; }
         #splashLetterLogoSlot .neo-logo { font-size: 40px; }
-        .ghost-line { margin: 0; color: #52525b; font-style: italic; opacity: 0.7; }
+        #splashLetterBody p { margin: 0 0 0.9rem; }
+        #splashLetterBody p:last-child { margin-bottom: 0; }
+        #splashLetterBody .letter-sign { margin-top: 0.4rem; color: #a1a1aa; font-style: italic; }
         #splashLetterBody { flex: 1; min-height: 8rem; font-size: 0.95rem; line-height: 1.75; color: #d4d4d8; text-transform: none; }
         .splash-kinda { display: inline-block; margin-left: 0.7em; color: #a78bfa; font-style: italic; letter-spacing: 0.2em; opacity: 0; animation: splashFade 700ms 1.2s ease forwards; }
         #splashDisclaimer { position: absolute; left: 0; right: 0; bottom: 1.4rem; padding: 0 1.5rem; text-align: center; font: 400 10.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.06em; color: #71717a; opacity: 0; animation: splashFade 900ms 900ms ease forwards; pointer-events: none; }
@@ -331,7 +334,13 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
         <div id="splashLetter">
             <div id="splashLetterLogoSlot"></div>
 
-            <div id="splashLetterBody"><p class="ghost-line" data-ghost-line="splash-letter">ghost line - your letter starts here (search "ghost-line" in the code to find and replace me)</p></div>
+            <div id="splashLetterBody">
+                <p>hey, xnmoll here.</p>
+                <p>i set out to build my first custom keyboard and went looking for a tool to plan it: which keys get which switches, how many of each, and what it would all cost. i couldn't find anything like it online, so i went full thanos and built it myself over one weekend.</p>
+                <p>a huge thank you to dabber443 from neomacro.in on discord, who tested it and helped me add new features along the way.</p>
+                <p>this is an unofficial, vibe coded project and is not affiliated with neomacro.in. i hope it helps you plan your build too.</p>
+                <p class="letter-sign">- xnmoll</p>
+            </div>
             <button id="splashContinueBtn" type="button" class="splash-btn">continue</button>
         </div>
     </div>

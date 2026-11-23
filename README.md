@@ -4,6 +4,16 @@ A single-file, browser-based planner for mechanical keyboard switch builds. Lay 
 
 > **Unofficial.** This is a vibe-coded, user-made project. It is not affiliated with, endorsed by, or maintained by neomacro.in.
 
+## The story
+
+I wanted to build my first custom keyboard and needed a way to plan it: which keys get which switches, how many of each, and what it would all cost. I looked around and couldn't find anything like it online, so I went full Thanos and built it myself over one weekend.
+
+What started as a quick helper grew into a proper planner: it paints a layout, counts every switch type, combines coverage totals and can even build a neomacro.in cart for you.
+
+## Thanks
+
+A huge thank you to **dabber443** on the neomacro.in Discord, who tested the planner and helped me add new features along the way.
+
 ## Features
 
 - **Layout presets:** 60%, 65%, 75%, TKL and 100%, plus an on-board per-key editor (rename, resize, add or remove keys).
@@ -66,7 +76,7 @@ There is no backend, analytics or account system. The browser stores only two sm
 | What | Where |
 | --- | --- |
 | Splash logo image | set `NEOMACRO_LOGO_SRC` near the end of `index.html` |
-| Splash letter text | edit the element with `id="splashLetterBody"` (search for `ghost-line`) |
+| Splash letter text | edit the paragraphs inside the element with `id="splashLetterBody"` |
 | Accent colours | `window.__KP_ACCENTS` in the `<head>` script |
 
 ## Project structure
@@ -83,6 +93,10 @@ There is no backend, analytics or account system. The browser stores only two sm
 ## Contributing
 
 Issues and pull requests are welcome. Keep changes small and focused, and test in at least one Chromium-based browser and one other engine. The app is intentionally a single self-contained file.
+
+## Author
+
+Made by xnmoll ([@virkanmol191](https://github.com/virkanmol191)).
 
 ## License
 
