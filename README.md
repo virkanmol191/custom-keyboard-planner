@@ -2,6 +2,8 @@
 
 A single-file, browser-based planner for mechanical keyboard switch builds. Lay out your board, paint every key with the switch type you want, watch the totals update live, and (optionally) pull matching switches from the [neomacro.in](https://neomacro.in) catalogue straight into a cart.
 
+**Live site:** https://virkanmol191.github.io/custom-keyboard-planner/
+
 > **Unofficial.** This is a vibe-coded, user-made project. It is not affiliated with, endorsed by, or maintained by neomacro.in.
 
 ## The story
@@ -31,7 +33,7 @@ No build step and no dependencies to install.
 1. Download or clone the repository.
 2. Open `index.html` in a modern browser (Chromium, Firefox or Safari).
 
-Or host it with GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `(root)`**.
+Or use the live site above. To host your own copy with GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `(root)`**.
 
 > Styling uses the Tailwind Play CDN, so the first load needs an internet connection.
 
