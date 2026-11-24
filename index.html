@@ -287,6 +287,10 @@
         html.calm .guide-pulse { box-shadow: none; }
         .gfx-swatch.is-on { border-color: #ffffff; transform: scale(1.12); box-shadow: 0 0 0 2px rgba(0,0,0,0.35); }
 
+        #keyboardCard.kbd-collapsed .kbd-collapsible { display: none; }
+        #keyboardCard.kbd-collapsed .kbd-head { margin-bottom: 0; }
+        @keyframes hlPulse { 0% { box-shadow: 0 0 0 0 rgba(56,189,248,0.7); } 70% { box-shadow: 0 0 0 10px rgba(56,189,248,0); } 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); } }
+        .hl-pulse { outline: 2px solid rgb(var(--sk-400)); outline-offset: 2px; animation: hlPulse 1.2s ease-out 1 both; }
         html { zoom: 1.05; }
         body.min-h-screen { min-height: calc(100vh / 1.05); }
 
@@ -410,6 +414,34 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
 
             <div class="flex items-center gap-1.5 ml-2 border-l border-zinc-700/60 pl-3 shrink-0">
 
+                <div id="gfxWrap" class="relative shrink-0">
+                    <button id="gfxMenuBtn" type="button" aria-label="graphics" aria-expanded="false" title="graphics"
+                        class="ui-btn glass-btn p-2 rounded-xl text-zinc-400 hover:text-sky-300 focus:outline-none shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h9m4 0h3M4 17h3m4 0h9M13 7a2 2 0 104 0 2 2 0 00-4 0zM7 17a2 2 0 104 0 2 2 0 00-4 0z"></path>
+                        </svg>
+                    </button>
+                    <div id="gfxPanel" class="hidden absolute right-0 top-full mt-2 z-[60] w-64 p-3.5 rounded-xl bg-zinc-900/95 border border-zinc-700/80 shadow-2xl backdrop-blur-md">
+                        <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-1">graphics</h3>
+                        <p class="text-[11px] text-zinc-400 mb-3">tone everything down, or change the accent colour</p>
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-mono text-zinc-300">
+                            <input id="gfxCalmToggle" type="checkbox" class="w-3.5 h-3.5 rounded accent-sky-500 cursor-pointer">
+                            <span>tone everything down</span>
+                        </label>
+                        <div class="mt-3">
+                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">accent colour</div>
+                            <div id="gfxAccentRow" class="flex flex-wrap items-center gap-2.5">
+                            <button type="button" data-accent="cyan" aria-label="cyan accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-cyan)"></button>
+                            <button type="button" data-accent="violet" aria-label="violet accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-violet)"></button>
+                            <button type="button" data-accent="emerald" aria-label="emerald accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-emerald)"></button>
+                            <button type="button" data-accent="rose" aria-label="rose accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-rose)"></button>
+                            <button type="button" data-accent="amber" aria-label="amber accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-amber)"></button>
+                            <button type="button" data-accent="fuchsia" aria-label="fuchsia accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-fuchsia)"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button id="reopenWizardBtn" type="button" aria-label="help and setup guide" title="help & setup guide"
                     class="ui-btn glass-btn p-2 rounded-xl text-zinc-400 hover:text-sky-300 focus:outline-none shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -449,15 +481,19 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
                 </div>
                 <span id="pasteFeedback" class="text-[11px] font-mono text-zinc-400">waiting for text</span>
             </div>
-            <textarea id="pasteTextarea" rows="5"
-                placeholder="paste copied switch plan here (e.g. layout: 75_std ... tactile [#3b82f6]: ... linear [#eab308]: ... silent [#06b6d4]: ...)"
-                class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
+            <div class="flex flex-col sm:flex-row items-stretch gap-3">
+                <div class="sm:w-28 shrink-0 flex">
+                    <input id="openLayoutFileInput" type="file" accept=".txt,.html,.htm,.json,text/plain,text/html,application/json" class="hidden">
+                    <button id="openLayoutFileBtn" type="button"
+                        class="w-full px-3.5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-sky-300 hover:bg-zinc-700 transition-colors">
+                        open file
+                    </button>
+                </div>
+                <textarea id="pasteTextarea" rows="5"
+                    placeholder="paste copied switch plan here (e.g. layout: 75_std ... tactile [#3b82f6]: ... linear [#eab308]: ... silent [#06b6d4]: ...)"
+                    class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-3 font-mono text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
+            </div>
             <div class="flex flex-wrap items-center justify-end gap-2 mt-2.5">
-                <input id="openLayoutFileInput" type="file" accept=".txt,.html,.htm,.json,text/plain,text/html,application/json" class="hidden">
-                <button id="openLayoutFileBtn" type="button"
-                    class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-sky-300 hover:bg-zinc-700 transition-colors">
-                    open file
-                </button>
                 <button id="cancelPasteBtn" type="button"
                     class="px-3.5 py-1.5 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 transition-colors">
                     close
@@ -638,13 +674,19 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
         </section>
 
         <section id="keyboardCard" class="theme-card rounded-2xl bg-zinc-900/65 border border-zinc-800/70 p-4 sm:p-6 transition-colors">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
+            <div class="kbd-head flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
                 <div class="min-w-0">
-                    <h2 id="kbdTitle" class="text-sm font-semibold tracking-wide text-zinc-100">live mechanical keyboard layout</h2>
-                    <p id="shieldStatusText" class="text-xs text-zinc-400 mt-1 leading-relaxed whitespace-pre-line">keyboard locked: all physical keypresses are blocked.
+                    <div class="flex items-center gap-2">
+                        <h2 id="kbdTitle" class="text-sm font-semibold tracking-wide text-zinc-100">live mechanical keyboard layout</h2>
+                        <button id="toggleKeyboardCollapseBtn" type="button" aria-label="collapse or expand the keyboard" aria-expanded="true"
+                            class="p-1 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/70 focus:outline-none transition-colors">
+                            <svg class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"></path></svg>
+                        </button>
+                    </div>
+                    <p id="shieldStatusText" class="kbd-collapsible text-xs text-zinc-400 mt-1 leading-relaxed whitespace-pre-line">keyboard locked: all physical keypresses are blocked.
 turn it off to continue!</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 justify-end ml-auto shrink-0">
+                <div class="kbd-collapsible flex flex-wrap items-center gap-2 justify-end ml-auto shrink-0">
                     <div id="brushToggleGroup" role="group" aria-label="active keypress colour toggle"
                         class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl glass-btn shadow-inner"></div>
                     <div class="flex items-center gap-1.5 p-1.5 rounded-xl glass-btn shadow-inner">
@@ -659,7 +701,7 @@ turn it off to continue!</p>
                     </div>
                 </div>
             </div>
-            <div class="w-full overflow-x-auto kbd-scroll pb-1">
+            <div class="kbd-collapsible w-full overflow-x-auto kbd-scroll pb-1">
                 <div id="keyboardChassis" class="min-w-[760px] w-full rounded-xl bg-zinc-950/95 border border-zinc-800/90 p-3.5 sm:p-4 shadow-[inset_0_2px_14px_rgba(0,0,0,0.45)]">
                     <div id="kbdMainBlock" class="flex flex-col gap-1.5"></div>
                 </div>
@@ -682,8 +724,13 @@ turn it off to continue!</p>
                     </button>
                 </div>
             </div>
-            <div id="chartBody" class="hidden mt-5 relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-zinc-950/50 border border-zinc-800/50">
-                <canvas id="frequencyCanvas" class="w-full h-full block"></canvas>
+            <div id="chartBody" class="hidden mt-5 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(260px,340px)] gap-4 items-stretch">
+                <div class="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-zinc-950/50 border border-zinc-800/50">
+                    <canvas id="frequencyCanvas" class="w-full h-full block"></canvas>
+                </div>
+                <div class="rounded-xl bg-zinc-950/50 border border-zinc-800/50 p-3.5 flex flex-col justify-center">
+                    <div id="miniKbd" class="flex flex-col gap-[3px]" aria-label="keyboard preview"></div>
+                </div>
             </div>
         </section>
 
@@ -1198,25 +1245,6 @@ turn it off to continue!</p>
                         class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500">
                 </div>
 
-                <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-1">graphics</h3>
-                    <p class="text-[11px] text-zinc-400 mb-3">tone everything down if it is too much, or change the accent colour of the interface</p>
-                    <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-mono text-zinc-300">
-                        <input id="gfxCalmToggle" type="checkbox" class="w-3.5 h-3.5 rounded accent-sky-500 cursor-pointer">
-                        <span>tone everything down (less glow, blur and motion)</span>
-                    </label>
-                    <div class="mt-3">
-                        <div class="text-[11px] font-mono text-zinc-400 mb-1.5">accent colour</div>
-                        <div id="gfxAccentRow" class="flex flex-wrap items-center gap-2.5">
-                        <button type="button" data-accent="cyan" aria-label="cyan accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-cyan)"></button>
-                        <button type="button" data-accent="violet" aria-label="violet accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-violet)"></button>
-                        <button type="button" data-accent="emerald" aria-label="emerald accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-emerald)"></button>
-                        <button type="button" data-accent="rose" aria-label="rose accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-rose)"></button>
-                        <button type="button" data-accent="amber" aria-label="amber accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-amber)"></button>
-                        <button type="button" data-accent="fuchsia" aria-label="fuchsia accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-fuchsia)"></button>
-                        </div>
-                    </div>
-                </div>
 
                 <div id="settingsBrushBlock" class="pt-2 border-t border-zinc-800/80 rounded-xl">
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
@@ -1308,6 +1336,7 @@ turn it off to continue!</p>
     "brushes": [],
     "customLayouts": {},
     "neomacroWatchlist": [],
+    "neomacroExtraPacks": {},
     "brushSwitchLinks": {},
     "customSwitchSources": {},
     "couponCode": "",
@@ -1643,6 +1672,7 @@ turn it off to continue!</p>
                 brushes: [],
                 customLayouts: {},
                 neomacroWatchlist: [],
+                neomacroExtraPacks: {},
                 brushSwitchLinks: {},
                 customSwitchSources: {},
                 couponCode: '',
@@ -1896,6 +1926,28 @@ turn it off to continue!</p>
                     btn.classList.toggle('is-on', btn.dataset.accent === (g.accent || 'cyan'));
                 });
             }
+            const gfxMenuBtn = document.getElementById('gfxMenuBtn');
+            const gfxPanel = document.getElementById('gfxPanel');
+            const gfxWrap = document.getElementById('gfxWrap');
+            function setGfxPanel(open) {
+                gfxPanel.classList.toggle('hidden', !open);
+                gfxMenuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                gfxWrap.style.zIndex = open ? '60' : '';
+                if (open) {
+                    syncGraphicsControls();
+                    gfxPanel.classList.remove('menu-pop');
+                    void gfxPanel.offsetWidth;
+                    gfxPanel.classList.add('menu-pop');
+                }
+            }
+            gfxMenuBtn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                setGfxPanel(gfxPanel.classList.contains('hidden'));
+                gfxMenuBtn.blur();
+            });
+            document.addEventListener('click', (ev) => {
+                if (!gfxPanel.classList.contains('hidden') && !ev.target.closest('#gfxWrap')) setGfxPanel(false);
+            });
             gfxCalmToggle.addEventListener('change', () => { writeGfx({ ...readGfx(), calm: gfxCalmToggle.checked }); });
             gfxAccentRow.querySelectorAll('[data-accent]').forEach((btn) => {
                 btn.addEventListener('click', () => {
@@ -1934,6 +1986,7 @@ turn it off to continue!</p>
                 if (!document.getElementById('nameWorkspaceModal').classList.contains('hidden')) return true;
                 if (!unsavedModalEl().classList.contains('hidden')) return true;
                 if (!copyModeMenu.classList.contains('hidden')) return true;
+                if (!gfxPanel.classList.contains('hidden')) return true;
                 if (!couponDrawer.classList.contains('hidden')) return true;
                 const catOverlay = document.getElementById('catalogueOverlay');
                 if (catOverlay && !catOverlay.classList.contains('hidden')) return true;
@@ -2001,6 +2054,7 @@ turn it off to continue!</p>
                         brushes: cloneObj(appConfig.brushes),
                         customLayouts: cloneObj(appConfig.customLayouts),
                         neomacroWatchlist: cloneObj(appConfig.neomacroWatchlist || []),
+                        neomacroExtraPacks: cloneObj(appConfig.neomacroExtraPacks || {}),
                         brushSwitchLinks: cloneObj(appConfig.brushSwitchLinks || {}),
                         customSwitchSources: cloneObj(appConfig.customSwitchSources || {}),
                         couponCode: appConfig.couponCode || '',
@@ -2033,6 +2087,9 @@ turn it off to continue!</p>
                             }
                             if (Array.isArray(parsed.appConfig.neomacroWatchlist)) {
                                 appConfig.neomacroWatchlist = parsed.appConfig.neomacroWatchlist;
+                            }
+                            if (parsed.appConfig.neomacroExtraPacks && typeof parsed.appConfig.neomacroExtraPacks === 'object') {
+                                appConfig.neomacroExtraPacks = parsed.appConfig.neomacroExtraPacks;
                             }
                             if (parsed.appConfig.brushSwitchLinks && typeof parsed.appConfig.brushSwitchLinks === 'object') {
                                 appConfig.brushSwitchLinks = parsed.appConfig.brushSwitchLinks;
@@ -3194,7 +3251,51 @@ turn it off to continue!</p>
                 drawChart();
             }
 
+            function renderMiniKeyboard() {
+                const mini = document.getElementById('miniKbd');
+                if (!mini || chartBody.classList.contains('hidden')) return;
+                mini.innerHTML = '';
+                const idleColor = isDark ? 'rgba(113,113,122,0.38)' : 'rgba(161,161,170,0.55)';
+                getActiveLayoutRows().forEach((row) => {
+                    const rowEl = document.createElement('div');
+                    rowEl.style.cssText = 'display:flex;gap:3px;height:12px';
+                    row.forEach((item) => {
+                        const widthU = parseFloat(item.w) || 1;
+                        if (item.isSpacer) {
+                            const spacerEl = document.createElement('div');
+                            spacerEl.style.flex = `${widthU} 1 0%`;
+                            rowEl.appendChild(spacerEl);
+                            return;
+                        }
+                        const gap = parseFloat(item.gap) || 0;
+                        if (gap > 0) {
+                            const gapEl = document.createElement('div');
+                            gapEl.style.flex = `${gap} 1 0%`;
+                            rowEl.appendChild(gapEl);
+                        }
+                        const keyEl = document.createElement('div');
+                        const brush = getBrushById(keyStates.get(item.code) || 'unchecked');
+                        keyEl.style.cssText = `flex:${widthU} 1 0%;border-radius:3px;background:${brush ? brush.color : idleColor}`;
+                        rowEl.appendChild(keyEl);
+                    });
+                    mini.appendChild(rowEl);
+                });
+            }
+
+            function setKeyboardCollapsed(flag) {
+                const card = document.getElementById('keyboardCard');
+                card.classList.toggle('kbd-collapsed', flag);
+                const btn = document.getElementById('toggleKeyboardCollapseBtn');
+                btn.setAttribute('aria-expanded', flag ? 'false' : 'true');
+                btn.querySelector('svg').style.transform = flag ? 'rotate(-90deg)' : '';
+            }
+
             function updateVisualKeyboardStyles() {
+                updateVisualKeyboardStylesCore();
+                renderMiniKeyboard();
+            }
+
+            function updateVisualKeyboardStylesCore() {
                 keycapElements.forEach(({ el, badgeEl }, code) => {
                     const markState = keyStates.get(code) || 'unchecked';
                     const isPressed = activeCodes.has(code);
@@ -4087,12 +4188,14 @@ turn it off to continue!</p>
                     });
                 });
 
-                categories.push({
-                    label: 'unchecked',
-                    count: unchecked,
-                    subText: `${unchecked} (${formatPercent(unchecked, totalKeys)})`,
-                    color: isDark ? '#52525b' : '#a1a1aa'
-                });
+                if (unchecked > 0 || categories.length === 0) {
+                    categories.push({
+                        label: 'unchecked',
+                        count: unchecked,
+                        subText: `${unchecked} (${formatPercent(unchecked, totalKeys)})`,
+                        color: isDark ? '#52525b' : '#a1a1aa'
+                    });
+                }
 
                 const padTop = 52;
                 const padBottom = 34;
@@ -4521,7 +4624,6 @@ turn it off to continue!</p>
                 refreshSettingsFromState();
                 settingsPasteInput.value = '';
                 settingsPasteStatus.textContent = 'optional';
-                if (typeof syncGraphicsControls === 'function') syncGraphicsControls();
 
                 settingsModal.classList.remove('hidden');
                 updateFocusIndicator(false);
@@ -4626,13 +4728,14 @@ turn it off to continue!</p>
                 parseAndApplySwitchListWithCheck(raw, (msg) => { settingsPasteStatus.textContent = msg; }, () => {
                     settingsPasteInput.value = '';
                     refreshSettingsFromState();
+                    closeSettingsModal();
                 });
             });
             settingsOpenFileBtn.addEventListener('click', () => settingsFileInput.click());
             settingsFileInput.addEventListener('change', () => {
                 const f = settingsFileInput.files && settingsFileInput.files[0];
                 settingsFileInput.value = '';
-                openLayoutFile(f, { feedbackEl: settingsPasteStatus, onApplied: () => { refreshSettingsFromState(); } });
+                openLayoutFile(f, { feedbackEl: settingsPasteStatus, onApplied: () => { refreshSettingsFromState(); closeSettingsModal(); } });
             });
             settingsPasteInput.addEventListener('keydown', (ev) => { ev.stopPropagation(); });
             settingsTitleInput.addEventListener('keydown', (ev) => { ev.stopPropagation(); });
@@ -4690,6 +4793,7 @@ turn it off to continue!</p>
                     if (Array.isArray(parsed.appConfig.brushes)) appConfig.brushes = parsed.appConfig.brushes;
                     if (parsed.appConfig.customLayouts) appConfig.customLayouts = parsed.appConfig.customLayouts;
                     if (Array.isArray(parsed.appConfig.neomacroWatchlist)) appConfig.neomacroWatchlist = parsed.appConfig.neomacroWatchlist;
+                    if (parsed.appConfig.neomacroExtraPacks && typeof parsed.appConfig.neomacroExtraPacks === 'object') appConfig.neomacroExtraPacks = parsed.appConfig.neomacroExtraPacks;
                     if (parsed.appConfig.brushSwitchLinks) appConfig.brushSwitchLinks = parsed.appConfig.brushSwitchLinks;
                     if (parsed.appConfig.customSwitchSources) appConfig.customSwitchSources = parsed.appConfig.customSwitchSources;
                 }
@@ -4737,6 +4841,14 @@ turn it off to continue!</p>
                 }
             }
             const openLayoutFileBtn = document.getElementById('openLayoutFileBtn');
+            new MutationObserver(() => {
+                if (!pasteDrawer.classList.contains('hidden')) {
+                    openLayoutFileBtn.classList.remove('hl-pulse');
+                    void openLayoutFileBtn.offsetWidth;
+                    openLayoutFileBtn.classList.add('hl-pulse');
+                    setTimeout(() => openLayoutFileBtn.classList.remove('hl-pulse'), 1300);
+                }
+            }).observe(pasteDrawer, { attributes: true, attributeFilter: ['class'] });
             const openLayoutFileInput = document.getElementById('openLayoutFileInput');
             openLayoutFileBtn.addEventListener('click', () => { openLayoutFileInput.click(); });
             openLayoutFileInput.addEventListener('change', () => {
@@ -4961,9 +5073,16 @@ turn it off to continue!</p>
                 ], { duration: 720, easing: 'cubic-bezier(0.3,0.8,0.3,1)' });
             }
 
+            document.getElementById('toggleKeyboardCollapseBtn').addEventListener('click', () => {
+                setKeyboardCollapsed(!document.getElementById('keyboardCard').classList.contains('kbd-collapsed'));
+                document.getElementById('toggleKeyboardCollapseBtn').blur();
+            });
+
             toggleChartCollapseBtn.addEventListener('click', () => {
                 const willOpen = chartBody.classList.contains('hidden');
                 chartBody.classList.toggle('hidden', !willOpen);
+                setKeyboardCollapsed(willOpen);
+                renderMiniKeyboard();
                 jumpChartCard(willOpen);
                 toggleChartCollapseBtn.textContent = willOpen ? 'close diagram' : 'open diagram';
                 toggleChartCollapseBtn.blur();
@@ -5045,6 +5164,103 @@ turn it off to continue!</p>
                 }
 
                 return Array.from(urls);
+            }
+
+            const transparentImageCache = new Map();
+
+            function sizedShopifyUrl(url, width) {
+                try {
+                    const u = new URL(url, 'https://neomacro.in');
+                    if (/cdn\.shopify\.com|neomacro\.in/.test(u.hostname)) u.searchParams.set('width', String(width));
+                    return u.toString();
+                } catch (_) {
+                    return url;
+                }
+            }
+
+            function removeWhiteBackground(url, maxDim) {
+                const key = `${url}|${maxDim}`;
+                if (transparentImageCache.has(key)) return transparentImageCache.get(key);
+                const task = new Promise((resolve) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        try {
+                            const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+                            const w = Math.max(1, Math.round(img.naturalWidth * scale));
+                            const h = Math.max(1, Math.round(img.naturalHeight * scale));
+                            const canvas = document.createElement('canvas');
+                            canvas.width = w;
+                            canvas.height = h;
+                            const cx = canvas.getContext('2d', { willReadFrequently: true });
+                            cx.drawImage(img, 0, 0, w, h);
+                            const imageData = cx.getImageData(0, 0, w, h);
+                            const px = imageData.data;
+                            const lightAt = (i) => px[i + 3] > 200 && px[i] >= 236 && px[i + 1] >= 236 && px[i + 2] >= 236;
+
+                            let borderTotal = 0;
+                            let borderLight = 0;
+                            const probe = (x, y) => {
+                                borderTotal += 1;
+                                if (lightAt((y * w + x) * 4)) borderLight += 1;
+                            };
+                            for (let x = 0; x < w; x++) { probe(x, 0); probe(x, h - 1); }
+                            for (let y = 1; y < h - 1; y++) { probe(0, y); probe(w - 1, y); }
+                            if (borderLight / borderTotal < 0.92) { resolve(null); return; }
+
+                            const seen = new Uint8Array(w * h);
+                            const stack = [];
+                            const push = (x, y) => {
+                                const idx = y * w + x;
+                                if (seen[idx] || !lightAt(idx * 4)) return;
+                                seen[idx] = 1;
+                                stack.push(idx);
+                            };
+                            for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
+                            for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+                            while (stack.length > 0) {
+                                const idx = stack.pop();
+                                const x = idx % w;
+                                const y = (idx - x) / w;
+                                if (x > 0) push(x - 1, y);
+                                if (x < w - 1) push(x + 1, y);
+                                if (y > 0) push(x, y - 1);
+                                if (y < h - 1) push(x, y + 1);
+                            }
+
+                            const edge = [];
+                            for (let idx = 0; idx < seen.length; idx++) {
+                                if (seen[idx]) {
+                                    px[idx * 4 + 3] = 0;
+                                    continue;
+                                }
+                                const x = idx % w;
+                                const y = (idx - x) / w;
+                                const nearRemoved = (x > 0 && seen[idx - 1]) || (x < w - 1 && seen[idx + 1]) || (y > 0 && seen[idx - w]) || (y < h - 1 && seen[idx + w]);
+                                if (nearRemoved) edge.push(idx);
+                            }
+                            edge.forEach((idx) => {
+                                const lowest = Math.min(px[idx * 4], px[idx * 4 + 1], px[idx * 4 + 2]);
+                                if (lowest > 205) px[idx * 4 + 3] = Math.round(255 * Math.max(0, (255 - lowest) / 50));
+                            });
+                            cx.putImageData(imageData, 0, 0);
+                            resolve(canvas.toDataURL('image/png'));
+                        } catch (_) {
+                            resolve(null);
+                        }
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = url;
+                });
+                transparentImageCache.set(key, task);
+                return task;
+            }
+
+            function makeImageTransparent(imgEl, url, loadWidth, maxDim) {
+                if (!url) return;
+                removeWhiteBackground(sizedShopifyUrl(url, loadWidth), maxDim).then((dataUrl) => {
+                    if (dataUrl) imgEl.src = dataUrl;
+                });
             }
 
             function formatProductDescriptionBlocks(rawHtml) {
@@ -5370,6 +5586,67 @@ turn it off to continue!</p>
                 renderNeomacroSummaryBar();
             }
 
+            function getExtraEntry(handle) {
+                const e = (appConfig.neomacroExtraPacks || {})[handle];
+                return e && Number(e.packs) > 0 ? e : null;
+            }
+
+            function getExtraPacks(handle) {
+                const e = getExtraEntry(handle);
+                return e ? Math.floor(Number(e.packs)) : 0;
+            }
+
+            function setExtraPacks(handle, count, itemInfo) {
+                if (!appConfig.neomacroExtraPacks) appConfig.neomacroExtraPacks = {};
+                const n = Math.max(0, Math.min(99, Math.floor(Number(count) || 0)));
+                if (n > 0) {
+                    const prev = appConfig.neomacroExtraPacks[handle] || {};
+                    appConfig.neomacroExtraPacks[handle] = {
+                        packs: n,
+                        title: (itemInfo && itemInfo.title) || prev.title || handle.replace(/-/g, ' '),
+                        price: Number(itemInfo && itemInfo.price) > 0 ? Number(itemInfo.price) : (Number(prev.price) || 0),
+                        url: (itemInfo && itemInfo.url) || prev.url || `https://neomacro.in/products/${handle}`
+                    };
+                } else {
+                    delete appConfig.neomacroExtraPacks[handle];
+                }
+                syncEmbeddedStateTag();
+                document.querySelectorAll('[data-extra-count]').forEach((el) => {
+                    if (el.dataset.extraCount === handle) el.textContent = String(n);
+                });
+                renderNeomacroSummaryBar();
+            }
+
+            function buildExtraPackStepper(handle, itemInfo) {
+                const wrap = document.createElement('div');
+                wrap.className = 'inline-flex items-center rounded-lg bg-zinc-900 border border-zinc-700 overflow-hidden text-[11px] font-mono';
+                wrap.title = 'extra packs of 10 to order, on top of what your keyboard needs';
+                const label = document.createElement('span');
+                label.className = 'pl-2.5 pr-1.5 text-zinc-400';
+                label.textContent = 'packs';
+                const minus = document.createElement('button');
+                minus.type = 'button';
+                minus.textContent = '\u2212';
+                minus.setAttribute('aria-label', 'one pack less');
+                minus.className = 'w-6 h-7 text-zinc-300 hover:bg-zinc-800 hover:text-rose-300 transition-colors';
+                const count = document.createElement('span');
+                count.dataset.extraCount = handle;
+                count.className = 'min-w-[1.5rem] text-center font-bold text-zinc-100';
+                count.textContent = String(getExtraPacks(handle));
+                const plus = document.createElement('button');
+                plus.type = 'button';
+                plus.textContent = '+';
+                plus.setAttribute('aria-label', 'one pack more');
+                plus.className = 'w-6 h-7 text-zinc-300 hover:bg-zinc-800 hover:text-emerald-300 transition-colors';
+                minus.addEventListener('click', () => setExtraPacks(handle, getExtraPacks(handle) - 1, itemInfo));
+                plus.addEventListener('click', () => setExtraPacks(handle, getExtraPacks(handle) + 1, itemInfo));
+                wrap.appendChild(label);
+                wrap.appendChild(minus);
+                wrap.appendChild(count);
+                wrap.appendChild(plus);
+                return wrap;
+            }
+
             function renderNeomacroCatalogList() {
                 const query = (neomacroSearchInput.value || '').trim().toLowerCase();
                 const typeFilter = neomacroTypeFilter.value || 'all';
@@ -5437,7 +5714,8 @@ turn it off to continue!</p>
                         thumbImg.src = item.imageUrl;
                         thumbImg.alt = item.title;
                         thumbImg.loading = 'lazy';
-                        thumbImg.className = 'w-12 h-12 rounded-lg object-cover border border-zinc-800 bg-zinc-900 shrink-0';
+                        thumbImg.className = 'w-12 h-12 rounded-lg object-contain p-0.5 border border-zinc-800 bg-zinc-900 shrink-0';
+                        makeImageTransparent(thumbImg, item.imageUrl, 320, 220);
                         infoCol.appendChild(thumbImg);
                     }
 
@@ -5573,6 +5851,7 @@ turn it off to continue!</p>
                     actionCol.appendChild(priceBox);
                     actionCol.appendChild(watchBtn);
                     actionCol.appendChild(assignSelect);
+                    actionCol.appendChild(buildExtraPackStepper(item.handle, item));
 
                     mainRow.appendChild(infoCol);
                     mainRow.appendChild(actionCol);
@@ -5584,8 +5863,13 @@ turn it off to continue!</p>
 
                         if (item.imageUrl) {
                             const imgWrap = document.createElement('div');
-                            imgWrap.className = 'md:col-span-4 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900';
-                            imgWrap.innerHTML = `<img src="${item.imageUrl}" alt="${item.title}" class="w-full h-44 object-cover">`;
+                            imgWrap.className = 'md:col-span-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-2 flex items-center justify-center';
+                            const detailImg = document.createElement('img');
+                            detailImg.src = item.imageUrl;
+                            detailImg.alt = item.title;
+                            detailImg.className = 'w-full h-auto max-h-72 object-contain';
+                            makeImageTransparent(detailImg, item.imageUrl, 900, 720);
+                            imgWrap.appendChild(detailImg);
                             detailsPanel.appendChild(imgWrap);
                         }
 
@@ -5665,14 +5949,16 @@ turn it off to continue!</p>
 
                 const { counts } = getDynamicBreakdown();
 
-                setCouponCheckoutVisible(activeLinkEntries.length > 0 || extraWatchedHandles.length > 0);
+                const extraPackEntries = Object.entries(appConfig.neomacroExtraPacks || {}).filter(([, e]) => e && Number(e.packs) > 0);
+
+                setCouponCheckoutVisible(activeLinkEntries.length > 0 || extraWatchedHandles.length > 0 || extraPackEntries.length > 0);
 
                 let subtotalRs = 0;
                 let neomacroPacksTotal = 0;
                 let shippingRsTotal = 0;
                 let hasAnyCostSelected = false;
 
-                if (activeLinkEntries.length === 0 && activeSyosEntries.length === 0 && extraWatchedHandles.length === 0) {
+                if (activeLinkEntries.length === 0 && activeSyosEntries.length === 0 && extraWatchedHandles.length === 0 && extraPackEntries.length === 0) {
                     neomacroActiveWrap.classList.add('hidden');
                     neomacroTotalCostBadge.textContent = 'est. total: ₹ 0';
                     neomacroShippingNote.textContent = 'no shipping charged yet';
@@ -5740,6 +6026,58 @@ turn it off to continue!</p>
                     if (unlinkBtn) {
                         unlinkBtn.addEventListener('click', () => unlinkSwitchFromBrush(bId));
                     }
+
+                    card.appendChild(top);
+                    card.appendChild(bottom);
+                    neomacroLinkedGrid.appendChild(card);
+                });
+
+                extraPackEntries.forEach(([handle, entry]) => {
+                    const packs = Math.max(0, Math.floor(Number(entry.packs) || 0));
+                    if (packs <= 0) return;
+                    const catalogItem = neomacroCatalog.find((x) => x.handle === handle);
+                    const item = catalogItem || { handle, title: entry.title, price: entry.price, available: false, url: entry.url };
+                    const unitPackPrice = Number(item.price) > 0 ? Number(item.price) : (Number(entry.price) || 0);
+                    const lineCost = packs * unitPackPrice;
+                    subtotalRs += lineCost;
+                    neomacroPacksTotal += packs;
+                    hasAnyCostSelected = true;
+
+                    const card = document.createElement('div');
+                    card.className = 'p-3 rounded-xl bg-zinc-950 border border-amber-500/35 flex flex-col justify-between gap-2';
+
+                    const stockChipHtml = neomacroLiveStockAvailable && catalogItem
+                        ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0 ${item.available
+                            ? 'bg-emerald-500/15 border border-emerald-500/35 text-emerald-300'
+                            : 'bg-rose-500/15 border border-rose-500/35 text-rose-300'}">${item.available ? 'in stock' : 'sold out'}</span>`
+                        : '';
+
+                    const top = document.createElement('div');
+                    top.className = 'flex items-start justify-between gap-2';
+                    top.innerHTML = `
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/35 text-amber-300">extra order</span>
+                            <a href="${item.url}" target="_blank" rel="noopener noreferrer"
+                                class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-1">
+                                ${item.title} ↗
+                            </a>
+                        </div>
+                        ${stockChipHtml}
+                    `;
+
+                    const bottom = document.createElement('div');
+                    bottom.className = 'flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono';
+                    const costWrap = document.createElement('div');
+                    costWrap.className = 'flex items-center gap-2 shrink-0';
+                    costWrap.innerHTML = `<span class="font-bold text-emerald-300">₹ ${lineCost.toLocaleString()}</span>`;
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.textContent = 'remove';
+                    removeBtn.className = 'px-2 py-0.5 rounded bg-rose-500/15 border border-rose-500/40 text-[10px] font-mono font-semibold text-rose-300 hover:bg-rose-500/25 transition-colors';
+                    removeBtn.addEventListener('click', () => setExtraPacks(handle, 0));
+                    costWrap.appendChild(removeBtn);
+                    bottom.appendChild(buildExtraPackStepper(handle, item));
+                    bottom.appendChild(costWrap);
 
                     card.appendChild(top);
                     card.appendChild(bottom);
@@ -5945,6 +6283,14 @@ turn it off to continue!</p>
                     if (!item.available) { skippedSoldOut += 1; return; }
                     qtyByVariant.set(item.variantId, (qtyByVariant.get(item.variantId) || 0) + Math.ceil(keyCount / 10));
                 });
+                Object.entries(appConfig.neomacroExtraPacks || {}).forEach(([handle, entry]) => {
+                    const packs = Math.floor(Number(entry && entry.packs) || 0);
+                    if (packs <= 0) return;
+                    const item = neomacroCatalog.find((x) => x.handle === handle);
+                    if (!item || !item.variantId) return;
+                    if (!item.available) { skippedSoldOut += 1; return; }
+                    qtyByVariant.set(item.variantId, (qtyByVariant.get(item.variantId) || 0) + packs);
+                });
                 if (qtyByVariant.size === 0) return { lines: [], returnTo: '/cart', skippedSoldOut };
                 let returnTo = '/cart';
                 if (appConfig.couponCode && Number(appConfig.couponDiscountPct) > 0) {
@@ -6045,6 +6391,7 @@ turn it off to continue!</p>
             document.getElementById('catalogueBackdrop').addEventListener('click', () => toggleNeomacroSection(false));
             document.addEventListener('keydown', (ev) => {
                 if (ev.key !== 'Escape') return;
+                if (!gfxPanel.classList.contains('hidden')) { setGfxPanel(false); ev.preventDefault(); return; }
                 if (!copyModeMenu.classList.contains('hidden')) { setCopyMenuOpen(false); ev.preventDefault(); return; }
                 if (!couponDrawer.classList.contains('hidden')) { couponDrawer.classList.add('hidden'); ev.preventDefault(); return; }
                 if (!unsavedModalEl().classList.contains('hidden')) { hideUnsavedPrompt(); ev.preventDefault(); return; }

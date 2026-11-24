@@ -22,9 +22,11 @@ A huge thank you to **dabber443** on the neomacro.in Discord, who tested the pla
 - **Brushes:** colour-coded switch types (tactile, linear, silent, anything you like). Mark keys by clicking them or by pressing the real key on your keyboard.
 - **Combine brushes:** fold any brush into any other to get combined coverage totals (for example tactile + silent), with a card, chart bar and export line per group.
 - **Live stats and chart:** per-brush counts, percentages, unchecked keys and a coverage chart.
-- **neomacro.in catalogue:** browse switches with live price and stock, assign them to brushes, keep a watchlist, add your own sources, apply a coupon and send the required packs to the neomacro.in cart.
+- **neomacro.in catalogue:** browse switches with live price and stock, assign them to brushes, keep a watchlist, add your own sources, apply a coupon and send the required packs to the neomacro.in cart. Product photos with a white background are made transparent automatically.
+- **Shopping packs:** add extra packs of any switch on top of what your keyboard needs. Extra packs count towards the estimate and the checkout.
+- **Allocation diagram:** opening it tucks the live keyboard away and shows a small colour-only preview of your board next to the chart.
 - **Save and share:** save the whole workspace as a self-contained HTML file, copy or export the layout as text, and paste or open an existing layout (`.txt`, saved `.html` or `.json`).
-- **Quality of life:** light and dark themes, accent colour and "tone everything down" graphics options, unsaved-changes prompt before closing the tab, first-run setup guide.
+- **Quality of life:** light and dark themes, accent colour and "tone everything down" graphics options (the sliders icon in the header), unsaved-changes prompt before closing the tab, first-run setup guide.
 
 ## Getting started
 
@@ -42,7 +44,7 @@ Or use the live site above. To host your own copy with GitHub Pages: **Settings 
 1. Name your workspace and add brushes, or paste/open an existing layout.
 2. Pick a layout from the header dropdown.
 3. Choose a brush and click keys (or press keys on your keyboard) to assign them. Use **lock keyboard** if you need to type without marking keys.
-4. Open **brushes & settings** to rename brushes, change colours, combine brushes, change graphics options or paste an existing layout.
+4. Open **brushes & settings** to rename brushes, change colours, combine brushes or paste an existing layout.
 5. Open the catalogue to assign neomacro.in switches to your brushes and check out.
 6. Use **save file** to keep your work. Each saved copy carries its own state.
 
