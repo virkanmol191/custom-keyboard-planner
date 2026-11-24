@@ -4,7 +4,7 @@ A single-file, browser-based planner for mechanical keyboard switch builds. Lay 
 
 **Live site:** https://virkanmol191.github.io/custom-keyboard-planner/
 
-> **Unofficial.** This is a vibe-coded, user-made project. It is not affiliated with, endorsed by, or maintained by neomacro.in.
+> **Unofficial.** This is a user-made project, vibe coded and revised by xnmoll. It is not affiliated with, endorsed by, or maintained by neomacro.in.
 
 ## The story
 
@@ -70,6 +70,10 @@ The first line sets the workspace name. `(+primary)` or `(+brush name)` after a 
 - Coupon codes are checked against the website, with a default fallback if it cannot be reached.
 - **Checkout** posts the required switch packs (1 pack = 10 switches) to `neomacro.in/cart/add` in a new tab; you complete payment on their site.
 - If the live feed is unavailable the planner keeps working with whatever data it already has.
+
+## Referral link
+
+When you press **checkout** without a coupon code applied, the planner opens neomacro.in through the author's referral link, which also supports this project. A pop-up explains this before anything opens: new customers get a ₹150 off coupon on carts of ₹600 or more. You can continue without the referral from the same pop-up, and no referral is added when you apply a coupon code yourself.
 
 ## Privacy
 

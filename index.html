@@ -35,13 +35,6 @@
             prefs = prefs || {};
             var root = document.documentElement;
             root.classList.toggle('calm', !!prefs.calm);
-            var ramp = window.__KP_ACCENTS[prefs.accent];
-            ['cy', 'sk', 'bl'].forEach(function (fam) {
-                window.__KP_SHADES.forEach(function (sh, i) {
-                    if (ramp && prefs.accent && prefs.accent !== 'cyan') root.style.setProperty('--' + fam + '-' + sh, ramp[i]);
-                    else root.style.removeProperty('--' + fam + '-' + sh);
-                });
-            });
         };
         try { window.__kpApplyGraphics(JSON.parse(localStorage.getItem('kp_graphics_v1') || '{}')); } catch (e) {}
     </script>
@@ -333,17 +326,17 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
         <div id="splashCollab">in collaboration with<span class="splash-kinda">(kinda)</span></div>
         <div id="splashLogo" class="neo-logo"></div>
     </div>
-    <div id="splashDisclaimer">not an official collab, just a <b>vibe coded, user made site</b> &middot; not affiliated with neomacro.in</div>
+    <div id="splashDisclaimer">not an official collab, just a user made site, <b>vibe coded and revised by xnmoll</b> &middot; not affiliated with neomacro.in</div>
     <div id="splashLetterLayer" class="splash-layer" style="visibility:hidden;opacity:0">
         <div id="splashLetter">
             <div id="splashLetterLogoSlot"></div>
 
             <div id="splashLetterBody">
-                <p>hey, xnmoll here.</p>
+                <p>hey, fellow nerd here.</p>
                 <p>i set out to build my first custom keyboard and went looking for a tool to plan it: which keys get which switches, how many of each, and what it would all cost. i couldn't find anything like it online, so i went full thanos and built it myself over one weekend.</p>
                 <p>a huge thank you to dabber443 from neomacro.in on discord, who tested it and helped me add new features along the way.</p>
-                <p>this is an unofficial, vibe coded project and is not affiliated with neomacro.in. i hope it helps you plan your build too.</p>
-                <p class="letter-sign">- xnmoll</p>
+                <p>this is an unofficial project, vibe coded and revised by xnmoll, and it is not affiliated with neomacro.in. i hope it helps you plan your build too.</p>
+                <p - xnmoll</p>
             </div>
             <button id="splashContinueBtn" type="button" class="splash-btn">continue</button>
         </div>
@@ -423,22 +416,11 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
                     </button>
                     <div id="gfxPanel" class="hidden absolute right-0 top-full mt-2 z-[60] w-64 p-3.5 rounded-xl bg-zinc-900/95 border border-zinc-700/80 shadow-2xl backdrop-blur-md">
                         <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-1">graphics</h3>
-                        <p class="text-[11px] text-zinc-400 mb-3">tone everything down, or change the accent colour</p>
                         <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-mono text-zinc-300">
                             <input id="gfxCalmToggle" type="checkbox" class="w-3.5 h-3.5 rounded accent-sky-500 cursor-pointer">
-                            <span>tone everything down</span>
+                            <span>tone down (sad for ya)</span>
                         </label>
-                        <div class="mt-3">
-                            <div class="text-[11px] font-mono text-zinc-400 mb-1.5">accent colour</div>
-                            <div id="gfxAccentRow" class="flex flex-wrap items-center gap-2.5">
-                            <button type="button" data-accent="cyan" aria-label="cyan accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-cyan)"></button>
-                            <button type="button" data-accent="violet" aria-label="violet accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-violet)"></button>
-                            <button type="button" data-accent="emerald" aria-label="emerald accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-emerald)"></button>
-                            <button type="button" data-accent="rose" aria-label="rose accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-rose)"></button>
-                            <button type="button" data-accent="amber" aria-label="amber accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-amber)"></button>
-                            <button type="button" data-accent="fuchsia" aria-label="fuchsia accent" class="gfx-swatch w-7 h-7 rounded-full border-2 border-transparent focus:outline-none transition-transform hover:scale-110" style="background:var(--sw-fuchsia)"></button>
-                            </div>
-                        </div>
+                    </div>
                     </div>
                 </div>
 
@@ -660,7 +642,7 @@ html:not(.dark) :is([class^="text-zinc-50"], [class*=" text-zinc-50"], [class^="
                             </button>
                         </div>
                         <span id="couponStatusText" class="text-[11px] font-mono text-zinc-400">
-                            checks website (10s timeout -> default 10% off)
+                            will check with website. goodluck. (if ain't broke, don't fix it).
                         </span>
                     </div>
                 </div>
@@ -937,6 +919,24 @@ turn it off to continue!</p>
         </div>
     </div>
 
+
+    <div id="referralModal" class="hidden fixed inset-0 z-[57] flex items-center justify-center p-4" style="background: rgba(0,0,0,0.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);">
+        <div class="w-full max-w-sm theme-card rounded-3xl bg-zinc-900/95 border border-zinc-800 p-6 shadow-2xl">
+            <h3 class="text-sm font-bold text-zinc-100 font-mono">thanks for using the tool!</h3>
+            <p class="text-xs text-zinc-300 mt-2 leading-relaxed">your checkout opens through the creator's neomacro.in referral link, which also supports this project</p>
+            <div class="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                <div class="text-xs font-mono font-bold text-emerald-300">new customers get a ₹150 off coupon</div>
+                <div class="text-[11px] font-mono text-zinc-400 mt-0.5">minimum cart amount of ₹600</div>
+                <div id="referralCartNote" class="text-[11px] font-mono text-zinc-300 mt-2"></div>
+            </div>
+            <p class="text-[11px] text-zinc-500 mt-3">no referral is added when you apply a coupon code yourself</p>
+            <div class="flex flex-wrap items-center justify-end gap-2 mt-4">
+                <button id="referralSkipBtn" type="button" class="px-3.5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300 hover:bg-zinc-700 active:scale-95 transition-all focus:outline-none">continue without referral</button>
+                <button id="referralContinueBtn" type="button" class="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-xs font-mono font-bold text-emerald-300 hover:bg-emerald-500/30 active:scale-95 transition-all focus:outline-none">continue to checkout</button>
+            </div>
+        </div>
+    </div>
+
     <div id="confirmClearModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-rose-500/40 p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center gap-2.5 pb-3 border-b border-zinc-800">
@@ -1015,13 +1015,13 @@ turn it off to continue!</p>
 
             <div id="wizardPage1" class="space-y-4 py-4">
                 <p class="text-xs text-zinc-300 leading-relaxed">
-                    made in desperation by xnmoll <3 v2.9 includes ability to plan custom keyboard with a keyboard diagram to visualise stuff with colour coded brushes and bring your imagination into simpler to look at picture and with intergration of neomacro.in you can track live stock and add them to watchlist or get an estimated budget for your selection of switches.
+                    made in desperation by xnmoll <3 v3.2 includes ability to plan custom keyboard with a keyboard diagram to visualise stuff with colour coded brushes and bring your imagination into simpler to look at picture and with intergration of neomacro.in <br> you can track live stock and add them to watchlist or get an estimated budget for your selection of switches.
                 </p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
                         <div class="font-mono font-bold text-zinc-200 mb-1">use colours to plan</div>
-                        <p class="text-[11px] text-zinc-400">create any color-coded brushes to categorize every key on your keyboard.</p>
+                        <p class="text-[11px] text-zinc-400">create any color-coded brushes to categorize every key switch there is on your keyboard.</p>
                     </div>
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
                         <div class="font-mono font-bold text-zinc-200 mb-1">neomacro.in integration</div>
@@ -1033,7 +1033,7 @@ turn it off to continue!</p>
                     </div>
                     <div class="p-3 rounded-xl bg-zinc-950 border border-zinc-800">
                         <div class="font-mono font-bold text-zinc-200 mb-1">open source and local</div>
-                        <p class="text-[11px] text-zinc-400">this vibed coded ah webapp takes zero browser cache for your plans. click "save file" to pick a folder in windows explorer and save an independent html copy of this session.</p>
+                        <p class="text-[11px] text-zinc-400">this webapp, vibe coded and revised by xnmoll, takes zero browser cache for your plans. click "save file" to pick a folder in windows explorer and save an independent html copy of this session.</p>
                     </div>
                 </div>
 
@@ -1239,7 +1239,29 @@ turn it off to continue!</p>
             </div>
 
             <div class="space-y-6 py-4">
-                <div id="settingsTitleBlock" class="rounded-xl">
+                <div>
+                    <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-1">paste existing layout</h3>
+                    <p class="text-[11px] text-zinc-400 mb-2">brings in the workspace name, brushes, colours and key assignments from a copied layout or a saved file</p>
+                    <div class="flex items-stretch gap-3">
+                        <textarea id="settingsPasteInput" rows="4"
+                            placeholder="paste copied layout here..."
+                            class="flex-1 min-w-0 rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
+                        <div class="flex flex-col justify-between items-stretch gap-2 w-36 shrink-0">
+                            <input id="settingsFileInput" type="file" accept=".txt,.html,.htm,.json,text/plain,text/html,application/json" class="hidden">
+                            <button id="settingsOpenFileBtn" type="button"
+                                class="flex-1 px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-sm font-mono font-semibold text-sky-300 hover:bg-zinc-700 active:scale-95 transition-all">
+                                open file
+                            </button>
+                            <button id="settingsApplyPasteBtn" type="button"
+                                class="px-3 py-1.5 rounded-lg bg-blue-600/25 border border-blue-500/40 text-xs font-mono font-semibold text-zinc-200 hover:bg-blue-600/40 transition-colors">
+                                load pasted layout
+                            </button>
+                        </div>
+                    </div>
+                    <span id="settingsPasteStatus" class="block mt-1.5 text-[11px] font-mono text-zinc-500">optional</span>
+                </div>
+
+                <div id="settingsTitleBlock" class="pt-2 border-t border-zinc-800/80 rounded-xl">
                     <label for="settingsTitleInput" class="block text-xs font-mono text-zinc-400 mb-1">workspace title</label>
                     <input id="settingsTitleInput" type="text" placeholder="untitled project"
                         class="w-full rounded-xl bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500">
@@ -1280,7 +1302,7 @@ turn it off to continue!</p>
                         <button type="button" data-usecase="pcb_tester" title="working (green) / chatter (yellow) / dead switch (rose)"
                             class="usecase-preset-btn inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-600 text-[11px] font-mono text-zinc-300 hover:text-zinc-100 transition-colors">
                             <span class="inline-flex items-center gap-0.5"><span class="w-2 h-2 rounded-full inline-block" style="background:#10b981"></span><span class="w-2 h-2 rounded-full inline-block" style="background:#eab308"></span><span class="w-2 h-2 rounded-full inline-block" style="background:#f43f5e"></span></span>
-                            <span>pcb switch tester mode (to diag)</span>
+                            <span>pcb switch tester mode (to diagnose the board ofc.)</span>
                         </button>
                         </div>
                     </div>
@@ -1294,28 +1316,6 @@ turn it off to continue!</p>
                             class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 border border-sky-500/40 text-xs font-mono font-semibold text-zinc-200 hover:bg-sky-500/30 transition-colors">
                             open on-board per-key editor
                         </button>
-                    </div>
-                </div>
-
-                <div class="pt-2 border-t border-zinc-800/80">
-                    <h3 class="text-xs font-mono font-semibold text-zinc-200 mb-1">paste existing layout</h3>
-                    <p class="text-[11px] text-zinc-400 mb-2">brings in the workspace name, brushes, colours and key assignments from a copied layout or a saved file</p>
-                    <textarea id="settingsPasteInput" rows="3"
-                        placeholder="paste copied layout here..."
-                        class="w-full rounded-xl bg-zinc-950 border border-zinc-800 p-2.5 font-mono text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-blue-500 lowercase"></textarea>
-                    <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
-                        <span id="settingsPasteStatus" class="text-[11px] font-mono text-zinc-500">optional</span>
-                        <div class="flex items-center gap-2">
-                            <input id="settingsFileInput" type="file" accept=".txt,.html,.htm,.json,text/plain,text/html,application/json" class="hidden">
-                            <button id="settingsOpenFileBtn" type="button"
-                                class="px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-xs font-mono text-sky-300 hover:bg-zinc-700 transition-colors">
-                                open file
-                            </button>
-                            <button id="settingsApplyPasteBtn" type="button"
-                                class="px-3 py-1.5 rounded-lg bg-blue-600/25 border border-blue-500/40 text-xs font-mono font-semibold text-zinc-200 hover:bg-blue-600/40 transition-colors">
-                                load pasted layout
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1915,16 +1915,12 @@ turn it off to continue!</p>
             const settingsApplyPasteBtn = document.getElementById('settingsApplyPasteBtn');
             let modalComboSelects = [];
             const gfxCalmToggle = document.getElementById('gfxCalmToggle');
-            const gfxAccentRow = document.getElementById('gfxAccentRow');
             const GFX_KEY = 'kp_graphics_v1';
             function readGfx() { try { return JSON.parse(localStorage.getItem(GFX_KEY) || '{}') || {}; } catch (_) { return {}; } }
             function writeGfx(o) { try { localStorage.setItem(GFX_KEY, JSON.stringify(o)); } catch (_) {} if (window.__kpApplyGraphics) window.__kpApplyGraphics(o); }
             function syncGraphicsControls() {
                 const g = readGfx();
                 gfxCalmToggle.checked = Boolean(g.calm);
-                gfxAccentRow.querySelectorAll('[data-accent]').forEach((btn) => {
-                    btn.classList.toggle('is-on', btn.dataset.accent === (g.accent || 'cyan'));
-                });
             }
             const gfxMenuBtn = document.getElementById('gfxMenuBtn');
             const gfxPanel = document.getElementById('gfxPanel');
@@ -1947,15 +1943,9 @@ turn it off to continue!</p>
             });
             document.addEventListener('click', (ev) => {
                 if (!gfxPanel.classList.contains('hidden') && !ev.target.closest('#gfxWrap')) setGfxPanel(false);
+                if (document.getElementById('packsHint') && !ev.target.closest('#packsHint')) dismissPacksHint();
             });
-            gfxCalmToggle.addEventListener('change', () => { writeGfx({ ...readGfx(), calm: gfxCalmToggle.checked }); });
-            gfxAccentRow.querySelectorAll('[data-accent]').forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    writeGfx({ ...readGfx(), accent: btn.dataset.accent });
-                    syncGraphicsControls();
-                    btn.blur();
-                });
-            });
+            gfxCalmToggle.addEventListener('change', () => { writeGfx({ calm: gfxCalmToggle.checked }); });
             const launchPerKeyEditorFromSettingsBtn = document.getElementById('launchPerKeyEditorFromSettingsBtn');
 
             function hexToRgba(hex, alpha) {
@@ -1985,6 +1975,7 @@ turn it off to continue!</p>
                 if (startScreen && !startScreen.classList.contains('hidden')) return true;
                 if (!document.getElementById('nameWorkspaceModal').classList.contains('hidden')) return true;
                 if (!unsavedModalEl().classList.contains('hidden')) return true;
+                if (!document.getElementById('referralModal').classList.contains('hidden')) return true;
                 if (!copyModeMenu.classList.contains('hidden')) return true;
                 if (!gfxPanel.classList.contains('hidden')) return true;
                 if (!couponDrawer.classList.contains('hidden')) return true;
@@ -2385,7 +2376,7 @@ turn it off to continue!</p>
                 g.innerHTML = `
                     <div class="absolute -top-1.5 right-8 w-3 h-3 rotate-45 bg-zinc-900 border-l border-t border-cyan-500/40"></div>
                     <div class="text-xs font-mono font-bold text-cyan-300">explore the catalogue</div>
-                    <p class="text-[11px] text-zinc-400 mt-1 leading-relaxed">browse neomacro.in switches with live prices and stock, then assign the ones you like to your brushes</p>
+                    <p class="text-[11px] text-zinc-400 mt-1 leading-relaxed">browse neomacro.in switch catalogue with live prices and stock, then assign the ones you like to your brushes/keys.</p>
                     <button type="button" data-guide-ok class="mt-2.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-[11px] font-mono font-semibold text-cyan-200 hover:bg-cyan-500/25 active:scale-95 transition-all focus:outline-none">got it</button>`;
                 col.appendChild(g);
                 toggleNeomacroCollapseBtn.classList.add('guide-pulse');
@@ -5196,37 +5187,73 @@ turn it off to continue!</p>
                             cx.drawImage(img, 0, 0, w, h);
                             const imageData = cx.getImageData(0, 0, w, h);
                             const px = imageData.data;
-                            const lightAt = (i) => px[i + 3] > 200 && px[i] >= 236 && px[i + 1] >= 236 && px[i + 2] >= 236;
+                            // reference backdrop colours sampled from the border (handles glossy / tinted / gradient backdrops)
+                            const refs = [];
+                            const buckets = new Map();
+                            const sampleBorder = (x, y) => {
+                                const i = (y * w + x) * 4;
+                                if (px[i + 3] <= 200) return;
+                                const k = (px[i] >> 4) + ',' + (px[i + 1] >> 4) + ',' + (px[i + 2] >> 4);
+                                const b = buckets.get(k) || { n: 0, r: 0, g: 0, b: 0 };
+                                b.n += 1; b.r += px[i]; b.g += px[i + 1]; b.b += px[i + 2];
+                                buckets.set(k, b);
+                            };
+                            for (let x = 0; x < w; x++) { sampleBorder(x, 0); sampleBorder(x, h - 1); }
+                            for (let y = 1; y < h - 1; y++) { sampleBorder(0, y); sampleBorder(w - 1, y); }
+                            [...buckets.values()].sort((a, b) => b.n - a.n).slice(0, 4).forEach((b) => {
+                                if (b.n >= 4) refs.push([b.r / b.n, b.g / b.n, b.b / b.n]);
+                            });
+                            const nearRef = (i) => {
+                                for (let k = 0; k < refs.length; k++) {
+                                    const r = refs[k];
+                                    if (Math.abs(px[i] - r[0]) <= 34 && Math.abs(px[i + 1] - r[1]) <= 34 && Math.abs(px[i + 2] - r[2]) <= 34) return true;
+                                }
+                                return false;
+                            };
+                            const bgLike = (i) => {
+                                if (px[i + 3] <= 200) return false;
+                                const mx = Math.max(px[i], px[i + 1], px[i + 2]);
+                                const mn = Math.min(px[i], px[i + 1], px[i + 2]);
+                                if ((0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]) >= 172 && (mx - mn) <= 38) return true;
+                                return nearRef(i);
+                            };
+                            const veryLight = (i) => px[i] >= 238 && px[i + 1] >= 238 && px[i + 2] >= 238;
+                            const similar = (i, j) => Math.abs(px[i] - px[j]) <= 20 && Math.abs(px[i + 1] - px[j + 1]) <= 20 && Math.abs(px[i + 2] - px[j + 2]) <= 20;
 
                             let borderTotal = 0;
-                            let borderLight = 0;
+                            let borderLike = 0;
                             const probe = (x, y) => {
                                 borderTotal += 1;
-                                if (lightAt((y * w + x) * 4)) borderLight += 1;
+                                if (bgLike((y * w + x) * 4)) borderLike += 1;
                             };
                             for (let x = 0; x < w; x++) { probe(x, 0); probe(x, h - 1); }
                             for (let y = 1; y < h - 1; y++) { probe(0, y); probe(w - 1, y); }
-                            if (borderLight / borderTotal < 0.92) { resolve(null); return; }
+                            if (borderLike / borderTotal < 0.5) { resolve(null); return; }
 
                             const seen = new Uint8Array(w * h);
                             const stack = [];
-                            const push = (x, y) => {
+                            const push = (x, y, from) => {
                                 const idx = y * w + x;
-                                if (seen[idx] || !lightAt(idx * 4)) return;
+                                if (seen[idx] || !bgLike(idx * 4)) return;
+                                if (from !== null && !veryLight(idx * 4) && !similar(from * 4, idx * 4)) return;
                                 seen[idx] = 1;
                                 stack.push(idx);
                             };
-                            for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
-                            for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+                            for (let x = 0; x < w; x++) { push(x, 0, null); push(x, h - 1, null); }
+                            for (let y = 0; y < h; y++) { push(0, y, null); push(w - 1, y, null); }
                             while (stack.length > 0) {
                                 const idx = stack.pop();
                                 const x = idx % w;
                                 const y = (idx - x) / w;
-                                if (x > 0) push(x - 1, y);
-                                if (x < w - 1) push(x + 1, y);
-                                if (y > 0) push(x, y - 1);
-                                if (y < h - 1) push(x, y + 1);
+                                if (x > 0) push(x - 1, y, idx);
+                                if (x < w - 1) push(x + 1, y, idx);
+                                if (y > 0) push(x, y - 1, idx);
+                                if (y < h - 1) push(x, y + 1, idx);
                             }
+
+                            let removed = 0;
+                            for (let idx = 0; idx < seen.length; idx++) if (seen[idx]) removed += 1;
+                            if (removed / seen.length > 0.97) { resolve(null); return; }
 
                             const edge = [];
                             for (let idx = 0; idx < seen.length; idx++) {
@@ -5241,7 +5268,7 @@ turn it off to continue!</p>
                             }
                             edge.forEach((idx) => {
                                 const lowest = Math.min(px[idx * 4], px[idx * 4 + 1], px[idx * 4 + 2]);
-                                if (lowest > 205) px[idx * 4 + 3] = Math.round(255 * Math.max(0, (255 - lowest) / 50));
+                                if (lowest > 150) px[idx * 4 + 3] = Math.round(255 * Math.max(0, Math.min(1, (255 - lowest) / 105)));
                             });
                             cx.putImageData(imageData, 0, 0);
                             resolve(canvas.toDataURL('image/png'));
@@ -5256,11 +5283,36 @@ turn it off to continue!</p>
                 return task;
             }
 
+            const transparentDone = new Map();
+
             function makeImageTransparent(imgEl, url, loadWidth, maxDim) {
                 if (!url) return;
+                const key = `${sizedShopifyUrl(url, loadWidth)}|${maxDim}`;
+                if (transparentDone.has(key)) {
+                    imgEl.src = transparentDone.get(key);
+                    return;
+                }
                 removeWhiteBackground(sizedShopifyUrl(url, loadWidth), maxDim).then((dataUrl) => {
-                    if (dataUrl) imgEl.src = dataUrl;
+                    if (dataUrl) {
+                        transparentDone.set(key, dataUrl);
+                        imgEl.src = dataUrl;
+                    }
                 });
+            }
+
+            function buildSwitchThumb(imageUrl, title) {
+                if (!imageUrl) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 shrink-0';
+                    return placeholder;
+                }
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = title || '';
+                img.loading = 'lazy';
+                img.className = 'w-10 h-10 rounded-lg object-contain p-0.5 bg-zinc-900 border border-zinc-800 shrink-0';
+                makeImageTransparent(img, imageUrl, 240, 160);
+                return img;
             }
 
             function formatProductDescriptionBlocks(rawHtml) {
@@ -5455,6 +5507,7 @@ turn it off to continue!</p>
                 }
                 if (!brushId) return;
 
+                const replacedHandle = appConfig.brushSwitchLinks[brushId] ? appConfig.brushSwitchLinks[brushId].handle : null;
                 appConfig.brushSwitchLinks[brushId] = {
                     handle: product.handle,
                     title: product.title,
@@ -5462,6 +5515,7 @@ turn it off to continue!</p>
                     compareAtPrice: product.compareAtPrice,
                     available: product.available,
                     url: product.url,
+                    imageUrl: product.imageUrl || '',
                     lastChecked: neomacroLastSyncTime || 'snapshot'
                 };
 
@@ -5471,15 +5525,26 @@ turn it off to continue!</p>
                 if (!appConfig.neomacroWatchlist.includes(product.handle)) {
                     appConfig.neomacroWatchlist.push(product.handle);
                 }
+                if (replacedHandle && replacedHandle !== product.handle) releaseWatchIfUnlinked(replacedHandle);
 
                 syncEmbeddedStateTag();
                 renderNeomacroCatalogList();
                 renderNeomacroSummaryBar();
             }
 
+            function releaseWatchIfUnlinked(handle) {
+                if (!handle || !Array.isArray(appConfig.neomacroWatchlist)) return;
+                const stillLinked = Object.values(appConfig.brushSwitchLinks || {}).some((l) => l && l.handle === handle);
+                if (!stillLinked) {
+                    appConfig.neomacroWatchlist = appConfig.neomacroWatchlist.filter((h) => h !== handle);
+                }
+            }
+
             function unlinkSwitchFromBrush(brushId) {
                 if (appConfig.brushSwitchLinks && appConfig.brushSwitchLinks[brushId]) {
+                    const removedHandle = appConfig.brushSwitchLinks[brushId].handle;
                     delete appConfig.brushSwitchLinks[brushId];
+                    releaseWatchIfUnlinked(removedHandle);
                     syncEmbeddedStateTag();
                     renderNeomacroCatalogList();
                     renderNeomacroSummaryBar();
@@ -5605,38 +5670,42 @@ turn it off to continue!</p>
                         packs: n,
                         title: (itemInfo && itemInfo.title) || prev.title || handle.replace(/-/g, ' '),
                         price: Number(itemInfo && itemInfo.price) > 0 ? Number(itemInfo.price) : (Number(prev.price) || 0),
-                        url: (itemInfo && itemInfo.url) || prev.url || `https://neomacro.in/products/${handle}`
+                        url: (itemInfo && itemInfo.url) || prev.url || `https://neomacro.in/products/${handle}`,
+                        imageUrl: (itemInfo && itemInfo.imageUrl) || prev.imageUrl || ''
                     };
                 } else {
                     delete appConfig.neomacroExtraPacks[handle];
                 }
                 syncEmbeddedStateTag();
                 document.querySelectorAll('[data-extra-count]').forEach((el) => {
-                    if (el.dataset.extraCount === handle) el.textContent = String(n);
+                    if (el.dataset.extraCount === handle) el.textContent = `+${n}`;
                 });
                 renderNeomacroSummaryBar();
             }
 
             function buildExtraPackStepper(handle, itemInfo) {
+                const outer = document.createElement('div');
+                outer.className = 'relative inline-block';
+                outer.dataset.extraAnchor = handle;
                 const wrap = document.createElement('div');
                 wrap.className = 'inline-flex items-center rounded-lg bg-zinc-900 border border-zinc-700 overflow-hidden text-[11px] font-mono';
-                wrap.title = 'extra packs of 10 to order, on top of what your keyboard needs';
+                wrap.title = 'add extra packs of 10 to the cart, on top of the ones assigned to your keyboard';
                 const label = document.createElement('span');
                 label.className = 'pl-2.5 pr-1.5 text-zinc-400';
                 label.textContent = 'packs';
                 const minus = document.createElement('button');
                 minus.type = 'button';
                 minus.textContent = '\u2212';
-                minus.setAttribute('aria-label', 'one pack less');
+                minus.setAttribute('aria-label', 'one extra pack less');
                 minus.className = 'w-6 h-7 text-zinc-300 hover:bg-zinc-800 hover:text-rose-300 transition-colors';
                 const count = document.createElement('span');
                 count.dataset.extraCount = handle;
-                count.className = 'min-w-[1.5rem] text-center font-bold text-zinc-100';
-                count.textContent = String(getExtraPacks(handle));
+                count.className = 'min-w-[1.75rem] text-center font-bold text-amber-300';
+                count.textContent = `+${getExtraPacks(handle)}`;
                 const plus = document.createElement('button');
                 plus.type = 'button';
                 plus.textContent = '+';
-                plus.setAttribute('aria-label', 'one pack more');
+                plus.setAttribute('aria-label', 'one extra pack more');
                 plus.className = 'w-6 h-7 text-zinc-300 hover:bg-zinc-800 hover:text-emerald-300 transition-colors';
                 minus.addEventListener('click', () => setExtraPacks(handle, getExtraPacks(handle) - 1, itemInfo));
                 plus.addEventListener('click', () => setExtraPacks(handle, getExtraPacks(handle) + 1, itemInfo));
@@ -5644,7 +5713,32 @@ turn it off to continue!</p>
                 wrap.appendChild(minus);
                 wrap.appendChild(count);
                 wrap.appendChild(plus);
-                return wrap;
+                outer.appendChild(wrap);
+                return outer;
+            }
+
+            let packsHintShown = false;
+
+            function dismissPacksHint() {
+                const hint = document.getElementById('packsHint');
+                if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+            }
+
+            function maybeShowPacksHint() {
+                if (packsHintShown || neomacroBody.classList.contains('hidden')) return;
+                const anchor = neomacroCatalogList.querySelector('[data-extra-anchor]');
+                if (!anchor) return;
+                packsHintShown = true;
+                const bubble = document.createElement('div');
+                bubble.id = 'packsHint';
+                bubble.className = 'absolute right-0 top-full mt-2 z-30 w-64 p-3 rounded-xl bg-zinc-900/95 border border-amber-500/40 shadow-2xl anim-in text-left';
+                bubble.innerHTML = `
+                    <div class="absolute -top-1.5 right-6 w-3 h-3 rotate-45 bg-zinc-900 border-l border-t border-amber-500/40"></div>
+                    <div class="text-[11px] font-mono font-bold text-amber-300">extra packs</div>
+                    <p class="text-[11px] font-mono text-zinc-400 mt-1 leading-relaxed">use packs &minus; + to add extra packs of 10 to your cart, on top of the ones assigned to your keyboard. +0 here means no extras.</p>
+                    <button type="button" data-hint-ok class="mt-2 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-[11px] font-mono font-semibold text-amber-200 hover:bg-amber-500/25 active:scale-95 transition-all focus:outline-none">got it</button>`;
+                anchor.appendChild(bubble);
+                bubble.querySelector('[data-hint-ok]').addEventListener('click', (ev) => { ev.stopPropagation(); dismissPacksHint(); });
             }
 
             function renderNeomacroCatalogList() {
@@ -5932,6 +6026,7 @@ turn it off to continue!</p>
 
                     neomacroCatalogList.appendChild(card);
                 });
+                maybeShowPacksHint();
             }
 
             function renderNeomacroSummaryBar() {
@@ -5997,18 +6092,22 @@ turn it off to continue!</p>
                     const top = document.createElement('div');
                     top.className = 'flex items-start justify-between gap-2';
                     top.innerHTML = `
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-sm shrink-0" style="background-color: ${brush.color}"></span>
-                                <span class="text-[11px] font-mono font-bold" style="color: ${brush.color}">${brush.name}</span>
+                        <div class="min-w-0 flex items-start gap-2.5">
+                            <span data-thumb-slot class="shrink-0"></span>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-sm shrink-0" style="background-color: ${brush.color}"></span>
+                                    <span class="text-[11px] font-mono font-bold" style="color: ${brush.color}">${brush.name}</span>
+                                </div>
+                                <a href="${liveItem.url}" target="_blank" rel="noopener noreferrer"
+                                    class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-0.5">
+                                    ${liveItem.title} ↗
+                                </a>
                             </div>
-                            <a href="${liveItem.url}" target="_blank" rel="noopener noreferrer"
-                                class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-0.5">
-                                ${liveItem.title} ↗
-                            </a>
                         </div>
                         ${stockChipHtml}
                     `;
+                    top.querySelector('[data-thumb-slot]').replaceWith(buildSwitchThumb(liveItem.imageUrl || link.imageUrl, liveItem.title));
 
                     const bottom = document.createElement('div');
                     bottom.className = 'flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono';
@@ -6055,15 +6154,19 @@ turn it off to continue!</p>
                     const top = document.createElement('div');
                     top.className = 'flex items-start justify-between gap-2';
                     top.innerHTML = `
-                        <div class="min-w-0">
-                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/35 text-amber-300">extra order</span>
-                            <a href="${item.url}" target="_blank" rel="noopener noreferrer"
-                                class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-1">
-                                ${item.title} ↗
-                            </a>
+                        <div class="min-w-0 flex items-start gap-2.5">
+                            <span data-thumb-slot class="shrink-0"></span>
+                            <div class="min-w-0">
+                                <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/35 text-amber-300">extra order</span>
+                                <a href="${item.url}" target="_blank" rel="noopener noreferrer"
+                                    class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-1">
+                                    ${item.title} ↗
+                                </a>
+                            </div>
                         </div>
                         ${stockChipHtml}
                     `;
+                    top.querySelector('[data-thumb-slot]').replaceWith(buildSwitchThumb(item.imageUrl || entry.imageUrl, item.title));
 
                     const bottom = document.createElement('div');
                     bottom.className = 'flex items-center justify-between gap-2 pt-1.5 border-t border-zinc-900 text-[11px] font-mono';
@@ -6170,12 +6273,15 @@ turn it off to continue!</p>
                     card.className = 'p-3 rounded-xl bg-zinc-950 border border-amber-500/30 flex flex-col justify-between gap-2';
                     card.innerHTML = `
                         <div class="flex items-start justify-between gap-2">
-                            <div class="min-w-0">
-                                <span class="text-[10px] font-mono text-amber-300">watchlist item</span>
-                                <a href="${item.url}" target="_blank" rel="noopener noreferrer"
-                                    class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-0.5">
-                                    ${item.title} ↗
-                                </a>
+                            <div class="min-w-0 flex items-start gap-2.5">
+                                <span data-thumb-slot class="shrink-0"></span>
+                                <div class="min-w-0">
+                                    <span class="text-[10px] font-mono text-amber-300">watchlist item</span>
+                                    <a href="${item.url}" target="_blank" rel="noopener noreferrer"
+                                        class="text-xs font-mono font-semibold text-zinc-100 hover:text-cyan-300 block truncate mt-0.5">
+                                        ${item.title} ↗
+                                    </a>
+                                </div>
                             </div>
                             ${stockChipHtml}
                         </div>
@@ -6187,6 +6293,7 @@ turn it off to continue!</p>
                             </button>
                         </div>
                     `;
+                    card.querySelector('[data-thumb-slot]').replaceWith(buildSwitchThumb(item.imageUrl, item.title));
                     const unwatchBtn = card.querySelector('[data-unwatch]');
                     if (unwatchBtn) {
                         unwatchBtn.addEventListener('click', () => toggleNeomacroWatch(item.handle));
@@ -6222,6 +6329,7 @@ turn it off to continue!</p>
                 const willOpen = typeof forceOpen === 'boolean' ? forceOpen : neomacroBody.classList.contains('hidden');
                 neomacroBody.classList.toggle('hidden', !willOpen);
                 const overlayEl = document.getElementById('catalogueOverlay');
+                if (willOpen) setTimeout(maybeShowPacksHint, 450); else dismissPacksHint();
                 if (overlayEl) {
                     overlayEl.classList.toggle('hidden', !willOpen);
                     document.body.classList.toggle('cat-open', willOpen);
@@ -6265,15 +6373,19 @@ turn it off to continue!</p>
                     if (err && err.name === 'AbortError') {
                         return { pct: 10, source: 'timeout >10s (default 10% off)' };
                     }
-                    return { pct: 10, source: 'fallback (default 10% off)' };
+                    return { pct: 10, source: 'hopes and prayers, maybe it works?' };
                 }
             }
+
+            const REFERRAL_QUERY = 'nector_referral_code=t8lb5djul1&utm_source=nector&utm_medium=widget&utm_campaign=referral_t8lb5djul1';
+            const REFERRAL_MIN_CART_RS = 600;
 
             function buildNeomacroCartUrl() {
                 const links = appConfig.brushSwitchLinks || {};
                 const { counts } = getDynamicBreakdown();
                 const qtyByVariant = new Map();
                 let skippedSoldOut = 0;
+                let cartSubtotal = 0;
                 Object.entries(links).forEach(([bId, l]) => {
                     if (!getBrushById(bId) || !l || !l.handle) return;
                     const keyCount = Number(counts.get(bId)) || 0;
@@ -6282,6 +6394,7 @@ turn it off to continue!</p>
                     if (!item || !item.variantId) return;
                     if (!item.available) { skippedSoldOut += 1; return; }
                     qtyByVariant.set(item.variantId, (qtyByVariant.get(item.variantId) || 0) + Math.ceil(keyCount / 10));
+                    cartSubtotal += Math.ceil(keyCount / 10) * (Number(item.price) || 0);
                 });
                 Object.entries(appConfig.neomacroExtraPacks || {}).forEach(([handle, entry]) => {
                     const packs = Math.floor(Number(entry && entry.packs) || 0);
@@ -6290,13 +6403,15 @@ turn it off to continue!</p>
                     if (!item || !item.variantId) return;
                     if (!item.available) { skippedSoldOut += 1; return; }
                     qtyByVariant.set(item.variantId, (qtyByVariant.get(item.variantId) || 0) + packs);
+                    cartSubtotal += packs * (Number(item.price) || 0);
                 });
-                if (qtyByVariant.size === 0) return { lines: [], returnTo: '/cart', skippedSoldOut };
+                if (qtyByVariant.size === 0) return { lines: [], returnTo: '/cart', skippedSoldOut, cartSubtotal: 0, hasCoupon: false };
                 let returnTo = '/cart';
-                if (appConfig.couponCode && Number(appConfig.couponDiscountPct) > 0) {
+                const hasCoupon = Boolean(appConfig.couponCode && Number(appConfig.couponDiscountPct) > 0);
+                if (hasCoupon) {
                     returnTo = '/discount/' + encodeURIComponent(appConfig.couponCode) + '?redirect=%2Fcart';
                 }
-                return { lines: Array.from(qtyByVariant.entries()).map(([id, q]) => ({ id, qty: q })), returnTo, skippedSoldOut };
+                return { lines: Array.from(qtyByVariant.entries()).map(([id, q]) => ({ id, qty: q })), returnTo, skippedSoldOut, cartSubtotal, hasCoupon };
             }
 
             function openNeomacroCart(lines, returnTo) {
@@ -6323,10 +6438,47 @@ turn it off to continue!</p>
                 setTimeout(() => form.remove(), 1000);
             }
 
+            let pendingReferralCheckout = null;
+
+            function showReferralModal(lines, cartSubtotal) {
+                pendingReferralCheckout = lines;
+                const note = document.getElementById('referralCartNote');
+                const missing = REFERRAL_MIN_CART_RS - cartSubtotal;
+                note.textContent = missing > 0
+                    ? `your cart is about \u20b9 ${cartSubtotal.toLocaleString()}. add \u20b9 ${missing.toLocaleString()} more to reach the \u20b9 ${REFERRAL_MIN_CART_RS}.`
+                    : `your cart is about \u20b9 ${cartSubtotal.toLocaleString()}, which meets the \u20b9 ${REFERRAL_MIN_CART_RS} minimum`;
+                document.getElementById('referralModal').classList.remove('hidden');
+                updateFocusIndicator(false);
+            }
+
+            function closeReferralModal() {
+                pendingReferralCheckout = null;
+                document.getElementById('referralModal').classList.add('hidden');
+                ensurePageFocus();
+            }
+
+            document.getElementById('referralContinueBtn').addEventListener('click', () => {
+                const lines = pendingReferralCheckout;
+                closeReferralModal();
+                if (lines) openNeomacroCart(lines, `/cart?${REFERRAL_QUERY}`);
+            });
+            document.getElementById('referralSkipBtn').addEventListener('click', () => {
+                const lines = pendingReferralCheckout;
+                closeReferralModal();
+                if (lines) openNeomacroCart(lines, '/cart');
+            });
+            document.getElementById('referralModal').addEventListener('click', (ev) => {
+                if (ev.target === document.getElementById('referralModal')) closeReferralModal();
+            });
+
             checkoutNeomacroBtn.addEventListener('click', () => {
-                const { lines, returnTo, skippedSoldOut } = buildNeomacroCartUrl();
+                const { lines, returnTo, skippedSoldOut, cartSubtotal, hasCoupon } = buildNeomacroCartUrl();
                 if (lines.length > 0) {
-                    openNeomacroCart(lines, returnTo);
+                    if (hasCoupon) {
+                        openNeomacroCart(lines, returnTo);
+                    } else {
+                        showReferralModal(lines, cartSubtotal);
+                    }
                 } else {
                     checkoutNeomacroBtn.textContent = skippedSoldOut > 0 ? 'selected switches sold out' : 'link switches to brushes first';
                     setTimeout(() => { checkoutNeomacroBtn.textContent = 'checkout'; }, 2400);
@@ -6391,9 +6543,11 @@ turn it off to continue!</p>
             document.getElementById('catalogueBackdrop').addEventListener('click', () => toggleNeomacroSection(false));
             document.addEventListener('keydown', (ev) => {
                 if (ev.key !== 'Escape') return;
+                if (document.getElementById('packsHint')) { dismissPacksHint(); ev.preventDefault(); return; }
                 if (!gfxPanel.classList.contains('hidden')) { setGfxPanel(false); ev.preventDefault(); return; }
                 if (!copyModeMenu.classList.contains('hidden')) { setCopyMenuOpen(false); ev.preventDefault(); return; }
                 if (!couponDrawer.classList.contains('hidden')) { couponDrawer.classList.add('hidden'); ev.preventDefault(); return; }
+                if (!document.getElementById('referralModal').classList.contains('hidden')) { closeReferralModal(); ev.preventDefault(); return; }
                 if (!unsavedModalEl().classList.contains('hidden')) { hideUnsavedPrompt(); ev.preventDefault(); return; }
                 if (!saveFileModal.classList.contains('hidden')) { closeSaveFileModal(); ev.preventDefault(); return; }
                 if (!settingsModal.classList.contains('hidden')) { closeSettingsModal(); ev.preventDefault(); return; }
